@@ -274,6 +274,100 @@
             box-shadow: 0 5px 15px rgba(111, 66, 193, 0.4);
         }
         
+        /* תכונות בחירה מרובה */
+        .bulk-actions {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 25px;
+            display: none;
+        }
+        
+        .bulk-actions.show {
+            display: block;
+        }
+        
+        .bulk-actions-buttons {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn-bulk {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-bulk-archive {
+            background: linear-gradient(135deg, #ff9500, #ff6b00);
+            color: white;
+        }
+        
+        .btn-bulk-delete {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+        }
+        
+        .btn-bulk-restore {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+        
+        .row-checkbox {
+            width: 16px;
+            height: 16px;
+            margin: 2px;
+            cursor: pointer;
+        }
+        
+        .select-all-checkbox {
+            width: 18px;
+            height: 18px;
+            margin: 2px;
+            cursor: pointer;
+        }
+        
+        /* תכונות תאריכים והיסטוריה */
+        .edit-history {
+            background: #f0f8ff;
+            border: 1px solid #b0d4f1;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 11px;
+            color: #2c5282;
+        }
+        
+        .history-toggle {
+            cursor: pointer;
+            color: #667eea;
+            text-decoration: underline;
+            font-size: 10px;
+        }
+        
+        .timestamp {
+            font-size: 10px;
+            color: #999;
+            font-style: italic;
+        }
+        
+        /* כפתור ייצוא מתקדם */
+        .btn-excel {
+            background: linear-gradient(135deg, #207245, #0f5132);
+        }
+        
+        .btn-excel:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(32, 114, 69, 0.4);
+        }
+        
         .number-edit {
             background: linear-gradient(135deg, #fff3e0, #ffe0b2);
             border: 2px dashed #ff9800;
@@ -403,13 +497,27 @@
             <div class="action-buttons">
                 <button class="btn btn-add" onclick="addNewRow()">➕ הוסף סרטון</button>
                 <button class="btn btn-import" onclick="document.getElementById('fileInput').click()">📂 טען קובץ</button>
-                <button class="btn btn-export" onclick="exportData()">📁 יצא נתונים</button>
+                <button class="btn btn-export" onclick="exportData()">📁 יצא JSON</button>
+                <button class="btn btn-excel" onclick="exportToExcel()">📊 יצא לאקסל</button>
                 <button class="btn btn-export" onclick="toggleArchive()" id="archiveToggle">📦 הצג ארכיון</button>
                 <button class="btn btn-export" onclick="refreshData()">🔄 רענן נתונים</button>
                 <button class="btn btn-export" onclick="clearData()">🗑️ נקה הכל</button>
             </div>
             
             <input type="file" id="fileInput" class="file-input" accept=".json" onchange="importData(event)">
+        </div>
+        
+        <!-- פאנל בחירה מרובה -->
+        <div class="bulk-actions" id="bulkActions">
+            <div style="margin-bottom: 10px;">
+                <strong>🔢 נבחרו <span id="selectedCount">0</span> סרטונים</strong>
+            </div>
+            <div class="bulk-actions-buttons">
+                <button class="btn-bulk btn-bulk-archive" onclick="bulkArchive()">📦 העבר לארכיון</button>
+                <button class="btn-bulk btn-bulk-restore" onclick="bulkRestore()">↩️ החזר מארכיון</button>
+                <button class="btn-bulk btn-bulk-delete" onclick="bulkDelete()">🗑️ מחק לצמיתות</button>
+                <button class="btn-bulk" onclick="clearSelection()" style="background: #6c757d; color: white;">❌ בטל בחירה</button>
+            </div>
         </div>
         
         <div class="stats" id="stats">
@@ -420,6 +528,9 @@
             <table id="videosTable">
                 <thead>
                     <tr>
+                        <th style="width: 40px;">
+                            <input type="checkbox" class="select-all-checkbox" id="selectAll" onchange="toggleSelectAll()">
+                        </th>
                         <th style="width: 60px;">מספר</th>
                         <th style="width: 120px;">קטגוריה</th>
                         <th style="width: 200px;">הסרטון</th>
@@ -602,7 +713,7 @@
   {
     "number": "616",
     "category": "מקצועות",
-    "title": "מיקי لوי היה רוצה להיות גננת",
+    "title": "מיקי لוי היה רוצה להיות גננת",
     "description": "",
     "marked": false,
     "link": "",
@@ -2213,6 +2324,45 @@
 
         let filteredData = [...videoData];
         let showArchived = false;
+        
+        // מערך לעקוב אחר הפריטים הנבחרים לבחירה מרובה
+        let selectedItems = new Set();
+        
+        // מערך לשמירת היסטוריית שינויים
+        let editHistory = [];
+        
+        // פונקציה להוספת רשומה להיסטוריה
+        function addToHistory(action, videoIndex, field, oldValue, newValue) {
+            const now = new Date();
+            editHistory.push({
+                timestamp: now.toISOString(),
+                displayTime: now.toLocaleString('he-IL'),
+                action,
+                videoIndex,
+                field,
+                oldValue,
+                newValue,
+                videoTitle: videoData[videoIndex]?.title || 'לא ידוע'
+            });
+            
+            // שמירת היסטוריה ב-localStorage (מקסימום 1000 רשומות)
+            if (editHistory.length > 1000) {
+                editHistory = editHistory.slice(-1000);
+            }
+            localStorage.setItem('videoEditHistory', JSON.stringify(editHistory));
+        }
+        
+        // טעינת היסטוריה מ-localStorage
+        function loadHistory() {
+            try {
+                const saved = localStorage.getItem('videoEditHistory');
+                if (saved) {
+                    editHistory = JSON.parse(saved);
+                }
+            } catch (e) {
+                console.error('שגיאה בטעינת היסטוריה:', e);
+            }
+        }
 
         // פונקציות שמירה וטעינה עם Firebase Realtime Database
         async function saveData() {
@@ -2249,6 +2399,9 @@
                     videoData.forEach(video => {
                         if (!video.hasOwnProperty('program')) video.program = "";
                         if (!video.hasOwnProperty('archived')) video.archived = false;
+                        if (!video.hasOwnProperty('createdAt')) video.createdAt = new Date().toISOString();
+                        if (!video.hasOwnProperty('lastModified')) video.lastModified = new Date().toISOString();
+                        if (!video.hasOwnProperty('modifiedBy')) video.modifiedBy = 'מערכת';
                     });
                     
                     filteredData = [...videoData];
@@ -2280,6 +2433,9 @@
                     videoData.forEach(video => {
                         if (!video.hasOwnProperty('program')) video.program = "";
                         if (!video.hasOwnProperty('archived')) video.archived = false;
+                        if (!video.hasOwnProperty('createdAt')) video.createdAt = new Date().toISOString();
+                        if (!video.hasOwnProperty('lastModified')) video.lastModified = new Date().toISOString();
+                        if (!video.hasOwnProperty('modifiedBy')) video.modifiedBy = 'מערכת';
                     });
                     
                     filteredData = [...videoData];
@@ -2309,6 +2465,9 @@
                         videoData.forEach(video => {
                             if (!video.hasOwnProperty('program')) video.program = "";
                             if (!video.hasOwnProperty('archived')) video.archived = false;
+                            if (!video.hasOwnProperty('createdAt')) video.createdAt = new Date().toISOString();
+                            if (!video.hasOwnProperty('lastModified')) video.lastModified = new Date().toISOString();
+                            if (!video.hasOwnProperty('modifiedBy')) video.modifiedBy = 'מערכת';
                         });
                         
                         // עדכון הממשק
@@ -2321,48 +2480,6 @@
                     }
                 }
             });
-        }
-
-        async function createNewBin() {
-            try {
-                showSaveIndicator('🆕 יוצר מאגר חדש...');
-                
-                const response = await fetch(JSONBIN_CONFIG.baseUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Master-Key': JSONBIN_CONFIG.apiKey
-                    },
-                    body: JSON.stringify({
-                        videos: videoData,
-                        created: new Date().toISOString(),
-                        version: "2.0"
-                    })
-                });
-
-                if (response.ok) {
-                    const result = await response.json();
-                    const binId = result.metadata.id;
-                    
-                    // הצגת הוראות למשתמש
-                    alert(`🎉 נוצר מאגר חדש בהצלחה!
-                    
-📋 BIN ID שלך: ${binId}
-
-🔧 הוראות:
-1. חזור לקובץ ה-HTML 
-2. החלף את REPLACE_WITH_BIN_ID עם: ${binId}
-3. שמור ורענן את הדף
-4. שתף את הקישור עם החבר שלך!`);
-                    
-                    showSaveIndicator('✅ נוצר מאגר!');
-                } else {
-                    throw new Error('שגיאה ביצירת מאגר');
-                }
-            } catch (e) {
-                console.error('שגיאה ביצירת מאגר:', e);
-                showSaveIndicator('❌ שגיאה ביצירה');
-            }
         }
 
         function showSaveIndicator(message = '✅ נשמר!') {
@@ -2390,7 +2507,7 @@
 
             if (data.length === 0) {
                 const statusText = showArchived ? 'בארכיון' : 'מתאימות';
-                tableBody.innerHTML = `<tr><td colspan="9" class="no-results">🔍 לא נמצאו תוצאות ${statusText}</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="10" class="no-results">🔍 לא נמצאו תוצאות ${statusText}</td></tr>`;
                 return;
             }
 
@@ -2400,9 +2517,16 @@
                     row.classList.add('marked-item');
                 }
 
+                const isSelected = selectedItems.has(index);
+                const lastModified = video.lastModified ? new Date(video.lastModified).toLocaleString('he-IL') : '';
+                
                 row.innerHTML = `
                     <td>
+                        <input type="checkbox" class="row-checkbox" ${isSelected ? 'checked' : ''} onchange="toggleRowSelection(${index})">
+                    </td>
+                    <td>
                         <div class="editable number-edit" contenteditable="true" data-field="number" data-index="${index}" placeholder="הכנס מספר">${video.number || ''}</div>
+                        ${lastModified ? `<div class="timestamp">עודכן: ${lastModified}</div>` : ''}
                     </td>
                     <td>
                         <span class="category-cell editable" contenteditable="true" data-field="category" data-index="${index}">${video.category.replace(':', '')}</span>
@@ -2473,6 +2597,9 @@
                     const field = this.dataset.field;
                     let value = this.textContent.trim();
                     
+                    // שמירת הערך הישן להיסטוריה
+                    const oldValue = filteredData[index] ? filteredData[index][field] : '';
+                    
                     // ולידציה מיוחדת לשדה המספר
                     if (field === 'number') {
                         // הסרת תווים שאינם מספרים
@@ -2483,12 +2610,17 @@
                         }
                     }
                     
-                    if (filteredData[index]) {
+                    if (filteredData[index] && oldValue !== value) {
                         filteredData[index][field] = value;
                         // עדכון המערך המקורי
                         const originalIndex = videoData.findIndex(v => v === filteredData[index]);
                         if (originalIndex !== -1) {
                             videoData[originalIndex][field] = value;
+                            videoData[originalIndex].lastModified = new Date().toISOString();
+                            videoData[originalIndex].modifiedBy = 'משתמש';
+                            
+                            // הוספה להיסטוריה
+                            addToHistory('edit', originalIndex, field, oldValue, value);
                         }
                         updateStats();
                         await saveData(); // שמירה אוטומטית
@@ -2523,13 +2655,19 @@
                     const index = parseInt(this.dataset.index);
                     const field = this.dataset.field;
                     const value = this.value.trim();
+                    const oldValue = filteredData[index] ? filteredData[index][field] : '';
                     
-                    if (filteredData[index]) {
+                    if (filteredData[index] && oldValue !== value) {
                         filteredData[index][field] = value;
                         // עדכון המערך המקורי
                         const originalIndex = videoData.findIndex(v => v === filteredData[index]);
                         if (originalIndex !== -1) {
                             videoData[originalIndex][field] = value;
+                            videoData[originalIndex].lastModified = new Date().toISOString();
+                            videoData[originalIndex].modifiedBy = 'משתמש';
+                            
+                            // הוספה להיסטוריה
+                            addToHistory('edit', originalIndex, field, oldValue, value);
                         }
                         await saveData(); // שמירה אוטומטית
                         
@@ -2545,13 +2683,19 @@
                     const index = parseInt(this.dataset.index);
                     const field = this.dataset.field;
                     const value = this.value;
+                    const oldValue = filteredData[index] ? filteredData[index][field] : '';
                     
-                    if (filteredData[index]) {
+                    if (filteredData[index] && oldValue !== value) {
                         filteredData[index][field] = value;
                         // עדכון המערך המקורי
                         const originalIndex = videoData.findIndex(v => v === filteredData[index]);
                         if (originalIndex !== -1) {
                             videoData[originalIndex][field] = value;
+                            videoData[originalIndex].lastModified = new Date().toISOString();
+                            videoData[originalIndex].modifiedBy = 'משתמש';
+                            
+                            // הוספה להיסטוריה
+                            addToHistory('edit', originalIndex, field, oldValue, value);
                         }
                         updateStats();
                         await saveData(); // שמירה אוטומטית
@@ -2633,51 +2777,11 @@
                 return matchesSearch && matchesCategory && matchesCorner && matchesProgram && matchesArchiveStatus;
             });
 
+            // ניקוי בחירות כשמסננים את הנתונים
+            clearSelection();
+
             populateTable(filteredData);
             updateStats();
-        }
-
-        async function addNewRow() {
-            const newVideo = {
-                number: "",
-                category: "שונות",
-                title: "סרטון חדש",
-                description: "",
-                marked: false,
-                link: "",
-                question: "",
-                corner: "",
-                program: "",
-                archived: false
-            };
-            
-            videoData.push(newVideo);
-            await saveData();
-            filterData(); // רענון הטבלה
-        }
-
-        async function archiveRow(index) {
-            if (confirm('האם אתה בטוח שברצונך להעביר את הסרטון הזה לארכיון?')) {
-                const videoToArchive = filteredData[index];
-                const originalIndex = videoData.findIndex(v => v === videoToArchive);
-                if (originalIndex !== -1) {
-                    videoData[originalIndex].archived = true;
-                    await saveData();
-                }
-                filterData(); // רענון הטבלה
-            }
-        }
-
-        async function restoreFromArchive(index) {
-            if (confirm('האם אתה בטוח שברצונך להחזיר את הסרטון הזה מהארכיון?')) {
-                const videoToRestore = filteredData[index];
-                const originalIndex = videoData.findIndex(v => v === videoToRestore);
-                if (originalIndex !== -1) {
-                    videoData[originalIndex].archived = false;
-                    await saveData();
-                }
-                filterData(); // רענון הטבלה
-            }
         }
 
         function toggleArchive() {
@@ -2690,7 +2794,64 @@
                 toggleBtn.textContent = '📦 הצג ארכיון';
                 toggleBtn.style.background = 'linear-gradient(135deg, #17a2b8, #138496)';
             }
+            clearSelection(); // ניקוי בחירות בעת החלפת תצוגה
             filterData();
+        }
+
+        async function addNewRow() {
+            const now = new Date().toISOString();
+            const newVideo = {
+                number: "",
+                category: "שונות",
+                title: "סרטון חדש",
+                description: "",
+                marked: false,
+                link: "",
+                question: "",
+                corner: "",
+                program: "",
+                archived: false,
+                createdAt: now,
+                lastModified: now,
+                modifiedBy: 'משתמש'
+            };
+            
+            videoData.push(newVideo);
+            const newIndex = videoData.length - 1;
+            addToHistory('create', newIndex, 'video', '', 'נוצר סרטון חדש');
+            
+            await saveData();
+            filterData(); // רענון הטבלה
+        }
+
+        async function archiveRow(index) {
+            if (confirm('האם אתה בטוח שברצונך להעביר את הסרטון הזה לארכיון?')) {
+                const videoToArchive = filteredData[index];
+                const originalIndex = videoData.findIndex(v => v === videoToArchive);
+                if (originalIndex !== -1) {
+                    addToHistory('archive', originalIndex, 'status', 'פעיל', 'ארכיון');
+                    videoData[originalIndex].archived = true;
+                    videoData[originalIndex].lastModified = new Date().toISOString();
+                    videoData[originalIndex].modifiedBy = 'משתמש';
+                    await saveData();
+                }
+                filterData(); // רענון הטבלה
+            }
+        }
+
+        async function restoreFromArchive(index) {
+            if (confirm('האם אתה בטוח שברצונך להחזיר את הסרטון הזה מהארכיון?')) {
+                const videoToRestore = filteredData[index];
+                const originalIndex = videoData.findIndex(v => v === videoToRestore);
+                if (originalIndex !== -1) {
+                    addToHistory('restore', originalIndex, 'status', 'ארכיון', 'פעיל');
+                    videoData[originalIndex].archived = false;
+                    videoData[originalIndex].lastModified = new Date().toISOString();
+                    videoData[originalIndex].modifiedBy = 'משתמש';
+                    await saveData();
+                }
+                filterData(); // רענון הטבלה
+            }
         }
 
         async function deleteRow(index) {
@@ -2698,6 +2859,7 @@
                 const videoToDelete = filteredData[index];
                 const originalIndex = videoData.findIndex(v => v === videoToDelete);
                 if (originalIndex !== -1) {
+                    addToHistory('delete', originalIndex, 'video', videoToDelete.title, 'נמחק');
                     videoData.splice(originalIndex, 1);
                     await saveData();
                 }
@@ -2734,6 +2896,9 @@
                             videoData.forEach(video => {
                                 if (!video.hasOwnProperty('program')) video.program = "";
                                 if (!video.hasOwnProperty('archived')) video.archived = false;
+                                if (!video.hasOwnProperty('createdAt')) video.createdAt = new Date().toISOString();
+                                if (!video.hasOwnProperty('lastModified')) video.lastModified = new Date().toISOString();
+                                if (!video.hasOwnProperty('modifiedBy')) video.modifiedBy = 'מערכת';
                             });
                             
                             filteredData = [...videoData];
@@ -2778,34 +2943,264 @@
             }
         }
 
+        // ===== פונקציות בחירה מרובה =====
+        function toggleRowSelection(index) {
+            if (selectedItems.has(index)) {
+                selectedItems.delete(index);
+            } else {
+                selectedItems.add(index);
+            }
+            updateBulkActionsDisplay();
+        }
+
+        function toggleSelectAll() {
+            const selectAllCheckbox = document.getElementById('selectAll');
+            const rowCheckboxes = document.querySelectorAll('.row-checkbox');
+            
+            if (selectAllCheckbox.checked) {
+                // בחר הכל
+                selectedItems.clear();
+                rowCheckboxes.forEach((checkbox, index) => {
+                    checkbox.checked = true;
+                    selectedItems.add(index);
+                });
+            } else {
+                // בטל בחירה מהכל
+                selectedItems.clear();
+                rowCheckboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+            }
+            updateBulkActionsDisplay();
+        }
+
+        function clearSelection() {
+            selectedItems.clear();
+            document.getElementById('selectAll').checked = false;
+            document.querySelectorAll('.row-checkbox').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            updateBulkActionsDisplay();
+        }
+
+        function updateBulkActionsDisplay() {
+            const bulkActions = document.getElementById('bulkActions');
+            const selectedCount = document.getElementById('selectedCount');
+            
+            selectedCount.textContent = selectedItems.size;
+            
+            if (selectedItems.size > 0) {
+                bulkActions.classList.add('show');
+            } else {
+                bulkActions.classList.remove('show');
+            }
+        }
+
+        async function bulkArchive() {
+            if (selectedItems.size === 0) return;
+            
+            if (confirm(`האם אתה בטוח שברצונך להעביר ${selectedItems.size} סרטונים לארכיון?`)) {
+                const indicesToArchive = Array.from(selectedItems).sort((a, b) => b - a);
+                
+                for (const index of indicesToArchive) {
+                    const videoToArchive = filteredData[index];
+                    const originalIndex = videoData.findIndex(v => v === videoToArchive);
+                    if (originalIndex !== -1) {
+                        addToHistory('archive', originalIndex, 'status', 'פעיל', 'ארכיון');
+                        videoData[originalIndex].archived = true;
+                        videoData[originalIndex].lastModified = new Date().toISOString();
+                    }
+                }
+                
+                await saveData();
+                clearSelection();
+                filterData();
+                showSaveIndicator(`✅ ${indicesToArchive.length} סרטונים הועברו לארכיון!`);
+            }
+        }
+
+        async function bulkRestore() {
+            if (selectedItems.size === 0) return;
+            
+            if (confirm(`האם אתה בטוח שברצונך להחזיר ${selectedItems.size} סרטונים מהארכיון?`)) {
+                const indicesToRestore = Array.from(selectedItems).sort((a, b) => b - a);
+                
+                for (const index of indicesToRestore) {
+                    const videoToRestore = filteredData[index];
+                    const originalIndex = videoData.findIndex(v => v === videoToRestore);
+                    if (originalIndex !== -1) {
+                        addToHistory('restore', originalIndex, 'status', 'ארכיון', 'פעיל');
+                        videoData[originalIndex].archived = false;
+                        videoData[originalIndex].lastModified = new Date().toISOString();
+                    }
+                }
+                
+                await saveData();
+                clearSelection();
+                filterData();
+                showSaveIndicator(`✅ ${indicesToRestore.length} סרטונים הוחזרו מהארכיון!`);
+            }
+        }
+
+        async function bulkDelete() {
+            if (selectedItems.size === 0) return;
+            
+            if (confirm(`❌ האם אתה בטוח שברצונך למחוק ${selectedItems.size} סרטונים לצמיתות? פעולה זו לא ניתנת לביטול!`)) {
+                const indicesToDelete = Array.from(selectedItems).sort((a, b) => b - a);
+                
+                for (const index of indicesToDelete) {
+                    const videoToDelete = filteredData[index];
+                    const originalIndex = videoData.findIndex(v => v === videoToDelete);
+                    if (originalIndex !== -1) {
+                        addToHistory('delete', originalIndex, 'video', videoToDelete.title, 'נמחק');
+                        videoData.splice(originalIndex, 1);
+                    }
+                }
+                
+                await saveData();
+                clearSelection();
+                filterData();
+                showSaveIndicator(`✅ ${indicesToDelete.length} סרטונים נמחקו!`);
+            }
+        }
+
+        // ===== פונקציות ייצוא לאקסל =====
+        function exportToExcel() {
+            try {
+                showSaveIndicator('📊 יוצר קובץ Excel...');
+                
+                // הכנת נתונים לייצוא
+                const dataToExport = filteredData.map((video, index) => ({
+                    'מספר': video.number || '',
+                    'קטגוריה': video.category || '',
+                    'כותרת הסרטון': video.title || '',
+                    'תיאור': video.description || '',
+                    'קישור': video.link || '',
+                    'שאלה': video.question || '',
+                    'פינה': video.corner || '',
+                    'תוכנית': video.program || '',
+                    'סטטוס': video.archived ? 'ארכיון' : 'פעיל',
+                    'נוצר': video.createdAt ? new Date(video.createdAt).toLocaleString('he-IL') : '',
+                    'עודכן': video.lastModified ? new Date(video.lastModified).toLocaleString('he-IL') : '',
+                    'עודכן על ידי': video.modifiedBy || ''
+                }));
+                
+                // יצירת גליון Excel באמצעות HTML table
+                let htmlTable = `
+                <table border="1" cellpadding="5" cellspacing="0" style="font-family: Arial; text-align: right; direction: rtl;">
+                    <thead style="background-color: #4472C4; color: white; font-weight: bold;">
+                        <tr>
+                            <th>מספר</th>
+                            <th>קטגוריה</th>
+                            <th>כותרת הסרטון</th>
+                            <th>תיאור</th>
+                            <th>קישור</th>
+                            <th>שאלה</th>
+                            <th>פינה</th>
+                            <th>תוכנית</th>
+                            <th>סטטוס</th>
+                            <th>נוצר</th>
+                            <th>עודכן</th>
+                            <th>עודכן על ידי</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+                
+                dataToExport.forEach(row => {
+                    htmlTable += '<tr>';
+                    Object.values(row).forEach(cell => {
+                        htmlTable += `<td>${cell}</td>`;
+                    });
+                    htmlTable += '</tr>';
+                });
+                
+                htmlTable += '</tbody></table>';
+                
+                // יצירת קובץ Excel
+                const blob = new Blob([`
+                    <html xmlns:o="urn:schemas-microsoft-com:office:office" 
+                          xmlns:x="urn:schemas-microsoft-com:office:excel" 
+                          xmlns="http://www.w3.org/TR/REC-html40">
+                    <head>
+                        <meta http-equiv=Content-Type content="text/html; charset=UTF-8">
+                        <meta name=ProgId content=Excel.Sheet>
+                        <meta name=Generator content="Microsoft Excel 15">
+                        <!--[if gte mso 9]>
+                        <xml>
+                        <x:ExcelWorkbook>
+                        <x:ExcelWorksheets>
+                        <x:ExcelWorksheet>
+                        <x:Name>סרטונים</x:Name>
+                        <x:WorksheetOptions>
+                        <x:DisplayGridlines/>
+                        </x:WorksheetOptions>
+                        </x:ExcelWorksheet>
+                        </x:ExcelWorksheets>
+                        </x:ExcelWorkbook>
+                        </xml>
+                        <![endif]-->
+                    </head>
+                    <body>
+                        ${htmlTable}
+                    </body>
+                    </html>
+                `], {type: 'application/vnd.ms-excel;charset=utf-8'});
+                
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                
+                const statusText = showArchived ? 'ארכיון' : 'פעיל';
+                const timestamp = new Date().toISOString().slice(0, 10);
+                link.download = `סרטונים_${statusText}_${timestamp}.xls`;
+                
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                
+                showSaveIndicator(`✅ יוצא ל-Excel: ${dataToExport.length} סרטונים!`);
+                
+            } catch (error) {
+                console.error('שגיאה בייצוא ל-Excel:', error);
+                showSaveIndicator('❌ שגיאה בייצוא ל-Excel');
+            }
+        }
+
         // Event listeners
         document.getElementById('searchInput').addEventListener('input', filterData);
         document.getElementById('categoryFilter').addEventListener('change', filterData);
         document.getElementById('cornerFilter').addEventListener('change', filterData);
         document.getElementById('programFilter').addEventListener('change', filterData);
 
-// Initialize
-async function initApp() {
-    // טעינת נתונים מהענן
-    const dataLoaded = await loadData();
-    
-    // אם לא נטענו נתונים מהענן, השתמש בנתונים הבסיסיים
-    if (!dataLoaded) {
-        videoData.forEach(video => {
-            if (!video.hasOwnProperty('program')) video.program = "";
-            if (!video.hasOwnProperty('archived')) video.archived = false;
-        });
-        filteredData = [...videoData];
-    }
-    
-    // הפעלת מאזין עדכונים בזמן אמת
-    setupRealtimeListener();
-    
-    populateCategoryFilter();
-    populateCornerFilter(); 
-    populateTable(filteredData);
-    updateStats();
-}
+        // Initialize
+        async function initApp() {
+            // טעינת היסטוריה מהמחשב
+            loadHistory();
+            
+            // טעינת נתונים מהענן
+            const dataLoaded = await loadData();
+            
+            // אם לא נטענו נתונים מהענן, השתמש בנתונים הבסיסיים
+            if (!dataLoaded) {
+                videoData.forEach(video => {
+                    if (!video.hasOwnProperty('program')) video.program = "";
+                    if (!video.hasOwnProperty('archived')) video.archived = false;
+                    if (!video.hasOwnProperty('createdAt')) video.createdAt = new Date().toISOString();
+                    if (!video.hasOwnProperty('lastModified')) video.lastModified = new Date().toISOString();
+                    if (!video.hasOwnProperty('modifiedBy')) video.modifiedBy = 'מערכת';
+                });
+                filteredData = [...videoData];
+            }
+            
+            // הפעלת מאזין עדכונים בזמן אמת
+            setupRealtimeListener();
+            
+            populateCategoryFilter();
+            populateCornerFilter(); 
+            populateTable(filteredData);
+            updateStats();
+        }
 
         // הפעלת האפליקציה
         initApp();
