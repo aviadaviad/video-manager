@@ -2784,50 +2784,28 @@
         document.getElementById('cornerFilter').addEventListener('change', filterData);
         document.getElementById('programFilter').addEventListener('change', filterData);
 
-        // Initialize
-        async function initApp() {
-            // בדיקה אם הגדרות JSONBin מוכנות
-            if (JSONBIN_CONFIG.apiKey === 'REPLACE_WITH_YOUR_API_KEY' || 
-                JSONBIN_CONFIG.binId === 'REPLACE_WITH_BIN_ID') {
-                
-                showSaveIndicator('⚠️ נדרש הגדרת JSONBin');
-                
-                // טעינת נתונים בסיסיים
-                videoData.forEach(video => {
-                    if (!video.hasOwnProperty('program')) video.program = "";
-                    if (!video.hasOwnProperty('archived')) video.archived = false;
-                });
-                filteredData = [...videoData];
-                
-                alert(`🔧 הגדרת JSONBin נדרשת!
-
-📋 שלבים:
-1. הירשם ב-jsonbin.io
-2. קבל API Key
-3. החלף REPLACE_WITH_YOUR_API_KEY ב-API Key שלך
-4. לחץ על "צור מאגר חדש" כדי לקבל Bin ID
-5. החלף REPLACE_WITH_BIN_ID ב-Bin ID
-
-💡 עד אז המערכת תעבוד רק במחשב שלך`);
-            } else {
-                // טעינת נתונים מהענן
-                const dataLoaded = await loadData();
-                
-                // אם לא נטענו נתונים מהענן, השתמש בנתונים הבסיסיים
-                if (!dataLoaded) {
-                    videoData.forEach(video => {
-                        if (!video.hasOwnProperty('program')) video.program = "";
-                        if (!video.hasOwnProperty('archived')) video.archived = false;
-                    });
-                    filteredData = [...videoData];
-                }
-            }
-            
-            populateCategoryFilter();
-            populateCornerFilter(); 
-            populateTable(filteredData);
-            updateStats();
-        }
+// Initialize
+async function initApp() {
+    // טעינת נתונים מהענן
+    const dataLoaded = await loadData();
+    
+    // אם לא נטענו נתונים מהענן, השתמש בנתונים הבסיסיים
+    if (!dataLoaded) {
+        videoData.forEach(video => {
+            if (!video.hasOwnProperty('program')) video.program = "";
+            if (!video.hasOwnProperty('archived')) video.archived = false;
+        });
+        filteredData = [...videoData];
+    }
+    
+    // הפעלת מאזין עדכונים בזמן אמת
+    setupRealtimeListener();
+    
+    populateCategoryFilter();
+    populateCornerFilter(); 
+    populateTable(filteredData);
+    updateStats();
+}
 
         // הפעלת האפליקציה
         initApp();
