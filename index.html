@@ -2237,34 +2237,43 @@
 
         async function loadData() {
             try {
-                showSaveIndicator('📥 טוען מהענן...');
+                showSaveIndicator('📥 טוען מ-Firebase...');
                 
                 const snapshot = await videosRef.once('value');
                 const data = snapshot.val();
                 
-                if (data && data.data && Array.isArray(data.data)) {
-                    videoData = data.data;
+                console.log('Firebase data:', data); // לדיבוג
+                
+                if (data && data.data && Array.isArray(data.data) && data.data.length > 0) {
+                    // בדיקה שהנתונים לא ריקים
+                    const hasRealData = data.data.some(video => video && video.title && video.title.trim());
                     
-                    // הוספת שדות חדשים לנתונים שנטענו (תאימות אחורה)
-                    videoData.forEach(video => {
-                        if (!video.hasOwnProperty('program')) video.program = "";
-                        if (!video.hasOwnProperty('archived')) video.archived = false;
-                    });
-                    
-                    filteredData = [...videoData];
-                    console.log(`נטענו ${videoData.length} סרטונים מ-Firebase`);
-                    showSaveIndicator('✅ נטען מהענן!');
-                    return true;
+                    if (hasRealData) {
+                        videoData = data.data;
+                        
+                        // הוספת שדות חדשים לנתונים שנטענו (תאימות אחורה)
+                        videoData.forEach(video => {
+                            if (!video.hasOwnProperty('program')) video.program = "";
+                            if (!video.hasOwnProperty('archived')) video.archived = false;
+                        });
+                        
+                        filteredData = [...videoData];
+                        console.log(`נטענו ${videoData.length} סרטונים מ-Firebase עם נתונים אמיתיים`);
+                        showSaveIndicator('✅ נטען מ-Firebase!');
+                        return true;
+                    } else {
+                        console.log('נתונים ריקים ב-Firebase');
+                        showSaveIndicator('⚠️ נתונים ריקים');
+                        return false;
+                    }
                 } else {
-                    // אם אין נתונים ב-Firebase, שמור את הנתונים הבסיסיים
-                    console.log('אין נתונים ב-Firebase, שומר נתונים בסיסיים');
-                    await saveData();
+                    console.log('אין נתונים ב-Firebase או פורמט לא תקין');
+                    showSaveIndicator('⚠️ אין נתונים');
                     return false;
                 }
             } catch (e) {
                 console.error('שגיאה בטעינה מ-Firebase:', e);
-                showSaveIndicator('⚠️ טוען מהמחשב...');
-                // חזרה ל-localStorage כגיבוי
+                showSaveIndicator('❌ שגיאה בטעינה');
                 return loadFromLocalStorage();
             }
         }
@@ -2461,6 +2470,29 @@
                     showSaveIndicator('⚠️ אין עדכונים');
                 }
             } catch (e) {
+                showSaveIndicator('❌ שגיאה ברענון');
+            }
+        }
+
+        async function refreshData() {
+            try {
+                showSaveIndicator('🔄 רוענן מ-Firebase...');
+                console.log('מתחיל רענון נתונים');
+                
+                const success = await loadData();
+                if (success) {
+                    populateCategoryFilter();
+                    populateCornerFilter();
+                    filterData();
+                    updateStats();
+                    showSaveIndicator('✅ רועננו!');
+                    console.log('רענון הושלם בהצלחה');
+                } else {
+                    showSaveIndicator('⚠️ אין עדכונים');
+                    console.log('לא נמצאו נתונים לרענון');
+                }
+            } catch (e) {
+                console.error('שגיאה ברענון:', e);
                 showSaveIndicator('❌ שגיאה ברענון');
             }
         }
