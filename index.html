@@ -10,6 +10,103 @@
             margin: 0;
             padding: 0;
         }
+
+        function addEditEventListeners() {
+            // אירועים לתאים הניתנים לעריכה
+            document.querySelectorAll('.editable').forEach(element => {
+                element.addEventListener('blur', async function() {
+                    const index = parseInt(this.dataset.index);
+                    const field = this.dataset.field;
+                    let value = this.textContent.trim();
+                    
+                    // ולידציה מיוחדת לשדה המספר
+                    if (field === 'number') {
+                        // הסרת תווים שאינם מספרים
+                        value = value.replace(/[^\d]/g, '');
+                        // עדכון התצוגה אם היה שינוי
+                        if (value !== this.textContent.trim()) {
+                            this.textContent = value;
+                        }
+                    }
+                    
+                    if (filteredData[index]) {
+                        filteredData[index][field] = value;
+                        // עדכון המערך המקורי
+                        const originalIndex = videoData.findIndex(v => v === filteredData[index]);
+                        if (originalIndex !== -1) {
+                            videoData[originalIndex][field] = value;
+                        }
+                        updateStats();
+                        await saveData(); // שמירה אוטומטית
+                    }
+                });
+
+                // ולידציה בזמן אמת למספרים
+                if (element.classList.contains('number-edit')) {
+                    element.addEventListener('input', function() {
+                        // הסרת תווים שאינם מספרים בזמן הקלדה
+                        const cursorPosition = window.getSelection().getRangeAt(0).startOffset;
+                        const cleanValue = this.textContent.replace(/[^\d]/g, '');
+                        if (cleanValue !== this.textContent) {
+                            this.textContent = cleanValue;
+                            // החזרת המקום של הסמן
+                            const range = document.createRange();
+                            const selection = window.getSelection();
+                            if (this.firstChild) {
+                                range.setStart(this.firstChild, Math.min(cursorPosition, cleanValue.length));
+                                range.collapse(true);
+                                selection.removeAllRanges();
+                                selection.addRange(range);
+                            }
+                        }
+                    });
+                }
+            });
+
+            // אירועים לקישורים
+            document.querySelectorAll('.link-input').forEach(element => {
+                element.addEventListener('change', async function() {
+                    const index = parseInt(this.dataset.index);
+                    const field = this.dataset.field;
+                    const value = this.value.trim();
+                    
+                    if (filteredData[index]) {
+                        filteredData[index][field] = value;
+                        // עדכון המערך המקורי
+                        const originalIndex = videoData.findIndex(v => v === filteredData[index]);
+                        if (originalIndex !== -1) {
+                            videoData[originalIndex][field] = value;
+                        }
+                        await saveData(); // שמירה אוטומטית
+                        
+                        // עדכון הטבלה כדי להציג/להסתיר כפתור "פתח"
+                        populateTable(filteredData);
+                    }
+                });
+            });
+
+            // אירועים לתפריטי תוכנית
+            document.querySelectorAll('.program-select').forEach(element => {
+                element.addEventListener('change', async function() {
+                    const index = parseInt(this.dataset.index);
+                    const field = this.dataset.field;
+                    const value = this.value;
+                    
+                    if (filteredData[index]) {
+                        filteredData[index][field] = value;
+                        // עדכון המערך המקורי
+                        const originalIndex = videoData.findIndex(v => v === filteredData[index]);
+                        if (originalIndex !== -1) {
+                            videoData[originalIndex][field] = value;
+                        }
+                        updateStats();
+                        await saveData(); // שמירה אוטומטית
+                    }
+                });
+            });
+        }
+
+        function addEditEventListeners() {
         
         body {
             font-family: Arial, sans-serif;
@@ -2237,43 +2334,34 @@
 
         async function loadData() {
             try {
-                showSaveIndicator('📥 טוען מ-Firebase...');
+                showSaveIndicator('📥 טוען נתונים...');
                 
                 const snapshot = await videosRef.once('value');
                 const data = snapshot.val();
                 
-                console.log('Firebase data:', data); // לדיבוג
-                
-                if (data && data.data && Array.isArray(data.data) && data.data.length > 0) {
-                    // בדיקה שהנתונים לא ריקים
-                    const hasRealData = data.data.some(video => video && video.title && video.title.trim());
+                if (data && data.data && Array.isArray(data.data)) {
+                    videoData = data.data;
                     
-                    if (hasRealData) {
-                        videoData = data.data;
-                        
-                        // הוספת שדות חדשים לנתונים שנטענו (תאימות אחורה)
-                        videoData.forEach(video => {
-                            if (!video.hasOwnProperty('program')) video.program = "";
-                            if (!video.hasOwnProperty('archived')) video.archived = false;
-                        });
-                        
-                        filteredData = [...videoData];
-                        console.log(`נטענו ${videoData.length} סרטונים מ-Firebase עם נתונים אמיתיים`);
-                        showSaveIndicator('✅ נטען מ-Firebase!');
-                        return true;
-                    } else {
-                        console.log('נתונים ריקים ב-Firebase');
-                        showSaveIndicator('⚠️ נתונים ריקים');
-                        return false;
-                    }
+                    // הוספת שדות חדשים לנתונים שנטענו (תאימות אחורה)
+                    videoData.forEach(video => {
+                        if (!video.hasOwnProperty('program')) video.program = "";
+                        if (!video.hasOwnProperty('archived')) video.archived = false;
+                    });
+                    
+                    filteredData = [...videoData];
+                    console.log(`נטענו ${videoData.length} סרטונים מ-Firebase`);
+                    showSaveIndicator('✅ נטען מהענן!');
+                    return true;
                 } else {
-                    console.log('אין נתונים ב-Firebase או פורמט לא תקין');
-                    showSaveIndicator('⚠️ אין נתונים');
+                    // אם אין נתונים ב-Firebase, שמור את הנתונים הבסיסיים
+                    console.log('אין נתונים ב-Firebase, שומר נתונים בסיסיים');
+                    await saveData();
                     return false;
                 }
             } catch (e) {
                 console.error('שגיאה בטעינה מ-Firebase:', e);
-                showSaveIndicator('❌ שגיאה בטעינה');
+                showSaveIndicator('⚠️ טוען מהמחשב...');
+                // חזרה ל-localStorage כגיבוי
                 return loadFromLocalStorage();
             }
         }
@@ -2476,9 +2564,7 @@
 
         async function refreshData() {
             try {
-                showSaveIndicator('🔄 רוענן מ-Firebase...');
-                console.log('מתחיל רענון נתונים');
-                
+                showSaveIndicator('🔄 רוענן...');
                 const success = await loadData();
                 if (success) {
                     populateCategoryFilter();
@@ -2486,18 +2572,13 @@
                     filterData();
                     updateStats();
                     showSaveIndicator('✅ רועננו!');
-                    console.log('רענון הושלם בהצלחה');
                 } else {
                     showSaveIndicator('⚠️ אין עדכונים');
-                    console.log('לא נמצאו נתונים לרענון');
                 }
             } catch (e) {
-                console.error('שגיאה ברענון:', e);
                 showSaveIndicator('❌ שגיאה ברענון');
             }
         }
-
-        function addEditEventListeners() {
             // אירועים לתאים הניתנים לעריכה
             document.querySelectorAll('.editable').forEach(element => {
                 element.addEventListener('blur', async function() {
