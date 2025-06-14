@@ -163,6 +163,29 @@
             border-right: none;
         }
         
+        .sortable-header {
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .sortable-header:hover {
+            background: linear-gradient(135deg, #5a6fd8, #6b59a0);
+            transform: translateY(-1px);
+        }
+        
+        .sort-indicator {
+            margin-left: 5px;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+        
+        .sort-indicator.active {
+            opacity: 1;
+            font-weight: bold;
+        }
+        
         td {
             padding: 8px;
             border-bottom: 1px solid #e9ecef;
@@ -607,15 +630,23 @@
                             <input type="checkbox" class="select-all-checkbox" id="selectAll" onchange="toggleSelectAll()">
                         </th>
                         <th style="width: 60px;">מספר</th>
-                        <th style="width: 120px;">קטגוריה</th>
+                        <th style="width: 120px;" class="sortable-header" onclick="sortData('category')">
+                            קטגוריה <span class="sort-indicator" id="sort-category"></span>
+                        </th>
                         <th style="width: 200px;">הסרטון</th>
                         <th style="width: 250px;">תיאור הסרטון</th>
                         <th style="width: 150px;">קישור לסרטון</th>
                         <th style="width: 120px;">מקור</th>
-                        <th style="width: 100px;">תאריך</th>
+                        <th style="width: 100px;" class="sortable-header" onclick="sortData('date')">
+                            תאריך <span class="sort-indicator" id="sort-date"></span>
+                        </th>
                         <th style="width: 200px;">שאלה</th>
-                        <th style="width: 100px;">פינה</th>
-                        <th style="width: 80px;">תוכנית</th>
+                        <th style="width: 100px;" class="sortable-header" onclick="sortData('corner')">
+                            פינה <span class="sort-indicator" id="sort-corner"></span>
+                        </th>
+                        <th style="width: 80px;" class="sortable-header" onclick="sortData('program')">
+                            תוכנית <span class="sort-indicator" id="sort-program"></span>
+                        </th>
                         <th style="width: 90px;">פעולות</th>
                     </tr>
                 </thead>
@@ -689,8 +720,12 @@
         // מערך לעקוב אחר הפריטים הנבחרים לבחירה מרובה
         let selectedItems = new Set();
         
-        // מערך לשמירת היסטוריית שינויים
+        // מערך לשמירת היסטוريית שינויים
         let editHistory = [];
+        
+        // משתנים לסידור הטבלה
+        let currentSortField = '';
+        let currentSortDirection = 'none'; // 'none', 'asc', 'desc'
         
         // פונקציה להוספת רשומה להיסטוריה
         function addToHistory(action, videoIndex, field, oldValue, newValue) {
@@ -721,6 +756,90 @@
                 }
             } catch (e) {
                 console.error('שגיאה בטעינת היסטוריה:', e);
+            }
+        }
+
+        // פונקציות סידור הטבלה
+        function sortData(field) {
+            // עדכון כיוון הסידור
+            if (currentSortField === field) {
+                // אותו שדה - מעבר למצב הבא
+                if (currentSortDirection === 'none') {
+                    currentSortDirection = 'asc';
+                } else if (currentSortDirection === 'asc') {
+                    currentSortDirection = 'desc';
+                } else {
+                    currentSortDirection = 'none';
+                }
+            } else {
+                // שדה חדש - התחלה עם סידור עולה
+                currentSortField = field;
+                currentSortDirection = 'asc';
+            }
+            
+            // עדכון האינדיקטורים החזותיים
+            updateSortIndicators();
+            
+            // ביצוע הסידור
+            if (currentSortDirection === 'none') {
+                // חזרה לסדר המקורי
+                filterData();
+            } else {
+                // סידור הנתונים
+                filteredData.sort((a, b) => {
+                    let valueA, valueB;
+                    
+                    switch (field) {
+                        case 'category':
+                            valueA = a.category.toLowerCase();
+                            valueB = b.category.toLowerCase();
+                            break;
+                        case 'date':
+                            valueA = a.date || '0000-00-00';
+                            valueB = b.date || '0000-00-00';
+                            break;
+                        case 'corner':
+                            valueA = (a.corner || '').toLowerCase();
+                            valueB = (b.corner || '').toLowerCase();
+                            break;
+                        case 'program':
+                            valueA = parseInt(a.program) || 0;
+                            valueB = parseInt(b.program) || 0;
+                            break;
+                        default:
+                            return 0;
+                    }
+                    
+                    let comparison = 0;
+                    if (valueA < valueB) {
+                        comparison = -1;
+                    } else if (valueA > valueB) {
+                        comparison = 1;
+                    }
+                    
+                    return currentSortDirection === 'asc' ? comparison : -comparison;
+                });
+                
+                // עדכון הטבלה
+                populateTable(filteredData);
+                updateStats();
+            }
+        }
+        
+        function updateSortIndicators() {
+            // ניקוי כל האינדיקטורים
+            document.querySelectorAll('.sort-indicator').forEach(indicator => {
+                indicator.textContent = '';
+                indicator.classList.remove('active');
+            });
+            
+            // עדכון האינדיקטור של השדה הפעיל
+            if (currentSortField && currentSortDirection !== 'none') {
+                const indicator = document.getElementById(`sort-${currentSortField}`);
+                if (indicator) {
+                    indicator.classList.add('active');
+                    indicator.textContent = currentSortDirection === 'asc' ? '▲' : '▼';
+                }
             }
         }
 
@@ -841,6 +960,7 @@
                         populateCategoryFilter();
                         populateCornerFilter();
                         updateStats();
+                        updateSortIndicators(); // עדכון אינדיקטורי הסידור
                         
                         showSaveIndicator('🔄 עודכן מהחבר!');
                     }
@@ -1152,6 +1272,43 @@
                 
                 return matchesSearch && matchesCategory && matchesCorner && matchesProgram && matchesArchiveStatus;
             });
+
+            // אם יש סידור פעיל, החל אותו על הנתונים המסוננים
+            if (currentSortDirection !== 'none' && currentSortField) {
+                filteredData.sort((a, b) => {
+                    let valueA, valueB;
+                    
+                    switch (currentSortField) {
+                        case 'category':
+                            valueA = a.category.toLowerCase();
+                            valueB = b.category.toLowerCase();
+                            break;
+                        case 'date':
+                            valueA = a.date || '0000-00-00';
+                            valueB = b.date || '0000-00-00';
+                            break;
+                        case 'corner':
+                            valueA = (a.corner || '').toLowerCase();
+                            valueB = (b.corner || '').toLowerCase();
+                            break;
+                        case 'program':
+                            valueA = parseInt(a.program) || 0;
+                            valueB = parseInt(b.program) || 0;
+                            break;
+                        default:
+                            return 0;
+                    }
+                    
+                    let comparison = 0;
+                    if (valueA < valueB) {
+                        comparison = -1;
+                    } else if (valueA > valueB) {
+                        comparison = 1;
+                    }
+                    
+                    return currentSortDirection === 'asc' ? comparison : -comparison;
+                });
+            }
 
             // ניקוי בחירות כשמסננים את הנתונים
             clearSelection();
@@ -1586,6 +1743,7 @@
             populateCornerFilter(); 
             populateTable(filteredData);
             updateStats();
+            updateSortIndicators(); // אתחול אינדיקטורי הסידור
         }
 
         // הפעלת האפליקציה
