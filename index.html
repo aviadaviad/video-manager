@@ -224,19 +224,61 @@
             border-color: #d1d9ff;
         }
         
+        /* תצוגת קטגוריה משופרת */
         .category-cell {
+            position: relative;
+        }
+        
+        .category-display {
             background: linear-gradient(135deg, #e8f5e8, #f0f8ff);
             font-weight: bold;
             color: #2e7d32;
             border-radius: 8px;
-            margin: 2px;
-            padding: 4px 8px;
-            display: inline-block;
-            min-width: 80px;
+            margin: 2px 0;
+            padding: 6px 10px;
+            display: block;
+            min-width: 120px;
             text-align: center;
             font-size: 12px;
             border: 1px solid #c8e6c9;
             box-shadow: 0 1px 3px rgba(46, 125, 50, 0.2);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            overflow: visible;
+            white-space: nowrap;
+            min-height: 24px;
+            line-height: 1.2;
+        }
+        
+        .category-display:hover {
+            background: linear-gradient(135deg, #c8e6c9, #e3f2fd);
+            box-shadow: 0 2px 6px rgba(46, 125, 50, 0.3);
+        }
+        
+        .category-display.empty {
+            background: linear-gradient(135deg, #fff3e0, #ffeaa7);
+            color: #bf360c;
+            border-color: #ff9800;
+        }
+        
+        .category-select {
+            width: 100%;
+            padding: 6px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 12px;
+            background: white;
+            transition: all 0.2s ease;
+            font-weight: bold;
+            display: none;
+        }
+        
+        .category-cell.editing .category-display {
+            display: none;
+        }
+        
+        .category-cell.editing .category-select {
+            display: block;
         }
         
         .video-number {
@@ -645,7 +687,7 @@
             box-shadow: 0 2px 8px rgba(220, 53, 69, 0.4);
         }
         
-        .category-select, .corner-select {
+        .corner-select {
             width: 100%;
             padding: 8px;
             border: 2px solid #ddd;
@@ -656,13 +698,13 @@
             font-weight: bold;
         }
         
-        .category-select:focus, .corner-select:focus {
+        .corner-select:focus {
             outline: 2px solid #667eea;
             border-color: #667eea;
             box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
         }
         
-        .category-select:hover, .corner-select:hover {
+        .corner-select:hover {
             border-color: #999;
         }
         
@@ -717,31 +759,32 @@
             </select>
             <select class="category-filter" id="programFilter">
                 <option value="">כל התוכניות</option>
-                <option value="1">תוכנית 1</option>
-                <option value="2">תוכנית 2</option>
-                <option value="3">תוכנית 3</option>
-                <option value="4">תוכנית 4</option>
-                <option value="5">תוכנית 5</option>
-                <option value="6">תוכנית 6</option>
-                <option value="7">תוכנית 7</option>
-                <option value="8">תוכנית 8</option>
-                <option value="9">תוכנית 9</option>
-                <option value="10">תוכנית 10</option>
-                <option value="11">תוכנית 11</option>
-                <option value="12">תוכנית 12</option>
-                <option value="13">תוכנית 13</option>
-                <option value="14">תוכנית 14</option>
-                <option value="15">תוכנית 15</option>
-                <option value="16">תוכנית 16</option>
-                <option value="17">תוכנית 17</option>
-                <option value="18">תוכנית 18</option>
-                <option value="19">תוכנית 19</option>
-                <option value="20">תוכנית 20</option>
-                <option value="21">תוכנית 21</option>
-                <option value="22">תוכנית 22</option>
-                <option value="23">תוכנית 23</option>
-                <option value="24">תוכנית 24</option>
-                <option value="25">תוכנית 25</option>
+                <option value="unassigned">לא שובץ</option>
+                <option value="1">פרק 1</option>
+                <option value="2">פרק 2</option>
+                <option value="3">פרק 3</option>
+                <option value="4">פרק 4</option>
+                <option value="5">פרק 5</option>
+                <option value="6">פרק 6</option>
+                <option value="7">פרק 7</option>
+                <option value="8">פרק 8</option>
+                <option value="9">פרק 9</option>
+                <option value="10">פרק 10</option>
+                <option value="11">פרק 11</option>
+                <option value="12">פרק 12</option>
+                <option value="13">פרק 13</option>
+                <option value="14">פרק 14</option>
+                <option value="15">פרק 15</option>
+                <option value="16">פרק 16</option>
+                <option value="17">פרק 17</option>
+                <option value="18">פרק 18</option>
+                <option value="19">פרק 19</option>
+                <option value="20">פרק 20</option>
+                <option value="21">פרק 21</option>
+                <option value="22">פרק 22</option>
+                <option value="23">פרק 23</option>
+                <option value="24">פרק 24</option>
+                <option value="25">פרק 25</option>
             </select>
             
             <div class="action-buttons">
@@ -751,14 +794,6 @@
                 <button class="btn btn-import" onclick="document.getElementById('fileInput').click()">📂 טען קובץ</button>
                 <button class="btn btn-export" onclick="exportData()">📁 יצא JSON</button>
                 <button class="btn btn-excel" onclick="exportToExcel()">📊 יצא לאקסל</button>
-                
-                <!-- כפתורי מצב תצוגה -->
-                <select class="category-filter" id="workModeSelect" onchange="changeWorkMode()" style="background: linear-gradient(135deg, #28a745, #20c997); color: white; font-weight: bold;">
-                    <option value="all">📋 הצג הכל</option>
-                    <option value="unassigned">📝 לא שויכים</option>
-                    ${Array.from({length: 25}, (_, i) => `<option value="program-${i + 1}">🎯 עבודה על תוכנית ${i + 1}</option>`).join('')}
-                </select>
-                
                 <button class="btn btn-export" onclick="toggleArchive()" id="archiveToggle">📦 הצג ארכיון</button>
                 <button class="btn btn-export" onclick="refreshData()">🔄 רענן נתונים</button>
                 <button class="btn btn-export" onclick="clearData()">🗑️ נקה הכל</button>
@@ -832,7 +867,7 @@
                             <input type="checkbox" class="select-all-checkbox" id="selectAll" onchange="toggleSelectAll()">
                         </th>
                         <th style="width: 60px;">מספר</th>
-                        <th style="width: 120px;" class="sortable-header" onclick="sortData('category')">
+                        <th style="width: 140px;" class="sortable-header" onclick="sortData('category')">
                             קטגוריה <span class="sort-indicator" id="sort-category"></span>
                         </th>
                         <th style="width: 200px;">הסרטון</th>
@@ -846,7 +881,7 @@
                         <th style="width: 100px;" class="sortable-header" onclick="sortData('corner')">
                             פינה <span class="sort-indicator" id="sort-corner"></span>
                         </th>
-                        <th style="width: 80px;" class="sortable-header" onclick="sortData('program')">
+                        <th style="width: 90px;" class="sortable-header" onclick="sortData('program')">
                             תוכנית <span class="sort-indicator" id="sort-program"></span>
                         </th>
                         <th style="width: 90px;">פעולות</th>
@@ -936,7 +971,7 @@
         // מערך לעקוב אחר הפריטים הנבחרים לבחירה מרובה
         let selectedItems = new Set();
         
-        // מערך לשמירת היסטוريית שינויים
+        // מערך לשמירת היסטוריית שינויים
         let editHistory = [];
         
         // משתנים לסידור הטבלה
@@ -1019,8 +1054,12 @@
                             valueB = (b.corner || '').toLowerCase();
                             break;
                         case 'program':
-                            valueA = parseInt(a.program) || 0;
-                            valueB = parseInt(b.program) || 0;
+                            // תמיכה ב"לא שובץ" וערכים מספריים
+                            if (a.program === 'unassigned' || a.program === '') valueA = -1;
+                            else valueA = parseInt(a.program) || 0;
+                            
+                            if (b.program === 'unassigned' || b.program === '') valueB = -1;
+                            else valueB = parseInt(b.program) || 0;
                             break;
                         default:
                             return 0;
@@ -1203,6 +1242,12 @@
             }
         }
 
+        // פונקציה לטיפול בקטגוריות עם תצוגה משופרת
+        function toggleCategoryEdit(index) {
+            const categoryCell = document.querySelector(`[data-index="${index}"][data-field="category"]`).closest('.category-cell');
+            categoryCell.classList.toggle('editing');
+        }
+
         function populateTable(data) {
             const tableBody = document.getElementById('tableBody');
             tableBody.innerHTML = '';
@@ -1222,6 +1267,14 @@
                 const isSelected = selectedItems.has(index);
                 const lastModified = video.lastModified ? new Date(video.lastModified).toLocaleString('he-IL') : '';
                 
+                // הכנת תצוגת תוכנית עם "פרק" ו"לא שובץ"
+                let programDisplayText = '';
+                if (video.program === 'unassigned' || video.program === '') {
+                    programDisplayText = 'לא שובץ';
+                } else {
+                    programDisplayText = `פרק ${video.program}`;
+                }
+                
                 row.innerHTML = `
                     <td>
                         <input type="checkbox" class="row-checkbox" ${isSelected ? 'checked' : ''} onchange="toggleRowSelection(${index})">
@@ -1230,8 +1283,11 @@
                         <div class="editable number-edit" contenteditable="true" data-field="number" data-index="${index}" placeholder="הכנס מספר">${video.number || ''}</div>
                         ${lastModified ? `<div class="timestamp">עודכן: ${lastModified}</div>` : ''}
                     </td>
-                    <td>
-                        <select class="category-select" data-field="category" data-index="${index}">
+                    <td class="category-cell">
+                        <div class="category-display ${!video.category ? 'empty' : ''}" onclick="toggleCategoryEdit(${index})">
+                            ${video.category || 'בחר קטגוריה'}
+                        </div>
+                        <select class="category-select" data-field="category" data-index="${index}" onchange="updateCategoryFromSelect(${index})" onblur="toggleCategoryEdit(${index})">
                             <option value="">בחר קטגוריה</option>
                             ${predefinedCategories.map(cat => `<option value="${cat}" ${video.category === cat ? 'selected' : ''}>${cat}</option>`).join('')}
                         </select>
@@ -1266,7 +1322,8 @@
                     <td>
                         <select class="program-select" data-field="program" data-index="${index}">
                             <option value="">בחר תוכנית</option>
-                            ${Array.from({length: 25}, (_, i) => `<option value="${i + 1}" ${video.program == (i + 1) ? 'selected' : ''}>${i + 1}</option>`).join('')}
+                            <option value="unassigned" ${(video.program === 'unassigned' || video.program === '') ? 'selected' : ''}>לא שובץ</option>
+                            ${Array.from({length: 25}, (_, i) => `<option value="${i + 1}" ${video.program == (i + 1) ? 'selected' : ''}>פרק ${i + 1}</option>`).join('')}
                         </select>
                     </td>
                     <td class="actions-cell">
@@ -1283,6 +1340,36 @@
 
             // הוספת אירועי עריכה
             addEditEventListeners();
+        }
+
+        // פונקציה לעדכון קטגוריה מה-select
+        async function updateCategoryFromSelect(index) {
+            const selectElement = document.querySelector(`[data-index="${index}"][data-field="category"]`);
+            const value = selectElement.value;
+            const oldValue = filteredData[index] ? filteredData[index].category : '';
+            
+            if (filteredData[index] && oldValue !== value) {
+                filteredData[index].category = value;
+                // עדכון המערך המקורי
+                const originalIndex = videoData.findIndex(v => v === filteredData[index]);
+                if (originalIndex !== -1) {
+                    videoData[originalIndex].category = value;
+                    videoData[originalIndex].lastModified = new Date().toISOString();
+                    videoData[originalIndex].modifiedBy = 'משתמש';
+                    
+                    // הוספה להיסטוריה
+                    addToHistory('edit', originalIndex, 'category', oldValue, value);
+                }
+                
+                // עדכון התצוגה
+                const displayElement = selectElement.parentElement.querySelector('.category-display');
+                displayElement.textContent = value || 'בחר קטגוריה';
+                displayElement.classList.toggle('empty', !value);
+                
+                updateStats();
+                await saveData(); // שמירה אוטומטית
+                populateCategoryFilter();
+            }
         }
 
         async function refreshData() {
@@ -1393,8 +1480,8 @@
                 });
             });
 
-            // אירועים לתפריטי תוכנית, קטגוריות ופינות
-            document.querySelectorAll('.program-select, .category-select, .corner-select').forEach(element => {
+            // אירועים לתפריטי תוכנית ופינות (הקטגוריות מטופלות בנפרד)
+            document.querySelectorAll('.program-select, .corner-select').forEach(element => {
                 element.addEventListener('change', async function() {
                     const index = parseInt(this.dataset.index);
                     const field = this.dataset.field;
@@ -1417,9 +1504,7 @@
                         await saveData(); // שמירה אוטומטית
                         
                         // עדכון הפילטרים אם נדרש
-                        if (field === 'category') {
-                            populateCategoryFilter();
-                        } else if (field === 'corner') {
+                        if (field === 'corner') {
                             populateCornerFilter();
                         }
                     }
@@ -1467,38 +1552,17 @@
             const videosWithNumbers = filteredData.filter(video => video.number).length;
             const videosWithLinks = filteredData.filter(video => video.link && video.link.trim()).length;
             const videosWithDescriptions = filteredData.filter(video => video.description && video.description.trim()).length;
-            const videosWithPrograms = filteredData.filter(video => video.program && video.program.trim()).length;
+            const videosWithPrograms = filteredData.filter(video => video.program && video.program.trim() && video.program !== 'unassigned').length;
+            const unassignedPrograms = filteredData.filter(video => video.program === 'unassigned' || !video.program || !video.program.trim()).length;
             const archivedCount = videoData.filter(video => video.archived).length;
             const activeCount = videoData.filter(video => !video.archived).length;
             
-            // הגדרת טקסט הסטטוס לפי המצב הנוכחי
-            let statusText;
-            if (showArchived) {
-                statusText = `📦 מציג ארכיון (${archivedCount})`;
-            } else {
-                switch (workMode) {
-                    case 'all':
-                        statusText = `📋 מציג הכל (${activeCount})`;
-                        break;
-                    case 'unassigned':
-                        const unassignedCount = videoData.filter(v => !v.archived && (!v.program || v.program === '')).length;
-                        statusText = `📝 לא שויכים (${unassignedCount})`;
-                        break;
-                    default:
-                        if (workMode.startsWith('program-')) {
-                            const programNum = workMode.split('-')[1];
-                            const programCount = videoData.filter(v => !v.archived && v.program === programNum).length;
-                            const unassignedCount = videoData.filter(v => !v.archived && (!v.program || v.program === '')).length;
-                            statusText = `🎯 תוכנית ${programNum} (${programCount} + ${unassignedCount} לא שויכים)`;
-                        }
-                        break;
-                }
-            }
+            const statusText = showArchived ? `📦 מציג ארכיון (${archivedCount})` : `📋 מציג פעיל (${activeCount})`;
             
             // סטטוס Firebase
             const cloudStatus = '🔥 Firebase - זמן אמת';
             
-            stats.textContent = `${cloudStatus} | ${statusText} | 📊 ${totalVideos} מוצגים | ${totalCategories} קטגוריות | ${totalCorners} פינות | ${videosWithPrograms} עם תוכנית | ${markedVideos} מסומנים | ${videosWithNumbers} עם מספרים | ${videosWithLinks} עם קישורים | ${videosWithDescriptions} עם תיאורים`;
+            stats.textContent = `${cloudStatus} | ${statusText} | 📊 ${totalVideos} סרטונים | ${totalCategories} קטגוריות | ${totalCorners} פינות | ${videosWithPrograms} שובצו לפרקים | ${unassignedPrograms} לא שובצו | ${markedVideos} מסומנים | ${videosWithNumbers} עם מספרים | ${videosWithLinks} עם קישורים | ${videosWithDescriptions} עם תיאורים`;
         }
 
         function filterData() {
@@ -1518,22 +1582,20 @@
                                     (video.date && video.date.includes(searchTerm));
                 const matchesCategory = !selectedCategory || video.category === selectedCategory;
                 const matchesCorner = !selectedCorner || video.corner === selectedCorner;
-                const matchesProgram = !selectedProgram || video.program === selectedProgram;
-                const matchesArchiveStatus = video.archived === showArchived;
                 
-                // לוגיקת מצב עבודה על תוכנית
-                let matchesWorkMode = true;
-                if (!showArchived) { // מצב עבודה רלוונטי רק כשלא בארכיון
-                    if (workMode === 'unassigned') {
-                        matchesWorkMode = !video.program || video.program === '';
-                    } else if (workMode.startsWith('program-')) {
-                        const programNum = workMode.split('-')[1];
-                        matchesWorkMode = !video.program || video.program === '' || video.program === programNum;
+                // טיפול משופר בפילטר תוכנית עם תמיכה ב"לא שובץ"
+                let matchesProgram = true;
+                if (selectedProgram) {
+                    if (selectedProgram === 'unassigned') {
+                        matchesProgram = video.program === 'unassigned' || !video.program || video.program.trim() === '';
+                    } else {
+                        matchesProgram = video.program === selectedProgram;
                     }
-                    // אם workMode === 'all' אז matchesWorkMode נשאר true
                 }
                 
-                return matchesSearch && matchesCategory && matchesCorner && matchesProgram && matchesArchiveStatus && matchesWorkMode;
+                const matchesArchiveStatus = video.archived === showArchived;
+                
+                return matchesSearch && matchesCategory && matchesCorner && matchesProgram && matchesArchiveStatus;
             });
 
             // אם יש סידור פעיל, החל אותו על הנתונים המסוננים
@@ -1555,8 +1617,12 @@
                             valueB = (b.corner || '').toLowerCase();
                             break;
                         case 'program':
-                            valueA = parseInt(a.program) || 0;
-                            valueB = parseInt(b.program) || 0;
+                            // תמיכה ב"לא שובץ" וערכים מספריים
+                            if (a.program === 'unassigned' || a.program === '') valueA = -1;
+                            else valueA = parseInt(a.program) || 0;
+                            
+                            if (b.program === 'unassigned' || b.program === '') valueB = -1;
+                            else valueB = parseInt(b.program) || 0;
                             break;
                         default:
                             return 0;
@@ -1586,37 +1652,11 @@
             if (showArchived) {
                 toggleBtn.textContent = '📋 הצג רגיל';
                 toggleBtn.style.background = 'linear-gradient(135deg, #ffc107, #ff8b00)';
-                // באמצע הארכיון - אפס את מצב העבודה ל"הצג הכל"
-                workMode = 'all';
-                document.getElementById('workModeSelect').value = 'all';
             } else {
                 toggleBtn.textContent = '📦 הצג ארכיון';
                 toggleBtn.style.background = 'linear-gradient(135deg, #17a2b8, #138496)';
             }
             clearSelection(); // ניקוי בחירות בעת החלפת תצוגה
-            filterData();
-        }
-
-        // פונקציה לשינוי מצב עבודה על תוכנית
-        function changeWorkMode() {
-            const workModeSelect = document.getElementById('workModeSelect');
-            workMode = workModeSelect.value;
-            
-            if (workMode.startsWith('program-')) {
-                currentWorkProgram = workMode.split('-')[1];
-            } else {
-                currentWorkProgram = null;
-            }
-            
-            // אם עברנו למצב עבודה, ודא שלא במצב ארכיון
-            if (workMode !== 'all' && showArchived) {
-                showArchived = false;
-                const toggleBtn = document.getElementById('archiveToggle');
-                toggleBtn.textContent = '📦 הצג ארכיון';
-                toggleBtn.style.background = 'linear-gradient(135deg, #17a2b8, #138496)';
-            }
-            
-            clearSelection(); // ניקוי בחירות בעת החלפת מצב
             filterData();
         }
 
@@ -1633,7 +1673,7 @@
                 date: "",
                 question: "",
                 corner: "",
-                program: "",
+                program: "unassigned", // ברירת מחדל ל"לא שובץ"
                 archived: false,
                 createdAt: now,
                 lastModified: now,
@@ -1739,7 +1779,7 @@
                             predefinedCorners.sort();
                             saveCategoriesAndCorners();
                             videoData.forEach(video => {
-                                if (!video.hasOwnProperty('program')) video.program = "";
+                                if (!video.hasOwnProperty('program')) video.program = "unassigned";
                                 if (!video.hasOwnProperty('archived')) video.archived = false;
                                 if (!video.hasOwnProperty('createdAt')) video.createdAt = new Date().toISOString();
                                 if (!video.hasOwnProperty('lastModified')) video.lastModified = new Date().toISOString();
@@ -2081,11 +2121,12 @@
                 closeCornerManager();
             }
         };
+
         function exportToExcel() {
             try {
                 showSaveIndicator('📊 יוצר קובץ Excel...');
                 
-                // הכנת נתונים לייצוא
+                // הכנת נתונים לייצוא עם תמיכה בתצוגת פרקים
                 const dataToExport = filteredData.map((video, index) => ({
                     'מספר': video.number || '',
                     'קטגוריה': video.category || '',
@@ -2096,7 +2137,7 @@
                     'תאריך': video.date || '',
                     'שאלה': video.question || '',
                     'פינה': video.corner || '',
-                    'תוכנית': video.program || '',
+                    'תוכנית': video.program === 'unassigned' || !video.program ? 'לא שובץ' : `פרק ${video.program}`,
                     'סטטוס': video.archived ? 'ארכיון' : 'פעיל',
                     'נוצר': video.createdAt ? new Date(video.createdAt).toLocaleString('he-IL') : '',
                     'עודכן': video.lastModified ? new Date(video.lastModified).toLocaleString('he-IL') : '',
@@ -2193,6 +2234,19 @@
         document.getElementById('cornerFilter').addEventListener('change', filterData);
         document.getElementById('programFilter').addEventListener('change', filterData);
 
+        // Enter key support for modals
+        document.getElementById('newCategoryInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addNewCategory();
+            }
+        });
+
+        document.getElementById('newCornerInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addNewCorner();
+            }
+        });
+
         // Initialize
         async function initApp() {
             // טעינת היסטוריה מהמחשב
@@ -2207,7 +2261,7 @@
             // אם לא נטענו נתונים מהענן, השתמש בנתונים הבסיסיים
             if (!dataLoaded) {
                 videoData.forEach(video => {
-                    if (!video.hasOwnProperty('program')) video.program = "";
+                    if (!video.hasOwnProperty('program')) video.program = "unassigned";
                     if (!video.hasOwnProperty('archived')) video.archived = false;
                     if (!video.hasOwnProperty('createdAt')) video.createdAt = new Date().toISOString();
                     if (!video.hasOwnProperty('lastModified')) video.lastModified = new Date().toISOString();
