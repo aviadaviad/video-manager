@@ -665,6 +665,23 @@
         .item-text {
             flex: 1;
             font-weight: 500;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            cursor: text;
+            border: 1px solid transparent;
+        }
+        
+        .item-text:hover {
+            background: #fff;
+            border-color: #dee2e6;
+        }
+        
+        .item-text:focus {
+            outline: 2px solid #667eea;
+            background: white;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
         
         .item-delete {
@@ -1092,7 +1109,7 @@
                         <button class="btn btn-add" onclick="addNewCategory()">➕ הוסף</button>
                     </div>
                     <div class="items-list">
-                        <h4>קטגוריות קיימות:</h4>
+                        <h4>קטגוריות קיימות: <span style="font-size: 12px; font-weight: normal; color: #666;">(לחץ על השם לעריכה)</span></h4>
                         <ul id="categoriesList"></ul>
                     </div>
                 </div>
@@ -1112,7 +1129,7 @@
                         <button class="btn btn-add" onclick="addNewCorner()">➕ הוסף</button>
                     </div>
                     <div class="items-list">
-                        <h4>פינות קיימות:</h4>
+                        <h4>פינות קיימות: <span style="font-size: 12px; font-weight: normal; color: #666;">(לחץ על השם לעריכה)</span></h4>
                         <ul id="cornersList"></ul>
                     </div>
                 </div>
@@ -1142,13 +1159,13 @@
                             תאריך <span class="sort-indicator" id="sort-date"></span>
                         </th>
                         <th style="width: 200px;">שאלה</th>
-                        <th style="width: 100px;" class="sortable-header" onclick="sortData('corner')">
+                        <th style="width: 130px;" class="sortable-header" onclick="sortData('corner')">
                             פינה <span class="sort-indicator" id="sort-corner"></span>
                         </th>
-                        <th style="width: 90px;" class="sortable-header" onclick="sortData('program')">
+                        <th style="width: 80px;" class="sortable-header" onclick="sortData('program')">
                             תוכנית <span class="sort-indicator" id="sort-program"></span>
                         </th>
-                        <th style="width: 90px;">פעולות</th>
+                        <th style="width: 80px;">פעולות</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
@@ -2559,7 +2576,7 @@
             predefinedCategories.forEach((category, index) => {
                 const li = document.createElement('li');
                 li.innerHTML = `
-                    <span class="item-text">${category}</span>
+                    <span class="item-text" contenteditable="true" data-type="category" data-index="${index}" onblur="updateItemName(this)" title="לחץ לעריכה">${category}</span>
                     <button class="item-delete" onclick="deleteCategory(${index})" title="מחק קטגוריה">✖</button>
                 `;
                 list.appendChild(li);
@@ -2574,11 +2591,87 @@
             predefinedCorners.forEach((corner, index) => {
                 const li = document.createElement('li');
                 li.innerHTML = `
-                    <span class="item-text">${corner}</span>
+                    <span class="item-text" contenteditable="true" data-type="corner" data-index="${index}" onblur="updateItemName(this)" title="לחץ לעריכה">${corner}</span>
                     <button class="item-delete" onclick="deleteCorner(${index})" title="מחק פינה">✖</button>
                 `;
                 list.appendChild(li);
             });
+        }
+        
+        // פונקציה לעדכון שם קטגוריה או פינה
+        async function updateItemName(element) {
+            const type = element.dataset.type;
+            const index = parseInt(element.dataset.index);
+            const newName = element.textContent.trim();
+            
+            if (!newName) {
+                // אם השם ריק, החזר לשם המקורי
+                if (type === 'category') {
+                    element.textContent = predefinedCategories[index];
+                } else if (type === 'corner') {
+                    element.textContent = predefinedCorners[index];
+                }
+                return;
+            }
+            
+            let oldName, targetArray, updateFunction, filterFunction;
+            
+            if (type === 'category') {
+                oldName = predefinedCategories[index];
+                targetArray = predefinedCategories;
+                updateFunction = populateCategoryFilter;
+            } else if (type === 'corner') {
+                oldName = predefinedCorners[index];
+                targetArray = predefinedCorners;
+                updateFunction = populateCornerFilter;
+            } else {
+                return;
+            }
+            
+            // בדיקה אם השם כבר קיים (למניעת כפילויות)
+            if (targetArray.includes(newName) && newName !== oldName) {
+                alert(`השם "${newName}" כבר קיים!`);
+                element.textContent = oldName;
+                return;
+            }
+            
+            // עדכון השם אם השתנה
+            if (newName !== oldName) {
+                // עדכון המערך
+                targetArray[index] = newName;
+                targetArray.sort(); // סידור מחדש
+                
+                // עדכון כל הסרטונים שמשתמשים בשם הישן
+                videoData.forEach(video => {
+                    if (type === 'category' && video.category === oldName) {
+                        video.category = newName;
+                        video.lastModified = new Date().toISOString();
+                        video.modifiedBy = 'משתמש';
+                    } else if (type === 'corner' && video.corner === oldName) {
+                        video.corner = newName;
+                        video.lastModified = new Date().toISOString();
+                        video.modifiedBy = 'משתמש';
+                    }
+                });
+                
+                // שמירת השינויים
+                saveCategoriesAndCorners();
+                await saveData();
+                
+                // עדכון הממשק
+                updateFunction();
+                populateTable(filteredData);
+                updateStats();
+                
+                // עדכון הרשימה במודאל
+                if (type === 'category') {
+                    populateCategoriesList();
+                } else {
+                    populateCornersList();
+                }
+                
+                showSaveIndicator(`✅ עודכן "${oldName}" ל"${newName}"!`);
+            }
         }
         
         // הוספת קטגוריה חדשה
@@ -2787,6 +2880,14 @@
         document.getElementById('newCornerInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 addNewCorner();
+            }
+        });
+
+        // Enter key support for item editing
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && e.target.classList.contains('item-text')) {
+                e.preventDefault();
+                e.target.blur(); // יגרום לעדכון השם
             }
         });
 
