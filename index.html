@@ -130,12 +130,19 @@
         .table-container {
             overflow-x: auto;
             max-height: 70vh;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e9ecef;
         }
         
         table {
             width: 100%;
             border-collapse: collapse;
             font-size: 14px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         
         th {
@@ -148,13 +155,29 @@
             top: 0;
             z-index: 10;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        th:last-child {
+            border-right: none;
         }
         
         td {
             padding: 8px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid #e9ecef;
+            border-right: 1px solid #e9ecef;
             text-align: right;
             position: relative;
+            background: white;
+        }
+        
+        td:last-child {
+            border-right: none;
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
         }
         
         .editable {
@@ -162,19 +185,30 @@
             padding: 4px;
             border-radius: 4px;
             transition: all 0.2s ease;
+            border: 1px solid transparent;
         }
         
         .editable:hover {
             background: #f8f9fa;
+            border-color: #dee2e6;
         }
         
         .editable:focus {
             outline: 2px solid #667eea;
             background: white;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
         
         tr:hover {
             background: linear-gradient(135deg, #f8f9ff, #fff5f8);
+            box-shadow: 0 2px 4px rgba(102, 126, 234, 0.1);
+            transform: translateY(-1px);
+            transition: all 0.2s ease;
+        }
+        
+        tr:hover td {
+            border-color: #d1d9ff;
         }
         
         .category-cell {
@@ -188,6 +222,8 @@
             min-width: 80px;
             text-align: center;
             font-size: 12px;
+            border: 1px solid #c8e6c9;
+            box-shadow: 0 1px 3px rgba(46, 125, 50, 0.2);
         }
         
         .video-number {
@@ -200,11 +236,18 @@
             min-width: 40px;
             text-align: center;
             font-size: 12px;
+            border: 1px solid rgba(238, 90, 36, 0.3);
+            box-shadow: 0 2px 4px rgba(255, 107, 107, 0.3);
         }
         
         .marked-item {
             background: linear-gradient(135deg, #fff3cd, #ffeaa7) !important;
             border-right: 4px solid #f39c12;
+            box-shadow: 0 2px 8px rgba(243, 156, 18, 0.2);
+        }
+        
+        .marked-item td {
+            border-color: #f8d7da;
         }
         
         .no-results {
@@ -226,6 +269,13 @@
             border: 1px solid #ddd;
             border-radius: 3px;
             font-size: 12px;
+            transition: border-color 0.2s ease;
+        }
+        
+        .link-input:focus {
+            border-color: #667eea;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
         }
         
         .btn-open-link {
@@ -377,17 +427,20 @@
             min-height: 25px;
             border-radius: 6px;
             padding: 4px;
+            box-shadow: 0 1px 3px rgba(255, 152, 0, 0.2);
         }
         
         .number-edit:hover {
             background: linear-gradient(135deg, #fff8e1, #ffecb3);
             border-color: #f57c00;
+            box-shadow: 0 2px 6px rgba(255, 152, 0, 0.3);
         }
         
         .number-edit:focus {
             outline: 2px solid #ff9800;
             background: white;
             border-style: solid;
+            box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.2);
         }
         
         .number-edit:empty:before {
@@ -400,6 +453,8 @@
         .actions-cell {
             text-align: center;
             width: 60px;
+            border-left: 2px solid #f1f3f4;
+            background: rgba(248, 249, 250, 0.5);
         }
         
         .program-select {
@@ -409,11 +464,31 @@
             border-radius: 4px;
             font-size: 12px;
             background: white;
+            transition: all 0.2s ease;
         }
         
         .program-select:focus {
             outline: 2px solid #667eea;
             border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+        
+        .program-select:hover {
+            border-color: #999;
+        }
+        
+        .date-input {
+            transition: all 0.2s ease;
+        }
+        
+        .date-input:focus {
+            border-color: #667eea !important;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2) !important;
+            outline: none !important;
+        }
+        
+        .date-input:hover {
+            border-color: #999 !important;
         }
         
         @media (max-width: 1200px) {
@@ -451,7 +526,7 @@
         
         <div class="header">
             <h1>🎬 מנהל סרטונים - עדכונים אוטומטיים</h1>
-            <p>ארגון, עריכה וניהול 175 סרטונים לתסריט - Firebase בזמן אמת</p>
+            <p>ארגון, עריכה וניהול סרטונים לתסריט - Firebase בזמן אמת</p>
             <p style="font-size: 14px; margin-top: 10px; opacity: 0.9;">
                 🔥 עדכונים אוטומטיים | ⚡ שינויים בזמן אמת | 👥 עבודה משותפת | 💾 שמירה בענן | 📦 ארכיון חכם
             </p>
@@ -536,6 +611,8 @@
                         <th style="width: 200px;">הסרטון</th>
                         <th style="width: 250px;">תיאור הסרטון</th>
                         <th style="width: 150px;">קישור לסרטון</th>
+                        <th style="width: 120px;">מקור</th>
+                        <th style="width: 100px;">תאריך</th>
                         <th style="width: 200px;">שאלה</th>
                         <th style="width: 100px;">פינה</th>
                         <th style="width: 80px;">תוכנית</th>
@@ -568,1759 +645,43 @@
         const database = firebase.database();
         const videosRef = database.ref('videos');
 
-        // כל הנתונים המלאים - 175 סרטונים
+        // נתונים בסיסיים - דוגמה קטנה (במקום 175 הסרטונים)
         let videoData = [
-  {
-    "number": "543",
-    "category": "שונות",
-    "title": "נאמני ניקיון - זבל נופל על מכונית",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "557",
-    "category": "שונות",
-    "title": "יש לי יופי של תשואה - סאונד נשמע צואה",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "561",
-    "category": "שונות",
-    "title": "הגבר באימון והאישה מסדרת כיסויי ראש לתאילנדיות",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "657",
-    "category": "שונות",
-    "title": "גאה בכם",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "655",
-    "category": "אוכל",
-    "title": "רול סושי קובה",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "663",
-    "category": "אוכל",
-    "title": "שוקולד דובאי חסר",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "664",
-    "category": "אוכל",
-    "title": "חיים כהן מוציא תרד באזעקה",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "633",
-    "category": "טיסות",
-    "title": "יונה מעוררות בהלה בטיסה",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "596",
-    "category": "זוגיות",
-    "title": "איך מוציאים את בן הזוג מהשירותים - מקדחה",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "604",
-    "category": "זוגיות",
-    "title": "משאית של טינדר לחפצים מהאקס",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "614",
-    "category": "זוגיות",
-    "title": "איילה בן גביר מספרת איך פגשה את בעלה",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "631",
-    "category": "זוגיות",
-    "title": "שחף מילל כמו חתול - פינת רק סאונד",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "667",
-    "category": "זוגיות",
-    "title": "גברים מנשקים בת זוג לפני יציאה לעבודה חיים יותר",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "588",
-    "category": "מקצועות",
-    "title": "דוגמניות איראניות",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "616",
-    "category": "מקצועות",
-    "title": "מיקי لוי היה רוצה להיות גננת",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "649",
-    "category": "מקצועות",
-    "title": "סקאזי על אבקות",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "מקצועות",
-    "title": "אימא של גרתה היתה באירווזיון",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "570",
-    "category": "אמהות וסבתות",
-    "title": "קוראות לסבתא שמנסה להכנס לרכב הלא נכון",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "585",
-    "category": "אמהות וסבתות",
-    "title": "בואי אימא: סבתא מאכילה תינוק בלחי",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "326",
-    "category": "אמהות וסבתות",
-    "title": "קופצת ראש לים המלח",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "אמהות וסבתות",
-    "title": "סבתא צופה בטקס במשקפת",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "459",
-    "category": "אמהות וסבתות",
-    "title": "סבתא עם סיגריה בציצי",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "483",
-    "category": "אמהות וסבתות",
-    "title": "אמא במדרגות נעות",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "569",
-    "category": "דת ורוחניות",
-    "title": "סולם הצניעות",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "587",
-    "category": "דת ורוחניות",
-    "title": "ארכיון - סימס קורא תיגר על בורא עולם",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "590",
-    "category": "דת ורוחניות",
-    "title": "למה אסור לשקר לוויז - טיפים לנהגים",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "595",
-    "category": "דת ורוחניות",
-    "title": "סלואו עם אלוהים",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "597",
-    "category": "דת ורוחניות",
-    "title": "רעשן גדול בבית הכנסת",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "598",
-    "category": "דת ורוחניות",
-    "title": "שאלוהים ייברך את כל השמאלנים ושתמיד יהיו הפגנות",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "568",
-    "category": "השפה העברית",
-    "title": "קינוח משתנה",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "חיות",
-    "title": "ינשוף בבית עטלף בבית",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "472",
-    "category": "חיות",
-    "title": "מנסה להגיע לחתול בתאילנד",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "562",
-    "category": "חיות",
-    "title": "פרות שומעות ג'ז",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "566",
-    "category": "חיות",
-    "title": "משאית עם דבורים התהפכה",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "576",
-    "category": "חיות",
-    "title": "היפופוטם אוכל ג'חנון",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "294",
-    "category": "בריאות",
-    "title": "ההשלכות של טלפון במיטה",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "אקטואליה מאולפני הטלוויזיה",
-    "title": "קרין קבסה מלפססת",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "אקטואליה מאולפני הטלוויזיה",
-    "title": "מי הזמרים האהובים על חכ רוטמן",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "אקטואליה מאולפני הטלוויזיה",
-    "title": "רוטמן עבודה מוזרה",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "521",
-    "category": "אקטואליה מאולפני הטלוויזיה",
-    "title": "איילון בן יוסף גנץ",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "513",
-    "category": "אקטואליה מאולפני הטלוויזיה",
-    "title": "את מי יזמין קרעי לקפה",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "284",
-    "category": "אקטואליה מאולפני הטלוויזיה",
-    "title": "הסוגיה האסטרטגית של הרצוג - קרמבו",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "264",
-    "category": "אקטואליה מאולפני הטלוויזיה",
-    "title": "גיא לרר פיהוק ילדה",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "268",
-    "category": "אקטואליה מאולפני הטלוויזיה",
-    "title": "ליברמן ועקיבא לא רצו שיובל תזכה",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "318",
-    "category": "אקטואליה מאולפני הטלוויזיה",
-    "title": "מה עשה המועמד הפולני בדבייט",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "320",
-    "category": "אקטואליה מאולפני הטלוויזיה",
-    "title": "הרב אברגיל תפקיד האישה",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "411",
-    "category": "אקטואליה מאולפני הטלוויזיה",
-    "title": "צפצוף באולפן הפטריוטים",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "455",
-    "category": "אקטואליה מאולפני הטלוויזיה",
-    "title": "קלוד סוחט מהנדס - גלוברמן",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "540",
-    "category": "אקטואליה מאולפני הטלוויזיה",
-    "title": "לאן נעלם רסקין - מבזק",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "פוליטיקה",
-    "title": "ההישגים של דודי אמסלם",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "פוליטיקה",
-    "title": "הכנסת מוקירה למילואימנקים",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "284",
-    "category": "פוליטיקה",
-    "title": "הסוגיה האסטרטגית של הרצוג - קרמבו",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "534",
-    "category": "פוליטיקה",
-    "title": "אופירה נופלת מאורנה ברביבאי",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "581",
-    "category": "פוליטיקה",
-    "title": "ביבי - שיעורי תנך שהמלחמה הפריעה להם באמצע",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "602",
-    "category": "פוליטיקה",
-    "title": "התרעת פייק ניוז לפי אלמוג כהן",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "632",
-    "category": "פוליטיקה",
-    "title": "ואטורי להעלות את שכר החכים",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "640",
-    "category": "פוליטיקה",
-    "title": "טלי גוטליב תקיף את הכנסת - איזנקוט",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "261",
-    "category": "ידועניי ארצנו",
-    "title": "יעל שלביה עוברת דירה",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "267",
-    "category": "ידועניי ארצנו",
-    "title": "דבלה חולם על קקי",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "ידועניי ארצנו",
-    "title": "מאיה ורטהיימר פלוץ",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "ידועניי ארצנו",
-    "title": "ליה גרינר קקי",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "ידועניי ארצנו",
-    "title": "ממה מפחדת נס -- לתקן את הסינקים",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "ידועניי ארצנו",
-    "title": "לינור -- יכולת דיבור לחיות",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "ידועניי ארצנו",
-    "title": "עומר ויעל שלביה טיקטוק",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "ידועניי ארצנו",
-    "title": "יזהר כהן -- גזים",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "ידועניי ארצנו",
-    "title": "הריח הכי מוזר",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "ידועניי ארצנו",
-    "title": "מה הדבר הכי מוזר שהיה לעדי ביטי עם גבר",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "ידועניי ארצנו",
-    "title": "רונית גיאור לא נחמדה",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "519",
-    "category": "ידועניי ארצנו",
-    "title": "פרופיל פקטיבי למעיין (הטלת קובייה) - הדוח היומי - יש שם גם חומר לקליפים",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "520",
-    "category": "ידועניי ארצנו",
-    "title": "פוביה מעודד מנשה",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "333",
-    "category": "ידועניי ארצנו",
-    "title": "ברדוגו לבוש מכבי",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "334",
-    "category": "ידועניי ארצנו",
-    "title": "חדרה - העיר האהובה על גיא הוכמן",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "388",
-    "category": "ידועניי ארצנו",
-    "title": "לדנית גרינברג גדל החזה",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "400",
-    "category": "ידועניי ארצנו",
-    "title": "מסיבת שחרור הדר מוכתר",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "473",
-    "category": "ידועניי ארצנו",
-    "title": "פז רובינזון מתנדנד במכשיר",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "81",
-    "category": "ידועניי ארצנו",
-    "title": "מעיין אשכנזי - החולשה של בן הזוג: עיניים כחולות מה פתאום? ציצי גדול",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "550",
-    "category": "ידועניי ארצנו",
-    "title": "אדל פספלוב מסבירה מה זה שבועות",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "611",
-    "category": "ידועניי ארצנו",
-    "title": "לינור - אל תכעס על הליצן תכעס על עצמך שהלכת לקרקס",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "ספורט",
-    "title": "חצי מרתון סין -- לתקן את התשובה",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "574",
-    "category": "ספורט",
-    "title": "טלפון של טניסאי מצלצל",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "593",
-    "category": "ספורט",
-    "title": "בעל קנה כרטיסים - עמוד באמצע",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "648",
-    "category": "ספורט",
-    "title": "זהבי: יש לו ילד חרא",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "פרסומות",
-    "title": "פרסומת רשות המיסים",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "פרסומות",
-    "title": "עו\"ד לתעבורה פרסומת",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "511",
-    "category": "פרסומות",
-    "title": "סוכן דוגמניות - איך להתחיל עם דוגמנית",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "262",
-    "category": "טיפים",
-    "title": "משפט מהפנג'ויה",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "294",
-    "category": "טיפים",
-    "title": "ההשלכות של טלפון במיטה",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "טיפים",
-    "title": "איך לתפוף על ההגה",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "טיפים",
-    "title": "המבחן של אביבית לגברים",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "טיפים",
-    "title": "סתיו קצין בגדים משומשים",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "טיפים",
-    "title": "המדריך שנופל לבולען",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "טיפים",
-    "title": "הטיפ הנכון לטפל בחום",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "טיפים",
-    "title": "מתקנת פנצ'ר יצירתית",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "טיפים",
-    "title": "דברים שיכולים לכשף אתכם",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "טיפים",
-    "title": "אבא משתמש בציור לאסוף קקי",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "טיפים",
-    "title": "ילדה מכינה ניוקי",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "322",
-    "category": "טיפים",
-    "title": "מה היתרון שיש לפלצנים",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "441",
-    "category": "טיפים",
-    "title": "הדרך להפליץ בנימוס + למה לא לשים יד מתחת לשולחן",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "ידיעות מהעולם",
-    "title": "ילד קנה סוכריות",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "ידיעות מהעולם",
-    "title": "בילי אייליש גאלה",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "419",
-    "category": "ידיעות מהעולם",
-    "title": "שבט אמזונס תובע את טראמפ",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "445",
-    "category": "ידיעות מהעולם",
-    "title": "טראמפ מסנן אנשי קונגרס",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "446",
-    "category": "ידיעות מהעולם",
-    "title": "טס עם חתולים ב 23,000",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "589",
-    "category": "ידיעות מהעולם",
-    "title": "מתקן שעשועים עומד על בורג",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "612",
-    "category": "ידיעות מהעולם",
-    "title": "ניו זילנד - הציגה תמונת ערום בפרלמנט",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "615",
-    "category": "ידיעות מהעולם",
-    "title": "טראמפ - תמונה שלו בשומר מסך",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "619",
-    "category": "ידיעות מהעולם",
-    "title": "קים קרדשיאן והציפורן שלה במט גאלה",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "645",
-    "category": "ידיעות מהעולם",
-    "title": "הודים מחליפים צ'ט גיפיטי",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "ישראלים בעולם",
-    "title": "ישראלי דוח בתאילנד",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "555",
-    "category": "ישראלים בעולם",
-    "title": "קפה טחינה בניו יורק",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "652",
-    "category": "ישראלים בעולם",
-    "title": "מלכת דראג שיא גינס",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "502",
-    "category": "מה אני שומע?",
-    "title": "צלצול באמצע ריקוד",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "496",
-    "category": "מה אני שומע?",
-    "title": "דיליי בטיסה - שרה מואנה",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "465",
-    "category": "מה אני שומע?",
-    "title": "ילדה שרה עם שטר 20 שח (פינת רק סאונד ואז תמונה)",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "486",
-    "category": "מה אני שומע?",
-    "title": "פילים מרימים גברים - פינת רק סאונד",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "מה אני שומע?",
-    "title": "שירותים כימיים צהל -- למצוא את הקטע עם הסאונד",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "מקומי",
-    "title": "מה ביקשה הילדה בכותל",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "מקומי",
-    "title": "מרצה לחשבונאות",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "מקומי",
-    "title": "חפצים רכבת ישראל",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "מקומי",
-    "title": "גבר מוריד חולצה בשנקין",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "מקומי",
-    "title": "תקווה במסיבת גג",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "מקומי",
-    "title": "גירושין בגלל ויכוח בליל הסדר (לחשוב לשלב עם ההוא שמשכנע את אשתו לחזור בשירה)",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "מקומי",
-    "title": "כלבי נחייה צופים במחזמר",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "498",
-    "category": "מקומי",
-    "title": "לוד - עיר של שינוי הצעת נישואין",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "495",
-    "category": "מקומי",
-    "title": "לוד בירת הקריפטו",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "379",
-    "category": "מקומי",
-    "title": "גמל משוטט בראש העין",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "408",
-    "category": "מקומי",
-    "title": "רץ עם דלי",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "431",
-    "category": "מקומי",
-    "title": "משפריץ ומנגן",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "432",
-    "category": "מקומי",
-    "title": "ילדה בוכה כי לא היתה בחתונת הוריה",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "433",
-    "category": "מקומי",
-    "title": "אגם מתעצבנת שאבא אמר לה להטעין את המכונה",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "456",
-    "category": "מקומי",
-    "title": "קסם שנהרס בגלל בטן שמנה",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "477",
-    "category": "מקומי",
-    "title": "צרפתיות בוכות כי ראו את הכותל",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "500",
-    "category": "מקומי",
-    "title": "מכין סיגריה מדוח חנייה",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "594",
-    "category": "מקומי",
-    "title": "אחות מיירטת רחפן",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "591",
-    "category": "מקומי",
-    "title": "איירובוט סוחב סחבה - פינת איירובוט",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "642",
-    "category": "מקומי",
-    "title": "ילדים נהנים מצפצופי רכבים",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "656",
-    "category": "מקומי",
-    "title": "לא משתמש בנייר טואלט",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "יהודים בעולם",
-    "title": "החבדניק למוסלמי",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "יהודים בעולם",
-    "title": "חבדניקים מניחים תפילין על סנטה",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "יהודים בעולם",
-    "title": "אחות של חתן מלווה בחופה מח\"ול",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "יהודים בעולם",
-    "title": "איירובוט חצה כביש",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "גויים",
-    "title": "ברקוד יד",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "גויים",
-    "title": "מה קרה למטוס",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "גויים",
-    "title": "קנייה וסט עוזב בכעס",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "גויים",
-    "title": "קייטי פרי מופיע עם קקי",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "גויים",
-    "title": "צלם מסדר שיער לכתבת",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "גויים",
-    "title": "שר החקלאות היפני ואורז",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "393",
-    "category": "גויים",
-    "title": "על מי נובח הכלב",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "גויים",
-    "title": "קנייה הייל היטלר",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "623",
-    "category": "גויים",
-    "title": "צב ממטרה מעלי אקספרס",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "היסטוריה ועובדות היסטוריות",
-    "title": "משחקון מתחת לראדאר",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "היסטוריה ועובדות היסטוריות",
-    "title": "עובדות היסטוריות במתחת לראדאר",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "היסטוריה ועובדות היסטוריות",
-    "title": "זכרונות מביקור טראמפ: טראמפ מקדונלדס",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "היסטוריה ועובדות היסטוריות",
-    "title": "בית קפה חדש בתל אביב - מהו",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "היסטוריה ועובדות היסטוריות",
-    "title": "איך יראה האדם העתידני",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "360",
-    "category": "היסטוריה ועובדות היסטוריות",
-    "title": "חשיש בנרגילה",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "501",
-    "category": "בכבישים",
-    "title": "רכב של בוגד",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "",
-    "category": "בכבישים",
-    "title": "מאזדה טרמפולינה",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "417",
-    "category": "בכבישים",
-    "title": "אופנוען צועק על רכב ונדרס",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "470",
-    "category": "בכבישים",
-    "title": "שוטר עם קוף באוטו",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "474",
-    "category": "בכבישים",
-    "title": "גזע עץ נופל על אוטו",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "481",
-    "category": "בכבישים",
-    "title": "אבטיח אחרי תאונה",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "592",
-    "category": "בכבישים",
-    "title": "מכונית מתפצלת לשתיים כד לברוח לשוטר - טיפים לנהגים",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "630",
-    "category": "בכבישים",
-    "title": "כלב עושה תאונה עם רכב",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "647",
-    "category": "בכבישים",
-    "title": "שליח משלים אימון ברמזור",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "665",
-    "category": "בכבישים",
-    "title": "ילד גנב רכב לנסוע למקדונלדס",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "295",
-    "category": "האח הגדול",
-    "title": "טסטה האח הגדול: מה מחפשת בבעל - גרוש אלמן וכו",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "299",
-    "category": "האח הגדול",
-    "title": "לייצר פינת - מה זה אומר? שצריך להתגייס(שניצל)",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "564",
-    "category": "האח הגדול",
-    "title": "תנור או ממטרה - דרכים יצירתיות לשאול אישה אם היא גבר או אישה - האח לילה",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "670",
-    "category": "האח הגדול",
-    "title": "למה הוודג' - דרורה",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "572",
-    "category": "האח הגדול",
-    "title": "האח הגדול - אתה נראה יותר טוב באינסטגרם",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "468",
-    "category": "מה הם עושים?",
-    "title": "אוטו ומזרן ע הגג. למה האבא נכנס דרך הדלת של האוטו",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "271",
-    "category": "שליחויות",
-    "title": "מגנום מהמרפסת - למה היא צוחקת עד כדי קיא?",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "436",
-    "category": "שליחויות",
-    "title": "שליח וולט למנוף. (פינת דברים שמניפים באוויר?)",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  },
-  {
-    "number": "325",
-    "category": "סיבוב מהיר",
-    "title": "סיבוב מהיר - יוצאת לא יוצאת",
-    "description": "",
-    "marked": false,
-    "link": "",
-    "question": "",
-    "corner": ""
-  }
-];
+            {
+                "number": "1",
+                "category": "שונות",
+                "title": "דוגמה ראשונה",
+                "description": "תיאור לדוגמה",
+                "marked": false,
+                "link": "",
+                "source": "",
+                "date": "",
+                "question": "",
+                "corner": "",
+                "program": "",
+                "archived": false,
+                "createdAt": new Date().toISOString(),
+                "lastModified": new Date().toISOString(),
+                "modifiedBy": "מערכת"
+            },
+            {
+                "number": "2",
+                "category": "אוכל",
+                "title": "דוגמה שנייה",
+                "description": "",
+                "marked": false,
+                "link": "",
+                "source": "דוגמה מקור",
+                "date": "2024-01-15",
+                "question": "",
+                "corner": "פינת בדיקה",
+                "program": "1",
+                "archived": false,
+                "createdAt": new Date().toISOString(),
+                "lastModified": new Date().toISOString(),
+                "modifiedBy": "מערכת"
+            }
+        ];
 
         let filteredData = [...videoData];
         let showArchived = false;
@@ -2349,7 +710,6 @@
             if (editHistory.length > 1000) {
                 editHistory = editHistory.slice(-1000);
             }
-            localStorage.setItem('videoEditHistory', JSON.stringify(editHistory));
         }
         
         // טעינת היסטוריה מ-localStorage
@@ -2402,6 +762,8 @@
                         if (!video.hasOwnProperty('createdAt')) video.createdAt = new Date().toISOString();
                         if (!video.hasOwnProperty('lastModified')) video.lastModified = new Date().toISOString();
                         if (!video.hasOwnProperty('modifiedBy')) video.modifiedBy = 'מערכת';
+                        if (!video.hasOwnProperty('source')) video.source = "";
+                        if (!video.hasOwnProperty('date')) video.date = "";
                     });
                     
                     filteredData = [...videoData];
@@ -2436,6 +798,8 @@
                         if (!video.hasOwnProperty('createdAt')) video.createdAt = new Date().toISOString();
                         if (!video.hasOwnProperty('lastModified')) video.lastModified = new Date().toISOString();
                         if (!video.hasOwnProperty('modifiedBy')) video.modifiedBy = 'מערכת';
+                        if (!video.hasOwnProperty('source')) video.source = "";
+                        if (!video.hasOwnProperty('date')) video.date = "";
                     });
                     
                     filteredData = [...videoData];
@@ -2468,6 +832,8 @@
                             if (!video.hasOwnProperty('createdAt')) video.createdAt = new Date().toISOString();
                             if (!video.hasOwnProperty('lastModified')) video.lastModified = new Date().toISOString();
                             if (!video.hasOwnProperty('modifiedBy')) video.modifiedBy = 'מערכת';
+                            if (!video.hasOwnProperty('source')) video.source = "";
+                            if (!video.hasOwnProperty('date')) video.date = "";
                         });
                         
                         // עדכון הממשק
@@ -2507,7 +873,7 @@
 
             if (data.length === 0) {
                 const statusText = showArchived ? 'בארכיון' : 'מתאימות';
-                tableBody.innerHTML = `<tr><td colspan="10" class="no-results">🔍 לא נמצאו תוצאות ${statusText}</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="12" class="no-results">🔍 לא נמצאו תוצאות ${statusText}</td></tr>`;
                 return;
             }
 
@@ -2532,7 +898,7 @@
                         <span class="category-cell editable" contenteditable="true" data-field="category" data-index="${index}">${video.category.replace(':', '')}</span>
                     </td>
                     <td>
-                        <div class="editable" contenteditable="true" data-field="title" data-index="${index}">${video.title}</div>
+                        <div class="editable" contenteditable="true" data-field="title" data-index="${index}" style="font-weight: bold;">${video.title}</div>
                     </td>
                     <td>
                         <div class="editable" contenteditable="true" data-field="description" data-index="${index}">${video.description || ''}</div>
@@ -2544,10 +910,16 @@
                         </div>
                     </td>
                     <td>
-                        <div class="editable" contenteditable="true" data-field="question" data-index="${index}">${video.question || ''}</div>
+                        <div class="editable" contenteditable="true" data-field="source" data-index="${index}">${video.source || ''}</div>
                     </td>
                     <td>
-                        <div class="editable" contenteditable="true" data-field="corner" data-index="${index}">${video.corner || ''}</div>
+                        <input type="date" class="editable date-input" data-field="date" data-index="${index}" value="${video.date || ''}" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px;">
+                    </td>
+                    <td>
+                        <div class="editable" contenteditable="true" data-field="question" data-index="${index}" style="font-weight: bold;">${video.question || ''}</div>
+                    </td>
+                    <td>
+                        <div class="editable" contenteditable="true" data-field="corner" data-index="${index}" style="font-weight: bold;">${video.corner || ''}</div>
                     </td>
                     <td>
                         <select class="program-select" data-field="program" data-index="${index}">
@@ -2649,8 +1021,8 @@
                 }
             });
 
-            // אירועים לקישורים
-            document.querySelectorAll('.link-input').forEach(element => {
+            // אירועים לקישורים ותאריכים
+            document.querySelectorAll('.link-input, input[type="date"]').forEach(element => {
                 element.addEventListener('change', async function() {
                     const index = parseInt(this.dataset.index);
                     const field = this.dataset.field;
@@ -2671,8 +1043,10 @@
                         }
                         await saveData(); // שמירה אוטומטית
                         
-                        // עדכון הטבלה כדי להציג/להסתיר כפתור "פתח"
-                        populateTable(filteredData);
+                        // עדכון הטבלה כדי להציג/להסתיר כפתור "פתח" (רק לקישורים)
+                        if (field === 'link') {
+                            populateTable(filteredData);
+                        }
                     }
                 });
             });
@@ -2768,7 +1142,9 @@
                                     video.category.toLowerCase().includes(searchTerm) ||
                                     (video.description && video.description.toLowerCase().includes(searchTerm)) ||
                                     (video.question && video.question.toLowerCase().includes(searchTerm)) ||
-                                    (video.corner && video.corner.toLowerCase().includes(searchTerm));
+                                    (video.corner && video.corner.toLowerCase().includes(searchTerm)) ||
+                                    (video.source && video.source.toLowerCase().includes(searchTerm)) ||
+                                    (video.date && video.date.includes(searchTerm));
                 const matchesCategory = !selectedCategory || video.category === selectedCategory;
                 const matchesCorner = !selectedCorner || video.corner === selectedCorner;
                 const matchesProgram = !selectedProgram || video.program === selectedProgram;
@@ -2807,6 +1183,8 @@
                 description: "",
                 marked: false,
                 link: "",
+                source: "",
+                date: "",
                 question: "",
                 corner: "",
                 program: "",
@@ -2816,8 +1194,8 @@
                 modifiedBy: 'משתמש'
             };
             
-            videoData.push(newVideo);
-            const newIndex = videoData.length - 1;
+            videoData.unshift(newVideo); // הוספה למעלה במקום למטה
+            const newIndex = 0; // האינדקס החדש הוא 0
             addToHistory('create', newIndex, 'video', '', 'נוצר סרטון חדש');
             
             await saveData();
@@ -2899,6 +1277,8 @@
                                 if (!video.hasOwnProperty('createdAt')) video.createdAt = new Date().toISOString();
                                 if (!video.hasOwnProperty('lastModified')) video.lastModified = new Date().toISOString();
                                 if (!video.hasOwnProperty('modifiedBy')) video.modifiedBy = 'מערכת';
+                                if (!video.hasOwnProperty('source')) video.source = "";
+                                if (!video.hasOwnProperty('date')) video.date = "";
                             });
                             
                             filteredData = [...videoData];
@@ -3076,6 +1456,8 @@
                     'כותרת הסרטון': video.title || '',
                     'תיאור': video.description || '',
                     'קישור': video.link || '',
+                    'מקור': video.source || '',
+                    'תאריך': video.date || '',
                     'שאלה': video.question || '',
                     'פינה': video.corner || '',
                     'תוכנית': video.program || '',
@@ -3095,6 +1477,8 @@
                             <th>כותרת הסרטון</th>
                             <th>תיאור</th>
                             <th>קישור</th>
+                            <th>מקור</th>
+                            <th>תאריך</th>
                             <th>שאלה</th>
                             <th>פינה</th>
                             <th>תוכנית</th>
@@ -3189,6 +1573,8 @@
                     if (!video.hasOwnProperty('createdAt')) video.createdAt = new Date().toISOString();
                     if (!video.hasOwnProperty('lastModified')) video.lastModified = new Date().toISOString();
                     if (!video.hasOwnProperty('modifiedBy')) video.modifiedBy = 'מערכת';
+                    if (!video.hasOwnProperty('source')) video.source = "";
+                    if (!video.hasOwnProperty('date')) video.date = "";
                 });
                 filteredData = [...videoData];
             }
