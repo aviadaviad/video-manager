@@ -504,6 +504,168 @@
             border-color: #999 !important;
         }
         
+        /* סטיילים למודאלים */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow: hidden;
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.3em;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.2s ease;
+        }
+        
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .modal-body {
+            padding: 25px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        
+        .add-item-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .add-item-section input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .add-item-section input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .items-list h4 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-size: 1.1em;
+        }
+        
+        .items-list ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .items-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            transition: all 0.2s ease;
+        }
+        
+        .items-list li:hover {
+            background: #e3f2fd;
+            border-color: #bbdefb;
+        }
+        
+        .item-text {
+            flex: 1;
+            font-weight: 500;
+        }
+        
+        .item-delete {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+        
+        .item-delete:hover {
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(220, 53, 69, 0.4);
+        }
+        
+        .category-select, .corner-select {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 12px;
+            background: white;
+            transition: all 0.2s ease;
+            font-weight: bold;
+        }
+        
+        .category-select:focus, .corner-select:focus {
+            outline: 2px solid #667eea;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+        
+        .category-select:hover, .corner-select:hover {
+            border-color: #999;
+        }
+        
         @media (max-width: 1200px) {
             .controls {
                 flex-direction: column;
@@ -584,6 +746,8 @@
             
             <div class="action-buttons">
                 <button class="btn btn-add" onclick="addNewRow()">➕ הוסף סרטון</button>
+                <button class="btn btn-add" onclick="showCategoryManager()" style="background: linear-gradient(135deg, #6f42c1, #563d7c);">🏷️ נהל קטגוריות</button>
+                <button class="btn btn-add" onclick="showCornerManager()" style="background: linear-gradient(135deg, #fd7e14, #e55d00);">📍 נהל פינות</button>
                 <button class="btn btn-import" onclick="document.getElementById('fileInput').click()">📂 טען קובץ</button>
                 <button class="btn btn-export" onclick="exportData()">📁 יצא JSON</button>
                 <button class="btn btn-excel" onclick="exportToExcel()">📊 יצא לאקסל</button>
@@ -605,6 +769,46 @@
                 <button class="btn-bulk btn-bulk-restore" onclick="bulkRestore()">↩️ החזר מארכיון</button>
                 <button class="btn-bulk btn-bulk-delete" onclick="bulkDelete()">🗑️ מחק לצמיתות</button>
                 <button class="btn-bulk" onclick="clearSelection()" style="background: #6c757d; color: white;">❌ בטל בחירה</button>
+            </div>
+        </div>
+        
+        <!-- מודאל ניהול קטגוריות -->
+        <div class="modal" id="categoryModal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>🏷️ ניהול קטגוריות</h3>
+                    <button class="modal-close" onclick="closeCategoryManager()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="add-item-section">
+                        <input type="text" id="newCategoryInput" placeholder="הכנס קטגוריה חדשה...">
+                        <button class="btn btn-add" onclick="addNewCategory()">➕ הוסף</button>
+                    </div>
+                    <div class="items-list">
+                        <h4>קטגוריות קיימות:</h4>
+                        <ul id="categoriesList"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- מודאל ניהול פינות -->
+        <div class="modal" id="cornerModal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>📍 ניהול פינות</h3>
+                    <button class="modal-close" onclick="closeCornerManager()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="add-item-section">
+                        <input type="text" id="newCornerInput" placeholder="הכנס פינה חדשה...">
+                        <button class="btn btn-add" onclick="addNewCorner()">➕ הוסף</button>
+                    </div>
+                    <div class="items-list">
+                        <h4>פינות קיימות:</h4>
+                        <ul id="cornersList"></ul>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -702,6 +906,20 @@
                 "lastModified": new Date().toISOString(),
                 "modifiedBy": "מערכת"
             }
+        ];
+
+        // רשימות קטגוריות ופינות מוגדרות מראש
+        let predefinedCategories = [
+            "שונות", "אוכל", "טיסות", "זוגיות", "מקצועות", "אמהות וסבתות", 
+            "דת ורוחניות", "השפה העברית", "חיות", "בריאות", "אקטואליה מאולפני הטלוויזיה",
+            "פוליטיקה", "ידועניי ארצנו", "ספורט", "פרסומות", "טיפים", "ידיעות מהעולם",
+            "ישראלים בעולם", "מה אני שומע?", "מקומי", "יהודים בעולם", "גויים",
+            "היסטוריה ועובדות היסטוריות", "בכבישים", "האח הגדול", "מה הם עושים?", "שליחויות", "סיבוב מהיר"
+        ];
+
+        let predefinedCorners = [
+            "פינת בדיקה", "פינת רק סאונד", "פינת איירובוט", "פינת דברים שמניפים באוויר",
+            "טיפים לנהגים"
         ];
 
         let filteredData = [...videoData];
@@ -1005,7 +1223,10 @@
                         ${lastModified ? `<div class="timestamp">עודכן: ${lastModified}</div>` : ''}
                     </td>
                     <td>
-                        <span class="category-cell editable" contenteditable="true" data-field="category" data-index="${index}">${video.category.replace(':', '')}</span>
+                        <select class="category-select" data-field="category" data-index="${index}">
+                            <option value="">בחר קטגוריה</option>
+                            ${predefinedCategories.map(cat => `<option value="${cat}" ${video.category === cat ? 'selected' : ''}>${cat}</option>`).join('')}
+                        </select>
                     </td>
                     <td>
                         <div class="editable" contenteditable="true" data-field="title" data-index="${index}" style="font-weight: bold;">${video.title}</div>
@@ -1029,7 +1250,10 @@
                         <div class="editable" contenteditable="true" data-field="question" data-index="${index}" style="font-weight: bold;">${video.question || ''}</div>
                     </td>
                     <td>
-                        <div class="editable" contenteditable="true" data-field="corner" data-index="${index}" style="font-weight: bold;">${video.corner || ''}</div>
+                        <select class="corner-select" data-field="corner" data-index="${index}">
+                            <option value="">בחר פינה</option>
+                            ${predefinedCorners.map(corner => `<option value="${corner}" ${video.corner === corner ? 'selected' : ''}>${corner}</option>`).join('')}
+                        </select>
                     </td>
                     <td>
                         <select class="program-select" data-field="program" data-index="${index}">
@@ -1161,8 +1385,8 @@
                 });
             });
 
-            // אירועים לתפריטי תוכנית
-            document.querySelectorAll('.program-select').forEach(element => {
+            // אירועים לתפריטי תוכנית, קטגוריות ופינות
+            document.querySelectorAll('.program-select, .category-select, .corner-select').forEach(element => {
                 element.addEventListener('change', async function() {
                     const index = parseInt(this.dataset.index);
                     const field = this.dataset.field;
@@ -1183,6 +1407,13 @@
                         }
                         updateStats();
                         await saveData(); // שמירה אוטומטית
+                        
+                        // עדכון הפילטרים אם נדרש
+                        if (field === 'category') {
+                            populateCategoryFilter();
+                        } else if (field === 'corner') {
+                            populateCornerFilter();
+                        }
                     }
                 });
             });
@@ -1325,7 +1556,7 @@
             const now = new Date().toISOString();
             const newVideo = {
                 number: "",
-                category: "שונות",
+                category: predefinedCategories[0] || "שונות", // קטגוריה בסיסית
                 title: "סרטון חדש",
                 description: "",
                 marked: false,
@@ -1417,7 +1648,28 @@
                         if (confirm(`האם אתה בטוח שברצונך לטעון ${importedData.length} סרטונים? זה יחליף את כל הנתונים הנוכחיים!`)) {
                             videoData = importedData;
                             
-                            // הוספת שדות חדשים לנתונים מיובאים (תאימות אחורה)
+                            // עדכון רשימות הקטגוריות והפינות מהנתונים המיובאים
+                            const importedCategories = [...new Set(videoData.map(v => v.category).filter(c => c))];
+                            const importedCorners = [...new Set(videoData.map(v => v.corner).filter(c => c))];
+                            
+                            // הוספת קטגוריות חדשות שלא קיימות
+                            importedCategories.forEach(cat => {
+                                if (!predefinedCategories.includes(cat)) {
+                                    predefinedCategories.push(cat);
+                                }
+                            });
+                            
+                            // הוספת פינות חדשות שלא קיימות
+                            importedCorners.forEach(corner => {
+                                if (!predefinedCorners.includes(corner)) {
+                                    predefinedCorners.push(corner);
+                                }
+                            });
+                            
+                            // סידור ושמירה
+                            predefinedCategories.sort();
+                            predefinedCorners.sort();
+                            saveCategoriesAndCorners();
                             videoData.forEach(video => {
                                 if (!video.hasOwnProperty('program')) video.program = "";
                                 if (!video.hasOwnProperty('archived')) video.archived = false;
@@ -1591,7 +1843,176 @@
             }
         }
 
-        // ===== פונקציות ייצוא לאקסל =====
+        // ===== פונקציות ניהול קטגוריות ופינות =====
+        
+        // טעינת קטגוריות ופינות מ-localStorage
+        function loadCategoriesAndCorners() {
+            try {
+                const savedCategories = localStorage.getItem('predefinedCategories');
+                if (savedCategories) {
+                    predefinedCategories = JSON.parse(savedCategories);
+                }
+                
+                const savedCorners = localStorage.getItem('predefinedCorners');
+                if (savedCorners) {
+                    predefinedCorners = JSON.parse(savedCorners);
+                }
+            } catch (e) {
+                console.error('שגיאה בטעינת קטגוריות ופינות:', e);
+            }
+        }
+        
+        // שמירת קטגוריות ופינות ל-localStorage
+        function saveCategoriesAndCorners() {
+            try {
+                localStorage.setItem('predefinedCategories', JSON.stringify(predefinedCategories));
+                localStorage.setItem('predefinedCorners', JSON.stringify(predefinedCorners));
+            } catch (e) {
+                console.error('שגיאה בשמירת קטגוריות ופינות:', e);
+            }
+        }
+        
+        // פתיחת מודאל ניהול קטגוריות
+        function showCategoryManager() {
+            const modal = document.getElementById('categoryModal');
+            populateCategoriesList();
+            modal.style.display = 'flex';
+        }
+        
+        // סגירת מודאל ניהול קטגוריות
+        function closeCategoryManager() {
+            const modal = document.getElementById('categoryModal');
+            modal.style.display = 'none';
+            document.getElementById('newCategoryInput').value = '';
+        }
+        
+        // פתיחת מודאל ניהול פינות
+        function showCornerManager() {
+            const modal = document.getElementById('cornerModal');
+            populateCornersList();
+            modal.style.display = 'flex';
+        }
+        
+        // סגירת מודאל ניהול פינות
+        function closeCornerManager() {
+            const modal = document.getElementById('cornerModal');
+            modal.style.display = 'none';
+            document.getElementById('newCornerInput').value = '';
+        }
+        
+        // מילוי רשימת הקטגוריות במודאל
+        function populateCategoriesList() {
+            const list = document.getElementById('categoriesList');
+            list.innerHTML = '';
+            
+            predefinedCategories.forEach((category, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span class="item-text">${category}</span>
+                    <button class="item-delete" onclick="deleteCategory(${index})" title="מחק קטגוריה">✖</button>
+                `;
+                list.appendChild(li);
+            });
+        }
+        
+        // מילוי רשימת הפינות במודאל
+        function populateCornersList() {
+            const list = document.getElementById('cornersList');
+            list.innerHTML = '';
+            
+            predefinedCorners.forEach((corner, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span class="item-text">${corner}</span>
+                    <button class="item-delete" onclick="deleteCorner(${index})" title="מחק פינה">✖</button>
+                `;
+                list.appendChild(li);
+            });
+        }
+        
+        // הוספת קטגוריה חדשה
+        function addNewCategory() {
+            const input = document.getElementById('newCategoryInput');
+            const newCategory = input.value.trim();
+            
+            if (newCategory && !predefinedCategories.includes(newCategory)) {
+                predefinedCategories.push(newCategory);
+                predefinedCategories.sort(); // סידור אלפביתי
+                saveCategoriesAndCorners();
+                populateCategoriesList();
+                populateCategoryFilter();
+                // עדכון הטבלה כדי לכלול את הקטגוריה החדשה
+                populateTable(filteredData);
+                input.value = '';
+                showSaveIndicator('✅ קטגוריה נוספה!');
+            } else if (predefinedCategories.includes(newCategory)) {
+                alert('קטגוריה זו כבר קיימת!');
+            } else {
+                alert('אנא הכנס שם קטגוריה!');
+            }
+        }
+        
+        // הוספת פינה חדשה
+        function addNewCorner() {
+            const input = document.getElementById('newCornerInput');
+            const newCorner = input.value.trim();
+            
+            if (newCorner && !predefinedCorners.includes(newCorner)) {
+                predefinedCorners.push(newCorner);
+                predefinedCorners.sort(); // סידור אלפביתי
+                saveCategoriesAndCorners();
+                populateCornersList();
+                populateCornerFilter();
+                // עדכון הטבלה כדי לכלול את הפינה החדשה
+                populateTable(filteredData);
+                input.value = '';
+                showSaveIndicator('✅ פינה נוספה!');
+            } else if (predefinedCorners.includes(newCorner)) {
+                alert('פינה זו כבר קיימת!');
+            } else {
+                alert('אנא הכנס שם פינה!');
+            }
+        }
+        
+        // מחיקת קטגוריה
+        function deleteCategory(index) {
+            const category = predefinedCategories[index];
+            if (confirm(`האם אתה בטוח שברצונך למחוק את הקטגוריה "${category}"?`)) {
+                predefinedCategories.splice(index, 1);
+                saveCategoriesAndCorners();
+                populateCategoriesList();
+                populateCategoryFilter();
+                // עדכון הטבלה
+                populateTable(filteredData);
+                showSaveIndicator('✅ קטגוריה נמחקה!');
+            }
+        }
+        
+        // מחיקת פינה
+        function deleteCorner(index) {
+            const corner = predefinedCorners[index];
+            if (confirm(`האם אתה בטוח שברצונך למחוק את הפינה "${corner}"?`)) {
+                predefinedCorners.splice(index, 1);
+                saveCategoriesAndCorners();
+                populateCornersList();
+                populateCornerFilter();
+                // עדכון הטבלה
+                populateTable(filteredData);
+                showSaveIndicator('✅ פינה נמחקה!');
+            }
+        }
+        
+        // סגירת מודאל בלחיצה על הרקע
+        window.onclick = function(event) {
+            const categoryModal = document.getElementById('categoryModal');
+            const cornerModal = document.getElementById('cornerModal');
+            
+            if (event.target === categoryModal) {
+                closeCategoryManager();
+            } else if (event.target === cornerModal) {
+                closeCornerManager();
+            }
+        };
         function exportToExcel() {
             try {
                 showSaveIndicator('📊 יוצר קובץ Excel...');
@@ -1708,6 +2129,9 @@
         async function initApp() {
             // טעינת היסטוריה מהמחשב
             loadHistory();
+            
+            // טעינת קטגוריות ופינות מהמחשב
+            loadCategoriesAndCorners();
             
             // טעינת נתונים מהענן
             const dataLoaded = await loadData();
