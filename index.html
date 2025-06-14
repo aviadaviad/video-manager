@@ -751,6 +751,14 @@
                 <button class="btn btn-import" onclick="document.getElementById('fileInput').click()">📂 טען קובץ</button>
                 <button class="btn btn-export" onclick="exportData()">📁 יצא JSON</button>
                 <button class="btn btn-excel" onclick="exportToExcel()">📊 יצא לאקסל</button>
+                
+                <!-- כפתורי מצב תצוגה -->
+                <select class="category-filter" id="workModeSelect" onchange="changeWorkMode()" style="background: linear-gradient(135deg, #28a745, #20c997); color: white; font-weight: bold;">
+                    <option value="all">📋 הצג הכל</option>
+                    <option value="unassigned">📝 לא שויכים</option>
+                    ${Array.from({length: 25}, (_, i) => `<option value="program-${i + 1}">🎯 עבודה על תוכנית ${i + 1}</option>`).join('')}
+                </select>
+                
                 <button class="btn btn-export" onclick="toggleArchive()" id="archiveToggle">📦 הצג ארכיון</button>
                 <button class="btn btn-export" onclick="refreshData()">🔄 רענן נתונים</button>
                 <button class="btn btn-export" onclick="clearData()">🗑️ נקה הכל</button>
@@ -1463,12 +1471,34 @@
             const archivedCount = videoData.filter(video => video.archived).length;
             const activeCount = videoData.filter(video => !video.archived).length;
             
-            const statusText = showArchived ? `📦 מציג ארכיון (${archivedCount})` : `📋 מציג פעיל (${activeCount})`;
+            // הגדרת טקסט הסטטוס לפי המצב הנוכחי
+            let statusText;
+            if (showArchived) {
+                statusText = `📦 מציג ארכיון (${archivedCount})`;
+            } else {
+                switch (workMode) {
+                    case 'all':
+                        statusText = `📋 מציג הכל (${activeCount})`;
+                        break;
+                    case 'unassigned':
+                        const unassignedCount = videoData.filter(v => !v.archived && (!v.program || v.program === '')).length;
+                        statusText = `📝 לא שויכים (${unassignedCount})`;
+                        break;
+                    default:
+                        if (workMode.startsWith('program-')) {
+                            const programNum = workMode.split('-')[1];
+                            const programCount = videoData.filter(v => !v.archived && v.program === programNum).length;
+                            const unassignedCount = videoData.filter(v => !v.archived && (!v.program || v.program === '')).length;
+                            statusText = `🎯 תוכנית ${programNum} (${programCount} + ${unassignedCount} לא שויכים)`;
+                        }
+                        break;
+                }
+            }
             
             // סטטוס Firebase
             const cloudStatus = '🔥 Firebase - זמן אמת';
             
-            stats.textContent = `${cloudStatus} | ${statusText} | 📊 ${totalVideos} סרטונים | ${totalCategories} קטגוריות | ${totalCorners} פינות | ${videosWithPrograms} עם תוכנית | ${markedVideos} מסומנים | ${videosWithNumbers} עם מספרים | ${videosWithLinks} עם קישורים | ${videosWithDescriptions} עם תיאורים`;
+            stats.textContent = `${cloudStatus} | ${statusText} | 📊 ${totalVideos} מוצגים | ${totalCategories} קטגוריות | ${totalCorners} פינות | ${videosWithPrograms} עם תוכנית | ${markedVideos} מסומנים | ${videosWithNumbers} עם מספרים | ${videosWithLinks} עם קישורים | ${videosWithDescriptions} עם תיאורים`;
         }
 
         function filterData() {
@@ -1491,7 +1521,19 @@
                 const matchesProgram = !selectedProgram || video.program === selectedProgram;
                 const matchesArchiveStatus = video.archived === showArchived;
                 
-                return matchesSearch && matchesCategory && matchesCorner && matchesProgram && matchesArchiveStatus;
+                // לוגיקת מצב עבודה על תוכנית
+                let matchesWorkMode = true;
+                if (!showArchived) { // מצב עבודה רלוונטי רק כשלא בארכיון
+                    if (workMode === 'unassigned') {
+                        matchesWorkMode = !video.program || video.program === '';
+                    } else if (workMode.startsWith('program-')) {
+                        const programNum = workMode.split('-')[1];
+                        matchesWorkMode = !video.program || video.program === '' || video.program === programNum;
+                    }
+                    // אם workMode === 'all' אז matchesWorkMode נשאר true
+                }
+                
+                return matchesSearch && matchesCategory && matchesCorner && matchesProgram && matchesArchiveStatus && matchesWorkMode;
             });
 
             // אם יש סידור פעיל, החל אותו על הנתונים המסוננים
@@ -1544,11 +1586,37 @@
             if (showArchived) {
                 toggleBtn.textContent = '📋 הצג רגיל';
                 toggleBtn.style.background = 'linear-gradient(135deg, #ffc107, #ff8b00)';
+                // באמצע הארכיון - אפס את מצב העבודה ל"הצג הכל"
+                workMode = 'all';
+                document.getElementById('workModeSelect').value = 'all';
             } else {
                 toggleBtn.textContent = '📦 הצג ארכיון';
                 toggleBtn.style.background = 'linear-gradient(135deg, #17a2b8, #138496)';
             }
             clearSelection(); // ניקוי בחירות בעת החלפת תצוגה
+            filterData();
+        }
+
+        // פונקציה לשינוי מצב עבודה על תוכנית
+        function changeWorkMode() {
+            const workModeSelect = document.getElementById('workModeSelect');
+            workMode = workModeSelect.value;
+            
+            if (workMode.startsWith('program-')) {
+                currentWorkProgram = workMode.split('-')[1];
+            } else {
+                currentWorkProgram = null;
+            }
+            
+            // אם עברנו למצב עבודה, ודא שלא במצב ארכיון
+            if (workMode !== 'all' && showArchived) {
+                showArchived = false;
+                const toggleBtn = document.getElementById('archiveToggle');
+                toggleBtn.textContent = '📦 הצג ארכיון';
+                toggleBtn.style.background = 'linear-gradient(135deg, #17a2b8, #138496)';
+            }
+            
+            clearSelection(); // ניקוי בחירות בעת החלפת מצב
             filterData();
         }
 
