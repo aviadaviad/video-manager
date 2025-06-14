@@ -1153,11 +1153,9 @@
                         </th>
                         <th style="width: 200px;">הסרטון</th>
                         <th style="width: 250px;">תיאור הסרטון</th>
-                        <th style="width: 150px;">קישור לסרטון</th>
+                        <th style="width: 120px;">קישור לסרטון</th>
                         <th style="width: 120px;">מקור</th>
-                        <th style="width: 100px;" class="sortable-header" onclick="sortData('date')">
-                            תאריך <span class="sort-indicator" id="sort-date"></span>
-                        </th>
+                        <th style="width: 100px;">תאריך</th>
                         <th style="width: 200px;">שאלה</th>
                         <th style="width: 130px;" class="sortable-header" onclick="sortData('corner')">
                             פינה <span class="sort-indicator" id="sort-corner"></span>
@@ -1594,10 +1592,13 @@
                         </div>
                     </td>
                     <td>
-                        <div class="editable" contenteditable="true" data-field="source" data-index="${index}">${video.source || ''}</div>
+                        <div class="link-container">
+                            <input type="url" class="link-input" placeholder="הכנס קישור מקור..." value="${video.source || ''}" data-field="source" data-index="${index}">
+                            ${video.source && video.source.trim() ? `<button class="btn-open-link" onclick="openLink('${video.source}')">פתח</button>` : ''}
+                        </div>
                     </td>
                     <td>
-                        <input type="date" class="editable date-input" data-field="date" data-index="${index}" value="${video.date || ''}" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px;">
+                        <div class="editable" contenteditable="true" data-field="date" data-index="${index}" placeholder="תאריך">${video.date || ''}</div>
                     </td>
                     <td>
                         <div class="editable" contenteditable="true" data-field="question" data-index="${index}" style="font-weight: bold;">${video.question || ''}</div>
@@ -1674,7 +1675,7 @@
                         
                         ${video.link ? `
                         <div class="mobile-field">
-                            <span class="mobile-field-label">🔗 קישור</span>
+                            <span class="mobile-field-label">🔗 קישור לסרטון</span>
                             <div class="mobile-link-container">
                                 <input type="url" class="mobile-input" placeholder="הכנס קישור..." value="${video.link}" data-field="link" data-index="${index}">
                                 <button class="mobile-btn" onclick="openLink('${video.link}')" style="background: linear-gradient(135deg, #28a745, #20c997);">פתח</button>
@@ -1685,14 +1686,17 @@
                         ${video.source ? `
                         <div class="mobile-field">
                             <span class="mobile-field-label">📺 מקור</span>
-                            <div class="mobile-editable" contenteditable="true" data-field="source" data-index="${index}">${video.source}</div>
+                            <div class="mobile-link-container">
+                                <input type="url" class="mobile-input" placeholder="הכנס קישור מקור..." value="${video.source}" data-field="source" data-index="${index}">
+                                <button class="mobile-btn" onclick="openLink('${video.source}')" style="background: linear-gradient(135deg, #ff9500, #ff6b00);">פתח</button>
+                            </div>
                         </div>
                         ` : ''}
                         
                         ${video.date ? `
                         <div class="mobile-field">
                             <span class="mobile-field-label">📅 תאריך</span>
-                            <input type="date" class="mobile-input" data-field="date" data-index="${index}" value="${video.date}">
+                            <div class="mobile-editable" contenteditable="true" data-field="date" data-index="${index}">${video.date}</div>
                         </div>
                         ` : ''}
                         
@@ -1840,8 +1844,8 @@
                 });
             });
 
-            // אירועים לקישורים ותאריכים במובייל
-            document.querySelectorAll('#mobileCards .mobile-input').forEach(element => {
+            // אירועים לקישורים במובייל (כולל מקור)
+            document.querySelectorAll('#mobileCards .mobile-input[data-field="link"], #mobileCards .mobile-input[data-field="source"]').forEach(element => {
                 element.addEventListener('change', async function() {
                     const index = parseInt(this.dataset.index);
                     const field = this.dataset.field;
@@ -1862,10 +1866,8 @@
                         }
                         await saveData(); // שמירה אוטומטית
                         
-                        // עדכון הטבלה כדי להציג/להסתיר כפתור "פתח" (רק לקישורים)
-                        if (field === 'link') {
-                            populateTable(filteredData);
-                        }
+                        // עדכון הטבלה כדי להציג/להסתיר כפתור "פתח"
+                        populateTable(filteredData);
                     }
                 });
             });
@@ -1991,8 +1993,8 @@
                 }
             });
 
-            // אירועים לקישורים ותאריכים
-            document.querySelectorAll('.link-input, input[type="date"]').forEach(element => {
+            // אירועים לקישורים (כולל מקור)
+            document.querySelectorAll('.link-input').forEach(element => {
                 element.addEventListener('change', async function() {
                     const index = parseInt(this.dataset.index);
                     const field = this.dataset.field;
@@ -2013,10 +2015,8 @@
                         }
                         await saveData(); // שמירה אוטומטית
                         
-                        // עדכון הטבלה כדי להציג/להסתיר כפתור "פתח" (רק לקישורים)
-                        if (field === 'link') {
-                            populateTable(filteredData);
-                        }
+                        // עדכון הטבלה כדי להציג/להסתיר כפתור "פתח"
+                        populateTable(filteredData);
                     }
                 });
             });
@@ -2148,10 +2148,6 @@
                         case 'category':
                             valueA = a.category.toLowerCase();
                             valueB = b.category.toLowerCase();
-                            break;
-                        case 'date':
-                            valueA = a.date || '0000-00-00';
-                            valueB = b.date || '0000-00-00';
                             break;
                         case 'corner':
                             valueA = (a.corner || '').toLowerCase();
@@ -2768,8 +2764,8 @@
                     'קטגוריה': video.category || '',
                     'כותרת הסרטון': video.title || '',
                     'תיאור': video.description || '',
-                    'קישור': video.link || '',
-                    'מקור': video.source || '',
+                    'קישור לסרטון': video.link || '',
+                    'מקור (קישור)': video.source || '',
                     'תאריך': video.date || '',
                     'שאלה': video.question || '',
                     'פינה': video.corner || '',
@@ -2789,8 +2785,8 @@
                             <th>קטגוריה</th>
                             <th>כותרת הסרטון</th>
                             <th>תיאור</th>
-                            <th>קישור</th>
-                            <th>מקור</th>
+                            <th>קישור לסרטון</th>
+                            <th>מקור (קישור)</th>
                             <th>תאריך</th>
                             <th>שאלה</th>
                             <th>פינה</th>
