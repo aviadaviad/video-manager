@@ -73,6 +73,94 @@
             min-width: 200px;
         }
         
+        /* סטיילים מיוחדים למולטי-סלקט של תוכניות */
+        .program-filter-container {
+            position: relative;
+            min-width: 200px;
+        }
+        
+        .program-filter-display {
+            min-width: 200px;
+            padding: 12px 20px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+        
+        .program-filter-display:hover {
+            border-color: #999;
+        }
+        
+        .program-filter-display.active {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .program-filter-arrow {
+            transition: transform 0.3s ease;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .program-filter-arrow.rotated {
+            transform: rotate(180deg);
+        }
+        
+        .program-filter-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            z-index: 1000;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            margin-top: 5px;
+        }
+        
+        .program-filter-dropdown.show {
+            display: block;
+        }
+        
+        .program-option {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .program-option:last-child {
+            border-bottom: none;
+        }
+        
+        .program-option:hover {
+            background: #f8f9ff;
+        }
+        
+        .program-option.selected {
+            background: linear-gradient(135deg, #e8f3ff, #f0f8ff);
+            color: #2c5aa0;
+            font-weight: bold;
+        }
+        
+        .program-option input[type="checkbox"] {
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        
         .action-buttons {
             display: flex;
             gap: 10px;
@@ -580,6 +668,17 @@
             overflow: hidden;
         }
         
+        /* מודאל גדול יותר לייצוא וורד */
+        .modal-content.large {
+            max-width: 600px;
+            max-height: 90vh;
+        }
+        
+        .modal-body.large {
+            padding: 30px;
+            max-height: 75vh;
+        }
+        
         .modal-header {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
@@ -735,38 +834,84 @@
             border-color: #999;
         }
         
-        /* סטיילים למודאל ייצוא וורד */
+        /* סטיילים למודאל ייצוא וורד משופר */
         .word-export-options {
             margin-bottom: 20px;
         }
         
         .word-export-options label {
             display: block;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             font-weight: bold;
             color: #495057;
-        }
-        
-        .word-export-select {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
             font-size: 16px;
-            background: white;
-            transition: all 0.3s ease;
         }
         
-        .word-export-select:focus {
-            outline: none;
+        /* סטיילים ל-checkboxes רגילים במקום dropdown */
+        .programs-checkboxes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+        
+        .program-checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #dee2e6;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+        
+        .program-checkbox-item:hover {
             border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: #f8f9ff;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+        }
+        
+        .program-checkbox-item.selected {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: #667eea;
+            font-weight: bold;
+        }
+        
+        .program-checkbox-item input[type="checkbox"] {
+            margin-left: 8px;
+            cursor: pointer;
+            transform: scale(1.2);
+        }
+        
+        .program-checkbox-item label {
+            cursor: pointer;
+            flex: 1;
+            margin: 0;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .program-checkbox-item.selected label {
+            color: white;
+            font-weight: bold;
         }
         
         .word-export-buttons {
             display: flex;
             gap: 10px;
             justify-content: flex-end;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px solid #e9ecef;
         }
         
         .btn-word-export {
@@ -976,7 +1121,7 @@
                 flex-direction: column;
             }
             
-            .search-box, .category-filter {
+            .search-box, .category-filter, .program-filter-container {
                 width: 100%;
                 min-width: auto;
             }
@@ -1025,10 +1170,18 @@
                 font-size: 16px;
             }
             
-            .search-box, .category-filter {
+            .search-box, .category-filter, .program-filter-container {
                 font-size: 16px;
-                padding: 15px 20px;
                 margin-bottom: 10px;
+            }
+            
+            .search-box, .category-filter {
+                padding: 15px 20px;
+            }
+            
+            .program-filter-display {
+                padding: 15px 20px;
+                font-size: 16px;
             }
             
             .bulk-actions {
@@ -1067,8 +1220,20 @@
                 margin: 10px;
             }
             
+            .modal-content.large {
+                width: 98%;
+                max-width: none;
+                margin: 5px;
+                max-height: 95vh;
+            }
+            
             .modal-body {
                 padding: 15px;
+            }
+            
+            .modal-body.large {
+                padding: 20px;
+                max-height: 85vh;
             }
             
             .add-item-section {
@@ -1088,6 +1253,36 @@
                 text-align: center;
                 font-size: 14px;
             }
+            
+            /* התאמות מיוחדות לדרופדאונים בנייד */
+            .program-filter-dropdown {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 90vw;
+                max-width: 400px;
+                max-height: 70vh;
+                z-index: 2000;
+                box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            }
+            
+            .program-option {
+                padding: 15px;
+                font-size: 16px;
+            }
+            
+            /* התאמות למודאל ייצוא וורד בנייד */
+            .programs-checkboxes {
+                grid-template-columns: 1fr;
+                max-height: 250px;
+                gap: 8px;
+            }
+            
+            .program-checkbox-item {
+                padding: 12px 15px;
+                font-size: 16px;
+            }
         }
     </style>
 </head>
@@ -1099,7 +1294,7 @@
             <h1>🎬 מנהל סרטונים - עדכונים אוטומטיים</h1>
             <p>ארגון, עריכה וניהול סרטונים לתסריט - Firebase בזמן אמת</p>
             <p style="font-size: 14px; margin-top: 10px; opacity: 0.9;">
-                🔥 עדכונים אוטומטיים | ⚡ שינויים בזמן אמת | 👥 עבודה משותפת | 💾 שמירה בענן | 📦 ארכיון חכם
+                🔥 עדכונים אוטומטיים | ⚡ שינויים בזמן אמת | 👥 עבודה משותפת | 💾 שמירה בענן | 📦 ארכיון חכם | 🎯 בחירה מרובה
             </p>
         </div>
         
@@ -1111,35 +1306,122 @@
             <select class="category-filter" id="cornerFilter">
                 <option value="">כל הפינות</option>
             </select>
-            <select class="category-filter" id="programFilter">
-                <option value="">כל התוכניות</option>
-                <option value="unassigned">לא שובץ</option>
-                <option value="1">פרק 1</option>
-                <option value="2">פרק 2</option>
-                <option value="3">פרק 3</option>
-                <option value="4">פרק 4</option>
-                <option value="5">פרק 5</option>
-                <option value="6">פרק 6</option>
-                <option value="7">פרק 7</option>
-                <option value="8">פרק 8</option>
-                <option value="9">פרק 9</option>
-                <option value="10">פרק 10</option>
-                <option value="11">פרק 11</option>
-                <option value="12">פרק 12</option>
-                <option value="13">פרק 13</option>
-                <option value="14">פרק 14</option>
-                <option value="15">פרק 15</option>
-                <option value="16">פרק 16</option>
-                <option value="17">פרק 17</option>
-                <option value="18">פרק 18</option>
-                <option value="19">פרק 19</option>
-                <option value="20">פרק 20</option>
-                <option value="21">פרק 21</option>
-                <option value="22">פרק 22</option>
-                <option value="23">פרק 23</option>
-                <option value="24">פרק 24</option>
-                <option value="25">פרק 25</option>
-            </select>
+            <div class="program-filter-container">
+                <div class="program-filter-display" onclick="toggleProgramFilter()" id="programFilterDisplay">
+                    <span id="programFilterText">כל התוכניות</span>
+                    <span class="program-filter-arrow" id="programFilterArrow">▼</span>
+                </div>
+                <div class="program-filter-dropdown" id="programFilterDropdown">
+                    <div class="program-option" data-value="">
+                        <input type="checkbox" id="program-all" onchange="toggleProgramOption('', this)">
+                        <label for="program-all">כל התוכניות</label>
+                    </div>
+                    <div class="program-option" data-value="unassigned">
+                        <input type="checkbox" id="program-unassigned" onchange="toggleProgramOption('unassigned', this)">
+                        <label for="program-unassigned">לא שובץ</label>
+                    </div>
+                    <div class="program-option" data-value="1">
+                        <input type="checkbox" id="program-1" onchange="toggleProgramOption('1', this)">
+                        <label for="program-1">פרק 1</label>
+                    </div>
+                    <div class="program-option" data-value="2">
+                        <input type="checkbox" id="program-2" onchange="toggleProgramOption('2', this)">
+                        <label for="program-2">פרק 2</label>
+                    </div>
+                    <div class="program-option" data-value="3">
+                        <input type="checkbox" id="program-3" onchange="toggleProgramOption('3', this)">
+                        <label for="program-3">פרק 3</label>
+                    </div>
+                    <div class="program-option" data-value="4">
+                        <input type="checkbox" id="program-4" onchange="toggleProgramOption('4', this)">
+                        <label for="program-4">פרק 4</label>
+                    </div>
+                    <div class="program-option" data-value="5">
+                        <input type="checkbox" id="program-5" onchange="toggleProgramOption('5', this)">
+                        <label for="program-5">פרק 5</label>
+                    </div>
+                    <div class="program-option" data-value="6">
+                        <input type="checkbox" id="program-6" onchange="toggleProgramOption('6', this)">
+                        <label for="program-6">פרק 6</label>
+                    </div>
+                    <div class="program-option" data-value="7">
+                        <input type="checkbox" id="program-7" onchange="toggleProgramOption('7', this)">
+                        <label for="program-7">פרק 7</label>
+                    </div>
+                    <div class="program-option" data-value="8">
+                        <input type="checkbox" id="program-8" onchange="toggleProgramOption('8', this)">
+                        <label for="program-8">פרק 8</label>
+                    </div>
+                    <div class="program-option" data-value="9">
+                        <input type="checkbox" id="program-9" onchange="toggleProgramOption('9', this)">
+                        <label for="program-9">פרק 9</label>
+                    </div>
+                    <div class="program-option" data-value="10">
+                        <input type="checkbox" id="program-10" onchange="toggleProgramOption('10', this)">
+                        <label for="program-10">פרק 10</label>
+                    </div>
+                    <div class="program-option" data-value="11">
+                        <input type="checkbox" id="program-11" onchange="toggleProgramOption('11', this)">
+                        <label for="program-11">פרק 11</label>
+                    </div>
+                    <div class="program-option" data-value="12">
+                        <input type="checkbox" id="program-12" onchange="toggleProgramOption('12', this)">
+                        <label for="program-12">פרק 12</label>
+                    </div>
+                    <div class="program-option" data-value="13">
+                        <input type="checkbox" id="program-13" onchange="toggleProgramOption('13', this)">
+                        <label for="program-13">פרק 13</label>
+                    </div>
+                    <div class="program-option" data-value="14">
+                        <input type="checkbox" id="program-14" onchange="toggleProgramOption('14', this)">
+                        <label for="program-14">פרק 14</label>
+                    </div>
+                    <div class="program-option" data-value="15">
+                        <input type="checkbox" id="program-15" onchange="toggleProgramOption('15', this)">
+                        <label for="program-15">פרק 15</label>
+                    </div>
+                    <div class="program-option" data-value="16">
+                        <input type="checkbox" id="program-16" onchange="toggleProgramOption('16', this)">
+                        <label for="program-16">פרק 16</label>
+                    </div>
+                    <div class="program-option" data-value="17">
+                        <input type="checkbox" id="program-17" onchange="toggleProgramOption('17', this)">
+                        <label for="program-17">פרק 17</label>
+                    </div>
+                    <div class="program-option" data-value="18">
+                        <input type="checkbox" id="program-18" onchange="toggleProgramOption('18', this)">
+                        <label for="program-18">פרק 18</label>
+                    </div>
+                    <div class="program-option" data-value="19">
+                        <input type="checkbox" id="program-19" onchange="toggleProgramOption('19', this)">
+                        <label for="program-19">פרק 19</label>
+                    </div>
+                    <div class="program-option" data-value="20">
+                        <input type="checkbox" id="program-20" onchange="toggleProgramOption('20', this)">
+                        <label for="program-20">פרק 20</label>
+                    </div>
+                    <div class="program-option" data-value="21">
+                        <input type="checkbox" id="program-21" onchange="toggleProgramOption('21', this)">
+                        <label for="program-21">פרק 21</label>
+                    </div>
+                    <div class="program-option" data-value="22">
+                        <input type="checkbox" id="program-22" onchange="toggleProgramOption('22', this)">
+                        <label for="program-22">פרק 22</label>
+                    </div>
+                    <div class="program-option" data-value="23">
+                        <input type="checkbox" id="program-23" onchange="toggleProgramOption('23', this)">
+                        <label for="program-23">פרק 23</label>
+                    </div>
+                    <div class="program-option" data-value="24">
+                        <input type="checkbox" id="program-24" onchange="toggleProgramOption('24', this)">
+                        <label for="program-24">פרק 24</label>
+                    </div>
+                    <div class="program-option" data-value="25">
+                        <input type="checkbox" id="program-25" onchange="toggleProgramOption('25', this)">
+                        <label for="program-25">פרק 25</label>
+                    </div>
+                </div>
+            </div>
             
             <div class="action-buttons">
                 <button class="btn btn-add" onclick="addNewRow()">➕ הוסף סרטון</button>
@@ -1210,45 +1492,126 @@
             </div>
         </div>
         
-        <!-- מודאל ייצוא וורד חדש -->
+        <!-- מודאל ייצוא וורד משופר עם Checkboxes רגילים -->
         <div class="modal" id="wordExportModal" style="display: none;">
-            <div class="modal-content">
+            <div class="modal-content large">
                 <div class="modal-header">
                     <h3>📝 ייצוא לוורד</h3>
                     <button class="modal-close" onclick="closeWordExportDialog()">&times;</button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body large">
                     <div class="word-export-options">
-                        <label for="exportProgramSelect">בחר תוכנית לייצוא:</label>
-                        <select class="word-export-select" id="exportProgramSelect">
-                            <option value="">כל התוכניות</option>
-                            <option value="unassigned">לא שובץ</option>
-                            <option value="1">פרק 1</option>
-                            <option value="2">פרק 2</option>
-                            <option value="3">פרק 3</option>
-                            <option value="4">פרק 4</option>
-                            <option value="5">פרק 5</option>
-                            <option value="6">פרק 6</option>
-                            <option value="7">פרק 7</option>
-                            <option value="8">פרק 8</option>
-                            <option value="9">פרק 9</option>
-                            <option value="10">פרק 10</option>
-                            <option value="11">פרק 11</option>
-                            <option value="12">פרק 12</option>
-                            <option value="13">פרק 13</option>
-                            <option value="14">פרק 14</option>
-                            <option value="15">פרק 15</option>
-                            <option value="16">פרק 16</option>
-                            <option value="17">פרק 17</option>
-                            <option value="18">פרק 18</option>
-                            <option value="19">פרק 19</option>
-                            <option value="20">פרק 20</option>
-                            <option value="21">פרק 21</option>
-                            <option value="22">פרק 22</option>
-                            <option value="23">פרק 23</option>
-                            <option value="24">פרק 24</option>
-                            <option value="25">פרק 25</option>
-                        </select>
+                        <label>בחר תוכניות לייצוא:</label>
+                        <div class="programs-checkboxes">
+                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('', this)">
+                                <input type="checkbox" id="word-export-all" onchange="handleWordExportProgramChange('', this)">
+                                <label for="word-export-all">כל התוכניות</label>
+                            </div>
+                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('unassigned', this)">
+                                <input type="checkbox" id="word-export-unassigned" onchange="handleWordExportProgramChange('unassigned', this)">
+                                <label for="word-export-unassigned">לא שובץ</label>
+                            </div>
+                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('1', this)">
+                                <input type="checkbox" id="word-export-1" onchange="handleWordExportProgramChange('1', this)">
+                                <label for="word-export-1">פרק 1</label>
+                            </div>
+                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('2', this)">
+                                <input type="checkbox" id="word-export-2" onchange="handleWordExportProgramChange('2', this)">
+                                <label for="word-export-2">פרק 2</label>
+                            </div>
+                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('3', this)">
+                                <input type="checkbox" id="word-export-3" onchange="handleWordExportProgramChange('3', this)">
+                                <label for="word-export-3">פרק 3</label>
+                            </div>
+                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('4', this)">
+                                <input type="checkbox" id="word-export-4" onchange="handleWordExportProgramChange('4', this)">
+                                <label for="word-export-4">פרק 4</label>
+                            </div>
+                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('5', this)">
+                                <input type="checkbox" id="word-export-5" onchange="handleWordExportProgramChange('5', this)">
+                                <label for="word-export-5">פרק 5</label>
+                            </div>
+                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('6', this)">
+                                <input type="checkbox" id="word-export-6" onchange="handleWordExportProgramChange('6', this)">
+                                <label for="word-export-6">פרק 6</label>
+                            </div>
+                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('7', this)">
+                                <input type="checkbox" id="word-export-7" onchange="handleWordExportProgramChange('7', this)">
+                                <label for="word-export-7">פרק 7</label>
+                            </div>
+                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('8', this)">
+                                <input type="checkbox" id="word-export-8" onchange="handleWordExportProgramChange('8', this)">
+                                <label for="word-export-8">פרק 8</label>
+                            </div>
+                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('9', this)">
+                                <input type="checkbox" id="word-export-9" onchange="handleWordExportProgramChange('9', this)">
+                                <label for="word-export-9">פרק 9</label>
+                            </div>
+                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('10', this)">
+                                <input type="checkbox" id="word-export-10" onchange="handleWordExportProgramChange('10', this)">
+                                <label for="word-export-10">פרק 10</label>
+                            </div>
+                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('11', this)">
+                                <input type="checkbox" id="word-export-11" onchange="handleWordExportProgramChange('11', this)">
+                                <label for="word-export-11">פרק 11</label>
+                            </div>
+                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('12', this)">
+                                <input type="checkbox" id="word-export-12" onchange="handleWordExportProgramChange('12', this)">
+                                <label for="word-export-12">פרק 12</label>
+                            </div>
+                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('13', this)">
+                                <input type="checkbox" id="word-export-13" onchange="handleWordExportProgramChange('13', this)">
+                                <label for="word-export-13">פרק 13</label>
+                            </div>
+                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('14', this)">
+                                <input type="checkbox" id="word-export-14" onchange="handleWordExportProgramChange('14', this)">
+                                <label for="word-export-14">פרק 14</label>
+                            </div>
+                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('15', this)">
+                                <input type="checkbox" id="word-export-15" onchange="handleWordExportProgramChange('15', this)">
+                                <label for="word-export-15">פרק 15</label>
+                            </div>
+                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('16', this)">
+                                <input type="checkbox" id="word-export-16" onchange="handleWordExportProgramChange('16', this)">
+                                <label for="word-export-16">פרק 16</label>
+                            </div>
+                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('17', this)">
+                                <input type="checkbox" id="word-export-17" onchange="handleWordExportProgramChange('17', this)">
+                                <label for="word-export-17">פרק 17</label>
+                            </div>
+                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('18', this)">
+                                <input type="checkbox" id="word-export-18" onchange="handleWordExportProgramChange('18', this)">
+                                <label for="word-export-18">פרק 18</label>
+                            </div>
+                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('19', this)">
+                                <input type="checkbox" id="word-export-19" onchange="handleWordExportProgramChange('19', this)">
+                                <label for="word-export-19">פרק 19</label>
+                            </div>
+                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('20', this)">
+                                <input type="checkbox" id="word-export-20" onchange="handleWordExportProgramChange('20', this)">
+                                <label for="word-export-20">פרק 20</label>
+                            </div>
+                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('21', this)">
+                                <input type="checkbox" id="word-export-21" onchange="handleWordExportProgramChange('21', this)">
+                                <label for="word-export-21">פרק 21</label>
+                            </div>
+                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('22', this)">
+                                <input type="checkbox" id="word-export-22" onchange="handleWordExportProgramChange('22', this)">
+                                <label for="word-export-22">פרק 22</label>
+                            </div>
+                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('23', this)">
+                                <input type="checkbox" id="word-export-23" onchange="handleWordExportProgramChange('23', this)">
+                                <label for="word-export-23">פרק 23</label>
+                            </div>
+                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('24', this)">
+                                <input type="checkbox" id="word-export-24" onchange="handleWordExportProgramChange('24', this)">
+                                <label for="word-export-24">פרק 24</label>
+                            </div>
+                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('25', this)">
+                                <input type="checkbox" id="word-export-25" onchange="handleWordExportProgramChange('25', this)">
+                                <label for="word-export-25">פרק 25</label>
+                            </div>
+                        </div>
                     </div>
                     <div class="word-export-buttons">
                         <button class="btn-word-export secondary" onclick="closeWordExportDialog()">ביטול</button>
@@ -1383,6 +1746,10 @@
         let currentSortField = '';
         let currentSortDirection = 'none'; // 'none', 'asc', 'desc'
         
+        // משתנים לפילטר תוכניות חדש
+        let selectedPrograms = [];
+        let selectedWordExportPrograms = [];
+        
         // פונקציה להוספת רשומה להיסטוריה
         function addToHistory(action, videoIndex, field, oldValue, newValue) {
             const now = new Date();
@@ -1415,11 +1782,13 @@
             }
         }
 
-        // ===== פונקציות ייצוא וורד חדשות =====
+        // ===== פונקציות ייצוא וורד משופרות עם Checkboxes רגילים =====
         
         // פתיחת דיאלוג ייצוא וורד
         function showWordExportDialog() {
             const modal = document.getElementById('wordExportModal');
+            // איפוס בחירה לכל התוכניות
+            resetWordExportSelection();
             modal.style.display = 'flex';
         }
         
@@ -1429,38 +1798,127 @@
             modal.style.display = 'none';
         }
         
-        // פונקציית ייצוא לוורד
+        // איפוס בחירה לכל התוכניות
+        function resetWordExportSelection() {
+            selectedWordExportPrograms = [''];
+            
+            // איפוס כל הcheckboxes
+            document.querySelectorAll('.program-checkbox-item').forEach(item => {
+                const checkbox = item.querySelector('input[type="checkbox"]');
+                checkbox.checked = false;
+                item.classList.remove('selected');
+            });
+            
+            // סימון "כל התוכניות"
+            const allCheckbox = document.getElementById('word-export-all');
+            allCheckbox.checked = true;
+            allCheckbox.closest('.program-checkbox-item').classList.add('selected');
+        }
+        
+        // טיפול בלחיצה על פריט תוכנית (עבור הקליק על הדיב)
+        function toggleWordExportProgram(value, element) {
+            // אם הלחיצה הייתה על הcheckbox עצמו, לא נעשה כלום (הhandler של הcheckbox יטפל)
+            if (event.target.type === 'checkbox') {
+                return;
+            }
+            
+            // אחרת, נלחץ על הcheckbox
+            const checkbox = element.querySelector('input[type="checkbox"]');
+            checkbox.checked = !checkbox.checked;
+            handleWordExportProgramChange(value, checkbox);
+        }
+        
+        // טיפול בשינוי checkbox של תוכנית
+        function handleWordExportProgramChange(value, checkbox) {
+            if (value === '') {
+                // אם נבחר "כל התוכניות"
+                if (checkbox.checked) {
+                    selectedWordExportPrograms = [''];
+                    // ביטול כל השאר
+                    document.querySelectorAll('.program-checkbox-item').forEach(item => {
+                        const cb = item.querySelector('input[type="checkbox"]');
+                        const itemValue = cb.id.replace('word-export-', '');
+                        if (itemValue !== '') {
+                            cb.checked = false;
+                            item.classList.remove('selected');
+                        } else {
+                            item.classList.add('selected');
+                        }
+                    });
+                } else {
+                    selectedWordExportPrograms = [];
+                    checkbox.closest('.program-checkbox-item').classList.remove('selected');
+                }
+            } else {
+                // בחירת תוכנית ספציפית
+                if (checkbox.checked) {
+                    // הסרת "כל התוכניות" מהבחירה
+                    selectedWordExportPrograms = selectedWordExportPrograms.filter(p => p !== '');
+                    const allCheckbox = document.getElementById('word-export-all');
+                    allCheckbox.checked = false;
+                    allCheckbox.closest('.program-checkbox-item').classList.remove('selected');
+                    
+                    // הוספת הבחירה החדשה
+                    if (!selectedWordExportPrograms.includes(value)) {
+                        selectedWordExportPrograms.push(value);
+                    }
+                    checkbox.closest('.program-checkbox-item').classList.add('selected');
+                } else {
+                    // הסרת הבחירה
+                    selectedWordExportPrograms = selectedWordExportPrograms.filter(p => p !== value);
+                    checkbox.closest('.program-checkbox-item').classList.remove('selected');
+                    
+                    // אם לא נשאר כלום נבחר, חזרה ל"כל התוכניות"
+                    if (selectedWordExportPrograms.length === 0) {
+                        selectedWordExportPrograms = [''];
+                        const allCheckbox = document.getElementById('word-export-all');
+                        allCheckbox.checked = true;
+                        allCheckbox.closest('.program-checkbox-item').classList.add('selected');
+                    }
+                }
+            }
+        }
+        
+        // פונקציית ייצוא לוורד משופרת
         function exportToWord() {
             try {
                 showSaveIndicator('📝 יוצר מסמך וורד...');
                 
-                const selectedProgram = document.getElementById('exportProgramSelect').value;
-                
-                // סינון הנתונים לפי התוכנית שנבחרה
+                // סינון הנתונים לפי התוכניות שנבחרו
                 let dataToExport = videoData.filter(video => !video.archived); // רק סרטונים פעילים
                 
-                if (selectedProgram) {
-                    if (selectedProgram === 'unassigned') {
-                        dataToExport = dataToExport.filter(video => 
-                            video.program === 'unassigned' || !video.program || video.program.trim() === ''
-                        );
-                    } else {
-                        dataToExport = dataToExport.filter(video => video.program === selectedProgram);
-                    }
+                if (selectedWordExportPrograms.length > 0 && !selectedWordExportPrograms.includes('')) {
+                    dataToExport = dataToExport.filter(video => {
+                        // בדיקה אם הסרטון שייך לאחת מהתוכניות הנבחרות
+                        if (selectedWordExportPrograms.includes('unassigned')) {
+                            // אם נבחר "לא שובץ" - כלול גם סרטונים ללא תוכנית
+                            if (video.program === 'unassigned' || !video.program || video.program.trim() === '') {
+                                return true;
+                            }
+                        }
+                        
+                        // בדיקה אם התוכנית של הסרטון נמצאת ברשימה הנבחרת
+                        return selectedWordExportPrograms.includes(video.program);
+                    });
                 }
                 
                 if (dataToExport.length === 0) {
-                    alert('לא נמצאו סרטונים לייצוא עבור התוכנית שנבחרה');
+                    alert('לא נמצאו סרטונים לייצוא עבור התוכניות שנבחרו');
                     return;
                 }
                 
                 // הכנת שם קובץ
                 let fileName = 'סרטונים';
-                if (selectedProgram) {
-                    if (selectedProgram === 'unassigned') {
-                        fileName += '_לא_שובץ';
+                if (selectedWordExportPrograms.length > 0 && !selectedWordExportPrograms.includes('')) {
+                    if (selectedWordExportPrograms.length === 1) {
+                        if (selectedWordExportPrograms[0] === 'unassigned') {
+                            fileName += '_לא_שובץ';
+                        } else {
+                            fileName += `_פרק_${selectedWordExportPrograms[0]}`;
+                        }
                     } else {
-                        fileName += `_פרק_${selectedProgram}`;
+                        // יותר מתוכנית אחת נבחרה
+                        fileName += '_תוכניות_נבחרות';
                     }
                 }
                 fileName += `_${new Date().toISOString().slice(0, 10)}.doc`;
@@ -1558,11 +2016,19 @@
                 
                 // כותרת המסמך
                 wordContent += `<h1>🎬 רשימת סרטונים`;
-                if (selectedProgram) {
-                    if (selectedProgram === 'unassigned') {
-                        wordContent += ' - לא שובצו לפרק';
+                if (selectedWordExportPrograms.length > 0 && !selectedWordExportPrograms.includes('')) {
+                    if (selectedWordExportPrograms.length === 1) {
+                        if (selectedWordExportPrograms[0] === 'unassigned') {
+                            wordContent += ' - לא שובצו לפרק';
+                        } else {
+                            wordContent += ` - פרק ${selectedWordExportPrograms[0]}`;
+                        }
                     } else {
-                        wordContent += ` - פרק ${selectedProgram}`;
+                        // תצוגה של כל התוכניות הנבחרות
+                        const programNames = selectedWordExportPrograms.map(p => 
+                            p === 'unassigned' ? 'לא שובץ' : `פרק ${p}`
+                        ).join(', ');
+                        wordContent += ` - ${programNames}`;
                     }
                 }
                 wordContent += `</h1>`;
@@ -1603,6 +2069,9 @@
                 <div class="summary">
                     <strong>סיכום:</strong><br>
                     סה"כ סרטונים: ${dataToExport.length}<br>
+                    תוכניות שנכללו: ${selectedWordExportPrograms.length > 0 && !selectedWordExportPrograms.includes('') ? 
+                        selectedWordExportPrograms.map(p => p === 'unassigned' ? 'לא שובץ' : `פרק ${p}`).join(', ') : 
+                        'כל התוכניות'}<br>
                     תאריך ייצוא: ${new Date().toLocaleString('he-IL')}<br>
                     מערכת: מנהל סרטונים
                 </div>`;
@@ -2449,11 +2918,11 @@
             stats.textContent = `${cloudStatus} | ${statusText} | 📊 ${totalVideos} סרטונים | ${totalCategories} קטגוריות | ${totalCorners} פינות | ${videosWithPrograms} שובצו לפרקים | ${unassignedPrograms} לא שובצו | ${markedVideos} מסומנים | ${videosWithNumbers} עם מספרים | ${videosWithLinks} עם קישורים | ${videosWithDescriptions} עם תיאורים`;
         }
 
+        // פונקציית סינון משופרת עם תמיכה ב-Multi-Select
         function filterData() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const selectedCategory = document.getElementById('categoryFilter').value;
             const selectedCorner = document.getElementById('cornerFilter').value;
-            const selectedProgram = document.getElementById('programFilter').value;
 
             filteredData = videoData.filter(video => {
                 const matchesSearch = video.title.toLowerCase().includes(searchTerm) || 
@@ -2467,13 +2936,24 @@
                 const matchesCategory = !selectedCategory || video.category === selectedCategory;
                 const matchesCorner = !selectedCorner || video.corner === selectedCorner;
                 
-                // טיפול משופר בפילטר תוכנית עם תמיכה ב"לא שובץ"
+                // טיפול משופר בפילטר תוכנית עם תמיכה ב-Multi-Select
                 let matchesProgram = true;
-                if (selectedProgram) {
-                    if (selectedProgram === 'unassigned') {
-                        matchesProgram = video.program === 'unassigned' || !video.program || video.program.trim() === '';
-                    } else {
-                        matchesProgram = video.program === selectedProgram;
+                if (selectedPrograms.length > 0 && !selectedPrograms.includes('')) {
+                    matchesProgram = false;
+                    
+                    // בדיקה אם הסרטון שייך לאחת מהתוכניות הנבחרות
+                    for (const selectedProgram of selectedPrograms) {
+                        if (selectedProgram === 'unassigned') {
+                            if (video.program === 'unassigned' || !video.program || video.program.trim() === '') {
+                                matchesProgram = true;
+                                break;
+                            }
+                        } else {
+                            if (video.program === selectedProgram) {
+                                matchesProgram = true;
+                                break;
+                            }
+                        }
                     }
                 }
                 
@@ -2525,6 +3005,115 @@
             populateTable(filteredData);
             updateStats();
         }
+
+        // ===== פונקציות חדשות לטיפול בפילטר תוכניות ידידותי =====
+        
+        // פתיחה/סגירה של פילטר התוכניות
+        function toggleProgramFilter() {
+            const dropdown = document.getElementById('programFilterDropdown');
+            const display = document.getElementById('programFilterDisplay');
+            const arrow = document.getElementById('programFilterArrow');
+            
+            if (dropdown.classList.contains('show')) {
+                dropdown.classList.remove('show');
+                display.classList.remove('active');
+                arrow.classList.remove('rotated');
+            } else {
+                dropdown.classList.add('show');
+                display.classList.add('active');
+                arrow.classList.add('rotated');
+            }
+        }
+        
+        // טיפול בבחירת אפשרות בפילטר תוכניות
+        function toggleProgramOption(value, checkbox) {
+            if (value === '') {
+                // אם נבחר "כל התוכניות" - נקה את כל הבחירות האחרות
+                if (checkbox.checked) {
+                    selectedPrograms = [''];
+                    // נקה את כל השאר
+                    document.querySelectorAll('#programFilterDropdown input[type="checkbox"]').forEach(cb => {
+                        if (cb.id !== 'program-all') {
+                            cb.checked = false;
+                            cb.parentElement.classList.remove('selected');
+                        } else {
+                            cb.parentElement.classList.add('selected');
+                        }
+                    });
+                } else {
+                    selectedPrograms = [];
+                    checkbox.parentElement.classList.remove('selected');
+                }
+            } else {
+                // בחירת תוכנית ספציפית
+                if (checkbox.checked) {
+                    // אם זה לא "כל התוכניות", הסר אותו מהבחירה
+                    selectedPrograms = selectedPrograms.filter(p => p !== '');
+                    // הסר את הסימון מ"כל התוכניות"
+                    const allCheckbox = document.getElementById('program-all');
+                    allCheckbox.checked = false;
+                    allCheckbox.parentElement.classList.remove('selected');
+                    
+                    // הוסף את הבחירה החדשה
+                    if (!selectedPrograms.includes(value)) {
+                        selectedPrograms.push(value);
+                    }
+                    checkbox.parentElement.classList.add('selected');
+                } else {
+                    // הסר את הבחירה
+                    selectedPrograms = selectedPrograms.filter(p => p !== value);
+                    checkbox.parentElement.classList.remove('selected');
+                    
+                    // אם לא נשאר כלום נבחר, סמן "כל התוכניות"
+                    if (selectedPrograms.length === 0) {
+                        selectedPrograms = [''];
+                        const allCheckbox = document.getElementById('program-all');
+                        allCheckbox.checked = true;
+                        allCheckbox.parentElement.classList.add('selected');
+                    }
+                }
+            }
+            
+            // עדכון הטקסט המוצג
+            updateProgramFilterDisplay();
+            
+            // הפעלת הסינון
+            filterData();
+        }
+        
+        // עדכון הטקסט המוצג בפילטר תוכניות
+        function updateProgramFilterDisplay() {
+            const textElement = document.getElementById('programFilterText');
+            
+            if (selectedPrograms.length === 0 || selectedPrograms.includes('')) {
+                textElement.textContent = 'כל התוכניות';
+            } else if (selectedPrograms.length === 1) {
+                if (selectedPrograms[0] === 'unassigned') {
+                    textElement.textContent = 'לא שובץ';
+                } else {
+                    textElement.textContent = `פרק ${selectedPrograms[0]}`;
+                }
+            } else {
+                textElement.textContent = `${selectedPrograms.length} תוכניות נבחרו`;
+            }
+        }
+        
+        // סגירת דרופדאונים בלחיצה מחוץ להם
+        document.addEventListener('click', function(event) {
+            // סגירת פילטר תוכניות
+            const programContainer = document.querySelector('.program-filter-container');
+            if (programContainer && !programContainer.contains(event.target)) {
+                const dropdown = document.getElementById('programFilterDropdown');
+                const display = document.getElementById('programFilterDisplay');
+                const arrow = document.getElementById('programFilterArrow');
+                
+                if (dropdown.classList.contains('show')) {
+                    dropdown.classList.remove('show');
+                    display.classList.remove('active');
+                    arrow.classList.remove('rotated');
+                }
+            }
+        });
 
         function toggleArchive() {
             showArchived = !showArchived;
@@ -3210,7 +3799,6 @@
         document.getElementById('searchInput').addEventListener('input', filterData);
         document.getElementById('categoryFilter').addEventListener('change', filterData);
         document.getElementById('cornerFilter').addEventListener('change', filterData);
-        document.getElementById('programFilter').addEventListener('change', filterData);
 
         // Enter key support for modals
         document.getElementById('newCategoryInput').addEventListener('keypress', function(e) {
@@ -3235,6 +3823,17 @@
 
         // Initialize
         async function initApp() {
+            // אתחול ברירות מחדל לפילטרים
+            selectedPrograms = [''];
+            selectedWordExportPrograms = [''];
+            
+            // עדכון התצוגה הראשונית
+            updateProgramFilterDisplay();
+            
+            // סימון ברירת המחדל בcheckboxes
+            document.getElementById('program-all').checked = true;
+            document.getElementById('program-all').parentElement.classList.add('selected');
+            
             // טעינת היסטוריה מהמחשב
             loadHistory();
             
