@@ -2125,29 +2125,35 @@
             });
             
             // הגבלה לשדות input רגילים
-            document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
-                element.addEventListener('input', function(e) {
-                    const cursorPosition = this.selectionStart;
-                    const originalValue = this.value;
-                    const cleanValue = sanitizeInput(originalValue);
-                    
-                    if (cleanValue !== originalValue) {
-                        this.value = cleanValue;
-                        this.setSelectionRange(cursorPosition, cursorPosition);
-                    }
-                });
-                
-                element.addEventListener('paste', function(e) {
-                    e.preventDefault();
-                    const pastedText = (e.clipboardData || window.clipboardData).getData('text');
-                    const cleanText = sanitizeInput(pastedText);
-                    const cursorPosition = this.selectionStart;
-                    const beforeCursor = this.value.substring(0, cursorPosition);
-                    const afterCursor = this.value.substring(this.selectionEnd);
-                    this.value = beforeCursor + cleanText + afterCursor;
-                    this.setSelectionRange(cursorPosition + cleanText.length, cursorPosition + cleanText.length);
-                });
-            });
+document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
+    const isLinkField = element.classList.contains("link-input");
+
+    element.addEventListener('input', function(e) {
+        if (!isLinkField) {
+            const cursorPosition = this.selectionStart;
+            const originalValue = this.value;
+            const cleanValue = sanitizeInput(originalValue);
+
+            if (cleanValue !== originalValue) {
+                this.value = cleanValue;
+                this.setSelectionRange(cursorPosition, cursorPosition);
+            }
+        }
+    });
+
+    element.addEventListener('paste', function(e) {
+        if (!isLinkField) {
+            e.preventDefault();
+            const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+            const cleanText = sanitizeInput(pastedText);
+            const cursorPosition = this.selectionStart;
+            const beforeCursor = this.value.substring(0, cursorPosition);
+            const afterCursor = this.value.substring(this.selectionEnd);
+            this.value = beforeCursor + cleanText + afterCursor;
+            this.setSelectionRange(cursorPosition + cleanText.length, cursorPosition + cleanText.length);
+        }
+    });
+});
         }
 
         // ===== פונקציות סל מחזור =====
