@@ -167,6 +167,94 @@
             cursor: pointer;
         }
         
+        /* סטיילים מיוחדים למולטי-סלקט של סטטוס אישור */
+        .approval-filter-container {
+            position: relative;
+            min-width: 150px;
+        }
+        
+        .approval-filter-display {
+            min-width: 150px;
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 20px;
+            font-size: 13px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+        
+        .approval-filter-display:hover {
+            border-color: #999;
+        }
+        
+        .approval-filter-display.active {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .approval-filter-arrow {
+            transition: transform 0.3s ease;
+            font-size: 10px;
+            color: #666;
+        }
+        
+        .approval-filter-arrow.rotated {
+            transform: rotate(180deg);
+        }
+        
+        .approval-filter-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            z-index: 1000;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            margin-top: 5px;
+        }
+        
+        .approval-filter-dropdown.show {
+            display: block;
+        }
+        
+        .approval-option {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .approval-option:last-child {
+            border-bottom: none;
+        }
+        
+        .approval-option:hover {
+            background: #f8f9ff;
+        }
+        
+        .approval-option.selected {
+            background: linear-gradient(135deg, #e8f3ff, #f0f8ff);
+            color: #2c5aa0;
+            font-weight: bold;
+        }
+        
+        .approval-option input[type="checkbox"] {
+            margin-left: 8px;
+            cursor: pointer;
+        }
+        
         .action-buttons {
             display: flex;
             gap: 8px;
@@ -221,6 +309,15 @@
         .btn-recycle:hover {
             transform: translateY(-1px);
             box-shadow: 0 3px 10px rgba(253, 126, 20, 0.4);
+        }
+        
+        .btn-reset {
+            background: linear-gradient(135deg, #6c757d, #545b62);
+        }
+        
+        .btn-reset:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(108, 117, 125, 0.4);
         }
         
         .stats {
@@ -384,6 +481,60 @@
         
         .category-cell.editing .category-select {
             display: block;
+        }
+        
+        /* תצוגת סטטוס אישור */
+        .approval-badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            text-align: center;
+            display: inline-block;
+            min-width: 70px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid;
+        }
+        
+        .approval-badge.approved {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border-color: #1e7e34;
+        }
+        
+        .approval-badge.not-approved {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            border-color: #bd2130;
+        }
+        
+        .approval-badge.pending {
+            background: linear-gradient(135deg, #ffc107, #ff9800);
+            color: #212529;
+            border-color: #e0a800;
+        }
+        
+        .approval-badge:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        
+        .approval-select {
+            width: 100%;
+            padding: 4px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 11px;
+            background: white;
+            transition: all 0.2s ease;
+            font-weight: bold;
+        }
+        
+        .approval-select:focus {
+            border-color: #667eea;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
         }
         
         .video-number {
@@ -865,6 +1016,21 @@
             font-size: 14px;
         }
         
+        /* סטיילים לאופציית יצוא "רק מה שסומן" */
+        .export-selected-info {
+            background: #e3f2fd;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            color: #1565c0;
+            display: none;
+        }
+        
+        .export-selected-info.show {
+            display: block;
+        }
+        
         /* סטיילים ל-checkboxes רגילים במקום dropdown */
         .programs-checkboxes {
             display: grid;
@@ -1157,7 +1323,7 @@
                 flex-direction: column;
             }
             
-            .search-box, .category-filter, .program-filter-container {
+            .search-box, .category-filter, .program-filter-container, .approval-filter-container {
                 width: 100%;
                 min-width: auto;
             }
@@ -1206,7 +1372,7 @@
                 font-size: 14px;
             }
             
-            .search-box, .category-filter, .program-filter-container {
+            .search-box, .category-filter, .program-filter-container, .approval-filter-container {
                 font-size: 14px;
                 margin-bottom: 8px;
             }
@@ -1215,7 +1381,7 @@
                 padding: 10px 15px;
             }
             
-            .program-filter-display {
+            .program-filter-display, .approval-filter-display {
                 padding: 10px 15px;
                 font-size: 14px;
             }
@@ -1291,7 +1457,7 @@
             }
             
             /* התאמות מיוחדות לדרופדאונים בנייד */
-            .program-filter-dropdown {
+            .program-filter-dropdown, .approval-filter-dropdown {
                 position: fixed;
                 top: 50%;
                 left: 50%;
@@ -1303,7 +1469,7 @@
                 box-shadow: 0 10px 25px rgba(0,0,0,0.3);
             }
             
-            .program-option {
+            .program-option, .approval-option {
                 padding: 12px;
                 font-size: 14px;
             }
@@ -1455,6 +1621,30 @@
                     </div>
                 </div>
             </div>
+            <div class="approval-filter-container">
+                <div class="approval-filter-display" onclick="toggleApprovalFilter()" id="approvalFilterDisplay">
+                    <span id="approvalFilterText">כל הסטטוסים</span>
+                    <span class="approval-filter-arrow" id="approvalFilterArrow">▼</span>
+                </div>
+                <div class="approval-filter-dropdown" id="approvalFilterDropdown">
+                    <div class="approval-option" data-value="">
+                        <input type="checkbox" id="approval-all" onchange="toggleApprovalOption('', this)">
+                        <label for="approval-all">כל הסטטוסים</label>
+                    </div>
+                    <div class="approval-option" data-value="approved">
+                        <input type="checkbox" id="approval-approved" onchange="toggleApprovalOption('approved', this)">
+                        <label for="approval-approved">מאושר</label>
+                    </div>
+                    <div class="approval-option" data-value="not-approved">
+                        <input type="checkbox" id="approval-not-approved" onchange="toggleApprovalOption('not-approved', this)">
+                        <label for="approval-not-approved">לא מאושר</label>
+                    </div>
+                    <div class="approval-option" data-value="pending">
+                        <input type="checkbox" id="approval-pending" onchange="toggleApprovalOption('pending', this)">
+                        <label for="approval-pending">בטיפול</label>
+                    </div>
+                </div>
+            </div>
             
             <div class="action-buttons">
                 <button class="btn btn-add" onclick="addNewRow()">➕ הוסף</button>
@@ -1468,6 +1658,7 @@
                     🗑️ סל מחזור <span class="recycle-count" id="recycleCount" style="display: none;">0</span>
                 </button>
                 <button class="btn btn-export" onclick="toggleArchive()" id="archiveToggle">📦 ארכיון</button>
+                <button class="btn btn-reset" onclick="resetFilters()">🔄 אפס סינונים</button>
                 <button class="btn btn-export" onclick="refreshData()">🔄 רענן</button>
                 <button class="btn btn-export" onclick="clearData()">🗑️ נקה</button>
             </div>
@@ -1555,116 +1746,132 @@
                     <button class="modal-close" onclick="closeWordExportDialog()">&times;</button>
                 </div>
                 <div class="modal-body large">
+                    <div class="export-selected-info" id="exportSelectedInfo">
+                        📌 יש לך <span id="selectedExportCount">0</span> סרטונים מסומנים
+                    </div>
                     <div class="word-export-options">
-                        <label>בחר תוכניות לייצוא:</label>
-                        <div class="programs-checkboxes">
-                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('', this)">
-                                <input type="checkbox" id="word-export-all" onchange="handleWordExportProgramChange('', this)">
-                                <label for="word-export-all">כל התוכניות</label>
-                            </div>
-                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('unassigned', this)">
-                                <input type="checkbox" id="word-export-unassigned" onchange="handleWordExportProgramChange('unassigned', this)">
-                                <label for="word-export-unassigned">לא שובץ</label>
-                            </div>
-                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('1', this)">
-                                <input type="checkbox" id="word-export-1" onchange="handleWordExportProgramChange('1', this)">
-                                <label for="word-export-1">פרק 1</label>
-                            </div>
-                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('2', this)">
-                                <input type="checkbox" id="word-export-2" onchange="handleWordExportProgramChange('2', this)">
-                                <label for="word-export-2">פרק 2</label>
-                            </div>
-                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('3', this)">
-                                <input type="checkbox" id="word-export-3" onchange="handleWordExportProgramChange('3', this)">
-                                <label for="word-export-3">פרק 3</label>
-                            </div>
-                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('4', this)">
-                                <input type="checkbox" id="word-export-4" onchange="handleWordExportProgramChange('4', this)">
-                                <label for="word-export-4">פרק 4</label>
-                            </div>
-                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('5', this)">
-                                <input type="checkbox" id="word-export-5" onchange="handleWordExportProgramChange('5', this)">
-                                <label for="word-export-5">פרק 5</label>
-                            </div>
-                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('6', this)">
-                                <input type="checkbox" id="word-export-6" onchange="handleWordExportProgramChange('6', this)">
-                                <label for="word-export-6">פרק 6</label>
-                            </div>
-                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('7', this)">
-                                <input type="checkbox" id="word-export-7" onchange="handleWordExportProgramChange('7', this)">
-                                <label for="word-export-7">פרק 7</label>
-                            </div>
-                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('8', this)">
-                                <input type="checkbox" id="word-export-8" onchange="handleWordExportProgramChange('8', this)">
-                                <label for="word-export-8">פרק 8</label>
-                            </div>
-                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('9', this)">
-                                <input type="checkbox" id="word-export-9" onchange="handleWordExportProgramChange('9', this)">
-                                <label for="word-export-9">פרק 9</label>
-                            </div>
-                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('10', this)">
-                                <input type="checkbox" id="word-export-10" onchange="handleWordExportProgramChange('10', this)">
-                                <label for="word-export-10">פרק 10</label>
-                            </div>
-                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('11', this)">
-                                <input type="checkbox" id="word-export-11" onchange="handleWordExportProgramChange('11', this)">
-                                <label for="word-export-11">פרק 11</label>
-                            </div>
-                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('12', this)">
-                                <input type="checkbox" id="word-export-12" onchange="handleWordExportProgramChange('12', this)">
-                                <label for="word-export-12">פרק 12</label>
-                            </div>
-                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('13', this)">
-                                <input type="checkbox" id="word-export-13" onchange="handleWordExportProgramChange('13', this)">
-                                <label for="word-export-13">פרק 13</label>
-                            </div>
-                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('14', this)">
-                                <input type="checkbox" id="word-export-14" onchange="handleWordExportProgramChange('14', this)">
-                                <label for="word-export-14">פרק 14</label>
-                            </div>
-                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('15', this)">
-                                <input type="checkbox" id="word-export-15" onchange="handleWordExportProgramChange('15', this)">
-                                <label for="word-export-15">פרק 15</label>
-                            </div>
-                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('16', this)">
-                                <input type="checkbox" id="word-export-16" onchange="handleWordExportProgramChange('16', this)">
-                                <label for="word-export-16">פרק 16</label>
-                            </div>
-                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('17', this)">
-                                <input type="checkbox" id="word-export-17" onchange="handleWordExportProgramChange('17', this)">
-                                <label for="word-export-17">פרק 17</label>
-                            </div>
-                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('18', this)">
-                                <input type="checkbox" id="word-export-18" onchange="handleWordExportProgramChange('18', this)">
-                                <label for="word-export-18">פרק 18</label>
-                            </div>
-                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('19', this)">
-                                <input type="checkbox" id="word-export-19" onchange="handleWordExportProgramChange('19', this)">
-                                <label for="word-export-19">פרק 19</label>
-                            </div>
-                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('20', this)">
-                                <input type="checkbox" id="word-export-20" onchange="handleWordExportProgramChange('20', this)">
-                                <label for="word-export-20">פרק 20</label>
-                            </div>
-                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('21', this)">
-                                <input type="checkbox" id="word-export-21" onchange="handleWordExportProgramChange('21', this)">
-                                <label for="word-export-21">פרק 21</label>
-                            </div>
-                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('22', this)">
-                                <input type="checkbox" id="word-export-22" onchange="handleWordExportProgramChange('22', this)">
-                                <label for="word-export-22">פרק 22</label>
-                            </div>
-                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('23', this)">
-                                <input type="checkbox" id="word-export-23" onchange="handleWordExportProgramChange('23', this)">
-                                <label for="word-export-23">פרק 23</label>
-                            </div>
-                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('24', this)">
-                                <input type="checkbox" id="word-export-24" onchange="handleWordExportProgramChange('24', this)">
-                                <label for="word-export-24">פרק 24</label>
-                            </div>
-                            <div class="program-checkbox-item" onclick="toggleWordExportProgram('25', this)">
-                                <input type="checkbox" id="word-export-25" onchange="handleWordExportProgramChange('25', this)">
-                                <label for="word-export-25">פרק 25</label>
+                        <label>בחר אופציית ייצוא:</label>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: normal;">
+                                <input type="radio" name="exportType" value="programs" checked onchange="toggleExportType()">
+                                לפי תוכניות
+                            </label>
+                            <label style="display: block; font-weight: normal;">
+                                <input type="radio" name="exportType" value="selected" onchange="toggleExportType()">
+                                רק מה שסומן
+                            </label>
+                        </div>
+                        <div id="programSelectionDiv">
+                            <label>בחר תוכניות לייצוא:</label>
+                            <div class="programs-checkboxes">
+                                <div class="program-checkbox-item" onclick="toggleWordExportProgram('', this)">
+                                    <input type="checkbox" id="word-export-all" onchange="handleWordExportProgramChange('', this)">
+                                    <label for="word-export-all">כל התוכניות</label>
+                                </div>
+                                <div class="program-checkbox-item" onclick="toggleWordExportProgram('unassigned', this)">
+                                    <input type="checkbox" id="word-export-unassigned" onchange="handleWordExportProgramChange('unassigned', this)">
+                                    <label for="word-export-unassigned">לא שובץ</label>
+                                </div>
+                                <div class="program-checkbox-item" onclick="toggleWordExportProgram('1', this)">
+                                    <input type="checkbox" id="word-export-1" onchange="handleWordExportProgramChange('1', this)">
+                                    <label for="word-export-1">פרק 1</label>
+                                </div>
+                                <div class="program-checkbox-item" onclick="toggleWordExportProgram('2', this)">
+                                    <input type="checkbox" id="word-export-2" onchange="handleWordExportProgramChange('2', this)">
+                                    <label for="word-export-2">פרק 2</label>
+                                </div>
+                                <div class="program-checkbox-item" onclick="toggleWordExportProgram('3', this)">
+                                    <input type="checkbox" id="word-export-3" onchange="handleWordExportProgramChange('3', this)">
+                                    <label for="word-export-3">פרק 3</label>
+                                </div>
+                                <div class="program-checkbox-item" onclick="toggleWordExportProgram('4', this)">
+                                    <input type="checkbox" id="word-export-4" onchange="handleWordExportProgramChange('4', this)">
+                                    <label for="word-export-4">פרק 4</label>
+                                </div>
+                                <div class="program-checkbox-item" onclick="toggleWordExportProgram('5', this)">
+                                    <input type="checkbox" id="word-export-5" onchange="handleWordExportProgramChange('5', this)">
+                                    <label for="word-export-5">פרק 5</label>
+                                </div>
+                                <div class="program-checkbox-item" onclick="toggleWordExportProgram('6', this)">
+                                    <input type="checkbox" id="word-export-6" onchange="handleWordExportProgramChange('6', this)">
+                                    <label for="word-export-6">פרק 6</label>
+                                </div>
+                                <div class="program-checkbox-item" onclick="toggleWordExportProgram('7', this)">
+                                    <input type="checkbox" id="word-export-7" onchange="handleWordExportProgramChange('7', this)">
+                                    <label for="word-export-7">פרק 7</label>
+                                </div>
+                                <div class="program-checkbox-item" onclick="toggleWordExportProgram('8', this)">
+                                    <input type="checkbox" id="word-export-8" onchange="handleWordExportProgramChange('8', this)">
+                                    <label for="word-export-8">פרק 8</label>
+                                </div>
+                                <div class="program-checkbox-item" onclick="toggleWordExportProgram('9', this)">
+                                    <input type="checkbox" id="word-export-9" onchange="handleWordExportProgramChange('9', this)">
+                                    <label for="word-export-9">פרק 9</label>
+                                </div>
+                                <div class="program-checkbox-item" onclick="toggleWordExportProgram('10', this)">
+                                    <input type="checkbox" id="word-export-10" onchange="handleWordExportProgramChange('10', this)">
+                                    <label for="word-export-10">פרק 10</label>
+                                </div>
+                                <div class="program-checkbox-item" onclick="toggleWordExportProgram('11', this)">
+                                    <input type="checkbox" id="word-export-11" onchange="handleWordExportProgramChange('11', this)">
+                                    <label for="word-export-11">פרק 11</label>
+                                </div>
+                                <div class="program-checkbox-item" onclick="toggleWordExportProgram('12', this)">
+                                    <input type="checkbox" id="word-export-12" onchange="handleWordExportProgramChange('12', this)">
+                                    <label for="word-export-12">פרק 12</label>
+                                </div>
+                                <div class="program-checkbox-item" onclick="toggleWordExportProgram('13', this)">
+                                    <input type="checkbox" id="word-export-13" onchange="handleWordExportProgramChange('13', this)">
+                                    <label for="word-export-13">פרק 13</label>
+                                </div>
+                                <div class="program-checkbox-item" onclick="toggleWordExportProgram('14', this)">
+                                    <input type="checkbox" id="word-export-14" onchange="handleWordExportProgramChange('14', this)">
+                                    <label for="word-export-14">פרק 14</label>
+                                </div>
+                                <div class="program-checkbox-item" onclick="toggleWordExportProgram('15', this)">
+                                    <input type="checkbox" id="word-export-15" onchange="handleWordExportProgramChange('15', this)">
+                                    <label for="word-export-15">פרק 15</label>
+                                </div>
+                                <div class="program-checkbox-item" onclick="toggleWordExportProgram('16', this)">
+                                    <input type="checkbox" id="word-export-16" onchange="handleWordExportProgramChange('16', this)">
+                                    <label for="word-export-16">פרק 16</label>
+                                </div>
+                                <div class="program-checkbox-item" onclick="toggleWordExportProgram('17', this)">
+                                    <input type="checkbox" id="word-export-17" onchange="handleWordExportProgramChange('17', this)">
+                                    <label for="word-export-17">פרק 17</label>
+                                </div>
+                                <div class="program-checkbox-item" onclick="toggleWordExportProgram('18', this)">
+                                    <input type="checkbox" id="word-export-18" onchange="handleWordExportProgramChange('18', this)">
+                                    <label for="word-export-18">פרק 18</label>
+                                </div>
+                                <div class="program-checkbox-item" onclick="toggleWordExportProgram('19', this)">
+                                    <input type="checkbox" id="word-export-19" onchange="handleWordExportProgramChange('19', this)">
+                                    <label for="word-export-19">פרק 19</label>
+                                </div>
+                                <div class="program-checkbox-item" onclick="toggleWordExportProgram('20', this)">
+                                    <input type="checkbox" id="word-export-20" onchange="handleWordExportProgramChange('20', this)">
+                                    <label for="word-export-20">פרק 20</label>
+                                </div>
+                                <div class="program-checkbox-item" onclick="toggleWordExportProgram('21', this)">
+                                    <input type="checkbox" id="word-export-21" onchange="handleWordExportProgramChange('21', this)">
+                                    <label for="word-export-21">פרק 21</label>
+                                </div>
+                                <div class="program-checkbox-item" onclick="toggleWordExportProgram('22', this)">
+                                    <input type="checkbox" id="word-export-22" onchange="handleWordExportProgramChange('22', this)">
+                                    <label for="word-export-22">פרק 22</label>
+                                </div>
+                                <div class="program-checkbox-item" onclick="toggleWordExportProgram('23', this)">
+                                    <input type="checkbox" id="word-export-23" onchange="handleWordExportProgramChange('23', this)">
+                                    <label for="word-export-23">פרק 23</label>
+                                </div>
+                                <div class="program-checkbox-item" onclick="toggleWordExportProgram('24', this)">
+                                    <input type="checkbox" id="word-export-24" onchange="handleWordExportProgramChange('24', this)">
+                                    <label for="word-export-24">פרק 24</label>
+                                </div>
+                                <div class="program-checkbox-item" onclick="toggleWordExportProgram('25', this)">
+                                    <input type="checkbox" id="word-export-25" onchange="handleWordExportProgramChange('25', this)">
+                                    <label for="word-export-25">פרק 25</label>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1695,10 +1902,13 @@
                         </th>
                         <th style="width: 180px;">הסרטון</th>
                         <th style="width: 200px;">תיאור הסרטון</th>
-                        <th style="width: 100px;">קישור לסרטון</th>
-                        <th style="width: 100px;">מקור</th>
+                        <th style="width: 100px;">קישור לדרייב</th>
+                        <th style="width: 100px;">קישור מקור</th>
                         <th style="width: 80px;">תאריך</th>
                         <th style="width: 160px;">שאלה</th>
+                        <th style="width: 100px;" class="sortable-header" onclick="sortData('approvalStatus')">
+                            האם אושר? <span class="sort-indicator" id="sort-approvalStatus"></span>
+                        </th>
                         <th style="width: 110px;" class="sortable-header" onclick="sortData('corner')">
                             פינה <span class="sort-indicator" id="sort-corner"></span>
                         </th>
@@ -1753,6 +1963,7 @@
                 "question": "",
                 "corner": "",
                 "program": "",
+                "approvalStatus": "pending",
                 "archived": false,
                 "createdAt": new Date().toISOString(),
                 "lastModified": new Date().toISOString(),
@@ -1770,6 +1981,7 @@
                 "question": "",
                 "corner": "פינת בדיקה",
                 "program": "1",
+                "approvalStatus": "approved",
                 "archived": false,
                 "createdAt": new Date().toISOString(),
                 "lastModified": new Date().toISOString(),
@@ -1805,8 +2017,9 @@
         let currentSortField = '';
         let currentSortDirection = 'none'; // 'none', 'asc', 'desc'
         
-        // משתנים לפילטר תוכניות חדש
+        // משתנים לפילטר תוכניות וסטטוס אישור
         let selectedPrograms = [];
+        let selectedApprovals = [];
         let selectedWordExportPrograms = [];
         
         // פונקציה להגבלת קלט - רק עברית, אנגלית ומספרים
@@ -1815,7 +2028,70 @@
             return text.replace(/[^\u0590-\u05FFa-zA-Z0-9\s.,!?():;״"'\-]/g, '');
         }
         
-        // פונקציה להוספת אירועי הגבלת קלט
+        // פונקציה לאיפוס כל הסינונים
+        function resetFilters() {
+            // איפוס שדה החיפוש
+            document.getElementById('searchInput').value = '';
+            
+            // איפוס קטגוריות
+            document.getElementById('categoryFilter').value = '';
+            
+            // איפוס פינות
+            document.getElementById('cornerFilter').value = '';
+            
+            // איפוס תוכניות
+            selectedPrograms = [''];
+            resetProgramFilter();
+            
+            // איפוס סטטוס אישור
+            selectedApprovals = [''];
+            resetApprovalFilter();
+            
+            // הפעלת הסינון מחדש
+            filterData();
+            
+            showSaveIndicator('✅ הסינונים אופסו!');
+        }
+        
+        // איפוס פילטר תוכניות לברירת מחדל
+        function resetProgramFilter() {
+            selectedPrograms = [''];
+            
+            // איפוס כל הcheckboxes
+            document.querySelectorAll('#programFilterDropdown input[type="checkbox"]').forEach(cb => {
+                cb.checked = false;
+                cb.parentElement.classList.remove('selected');
+            });
+            
+            // סימון "כל התוכניות"
+            const allCheckbox = document.getElementById('program-all');
+            allCheckbox.checked = true;
+            allCheckbox.parentElement.classList.add('selected');
+            
+            // עדכון התצוגה
+            updateProgramFilterDisplay();
+        }
+        
+        // איפוס פילטר סטטוס אישור לברירת מחדל
+        function resetApprovalFilter() {
+            selectedApprovals = [''];
+            
+            // איפוס כל הcheckboxes
+            document.querySelectorAll('#approvalFilterDropdown input[type="checkbox"]').forEach(cb => {
+                cb.checked = false;
+                cb.parentElement.classList.remove('selected');
+            });
+            
+            // סימון "כל הסטטוסים"
+            const allCheckbox = document.getElementById('approval-all');
+            allCheckbox.checked = true;
+            allCheckbox.parentElement.classList.add('selected');
+            
+            // עדכון התצוגה
+            updateApprovalFilterDisplay();
+        }
+        
+        // הוספת אירועי הגבלת קלט
         function addInputValidation() {
             // קבלת כל התאים הניתנים לעריכה
             document.querySelectorAll('.editable, .mobile-editable').forEach(element => {
@@ -2085,9 +2361,43 @@
         // פתיחת דיאלוג ייצוא וורד
         function showWordExportDialog() {
             const modal = document.getElementById('wordExportModal');
+            
+            // עדכון מספר הסרטונים המסומנים
+            updateSelectedExportCount();
+            
             // איפוס בחירה לכל התוכניות
             resetWordExportSelection();
+            
+            // איפוס סוג הייצוא
+            document.querySelector('input[name="exportType"][value="programs"]').checked = true;
+            toggleExportType();
+            
             modal.style.display = 'flex';
+        }
+        
+        // עדכון מספר הסרטונים המסומנים
+        function updateSelectedExportCount() {
+            const count = selectedItems.size;
+            document.getElementById('selectedExportCount').textContent = count;
+            
+            const infoDiv = document.getElementById('exportSelectedInfo');
+            if (count > 0) {
+                infoDiv.classList.add('show');
+            } else {
+                infoDiv.classList.remove('show');
+            }
+        }
+        
+        // החלפת סוג הייצוא
+        function toggleExportType() {
+            const exportType = document.querySelector('input[name="exportType"]:checked').value;
+            const programDiv = document.getElementById('programSelectionDiv');
+            
+            if (exportType === 'programs') {
+                programDiv.style.display = 'block';
+            } else {
+                programDiv.style.display = 'none';
+            }
         }
         
         // סגירת דיאלוג ייצוא וורד
@@ -2177,48 +2487,76 @@
             }
         }
         
+        // פונקציה להמרת סטטוס אישור לטקסט
+        function getApprovalText(status) {
+            switch(status) {
+                case 'approved':
+                    return 'מאושר';
+                case 'not-approved':
+                    return 'לא מאושר';
+                case 'pending':
+                    return 'בטיפול';
+                default:
+                    return 'בטיפול';
+            }
+        }
+        
         // פונקציית ייצוא לוורד משופרת
         function exportToWord() {
             try {
                 showSaveIndicator('📝 יוצר מסמך וורד...');
                 
-                // סינון הנתונים לפי התוכניות שנבחרו
-                let dataToExport = videoData.filter(video => !video.archived); // רק סרטונים פעילים
+                const exportType = document.querySelector('input[name="exportType"]:checked').value;
+                let dataToExport = [];
+                let fileName = 'סרטונים';
                 
-                if (selectedWordExportPrograms.length > 0 && !selectedWordExportPrograms.includes('')) {
-                    dataToExport = dataToExport.filter(video => {
-                        // בדיקה אם הסרטון שייך לאחת מהתוכניות הנבחרות
-                        if (selectedWordExportPrograms.includes('unassigned')) {
-                            // אם נבחר "לא שובץ" - כלול גם סרטונים ללא תוכנית
-                            if (video.program === 'unassigned' || !video.program || video.program.trim() === '') {
-                                return true;
+                if (exportType === 'selected') {
+                    // ייצוא רק מה שסומן
+                    if (selectedItems.size === 0) {
+                        alert('לא נבחרו סרטונים לייצוא');
+                        return;
+                    }
+                    
+                    // איסוף הסרטונים המסומנים
+                    dataToExport = Array.from(selectedItems).map(index => filteredData[index]).filter(video => video);
+                    fileName += '_מסומנים';
+                } else {
+                    // ייצוא לפי תוכניות
+                    dataToExport = videoData.filter(video => !video.archived); // רק סרטונים פעילים
+                    
+                    if (selectedWordExportPrograms.length > 0 && !selectedWordExportPrograms.includes('')) {
+                        dataToExport = dataToExport.filter(video => {
+                            // בדיקה אם הסרטון שייך לאחת מהתוכניות הנבחרות
+                            if (selectedWordExportPrograms.includes('unassigned')) {
+                                // אם נבחר "לא שובץ" - כלול גם סרטונים ללא תוכנית
+                                if (video.program === 'unassigned' || !video.program || video.program.trim() === '') {
+                                    return true;
+                                }
                             }
+                            
+                            // בדיקה אם התוכנית של הסרטון נמצאת ברשימה הנבחרת
+                            return selectedWordExportPrograms.includes(video.program);
+                        });
+                    }
+                    
+                    if (selectedWordExportPrograms.length > 0 && !selectedWordExportPrograms.includes('')) {
+                        if (selectedWordExportPrograms.length === 1) {
+                            if (selectedWordExportPrograms[0] === 'unassigned') {
+                                fileName += '_לא_שובץ';
+                            } else {
+                                fileName += `_פרק_${selectedWordExportPrograms[0]}`;
+                            }
+                        } else {
+                            fileName += '_תוכניות_נבחרות';
                         }
-                        
-                        // בדיקה אם התוכנית של הסרטון נמצאת ברשימה הנבחרת
-                        return selectedWordExportPrograms.includes(video.program);
-                    });
+                    }
                 }
                 
                 if (dataToExport.length === 0) {
-                    alert('לא נמצאו סרטונים לייצוא עבור התוכניות שנבחרו');
+                    alert('לא נמצאו סרטונים לייצוא');
                     return;
                 }
                 
-                // הכנת שם קובץ
-                let fileName = 'סרטונים';
-                if (selectedWordExportPrograms.length > 0 && !selectedWordExportPrograms.includes('')) {
-                    if (selectedWordExportPrograms.length === 1) {
-                        if (selectedWordExportPrograms[0] === 'unassigned') {
-                            fileName += '_לא_שובץ';
-                        } else {
-                            fileName += `_פרק_${selectedWordExportPrograms[0]}`;
-                        }
-                    } else {
-                        // יותר מתוכנית אחת נבחרה
-                        fileName += '_תוכניות_נבחרות';
-                    }
-                }
                 fileName += `_${new Date().toISOString().slice(0, 10)}.doc`;
                 
                 // יצירת תוכן HTML לוורד
@@ -2287,19 +2625,24 @@
                         .number { 
                             text-align: center; 
                             font-weight: bold;
-                            width: 10%;
+                            width: 8%;
                         }
                         .category { 
                             text-align: center; 
                             font-weight: bold;
-                            width: 20%;
+                            width: 15%;
                         }
                         .title { 
                             font-weight: bold;
-                            width: 35%;
+                            width: 27%;
                         }
                         .question { 
-                            width: 35%;
+                            width: 30%;
+                        }
+                        .approval { 
+                            text-align: center; 
+                            font-weight: bold;
+                            width: 20%;
                         }
                         .summary {
                             margin-top: 20pt;
@@ -2314,7 +2657,10 @@
                 
                 // כותרת המסמך
                 wordContent += `<h1>🎬 רשימת סרטונים`;
-                if (selectedWordExportPrograms.length > 0 && !selectedWordExportPrograms.includes('')) {
+                
+                if (exportType === 'selected') {
+                    wordContent += ' - רשימה מותאמת אישית';
+                } else if (selectedWordExportPrograms.length > 0 && !selectedWordExportPrograms.includes('')) {
                     if (selectedWordExportPrograms.length === 1) {
                         if (selectedWordExportPrograms[0] === 'unassigned') {
                             wordContent += ' - לא שובצו לפרק';
@@ -2331,8 +2677,9 @@
                 }
                 wordContent += `</h1>`;
                 
-                // תאריך יצירה
-                wordContent += `<h2>תאריך יצירה: ${new Date().toLocaleDateString('he-IL')}</h2>`;
+                // תאריך ושעת יצירה
+                const now = new Date();
+                wordContent += `<h2>תאריך יצירה: ${now.toLocaleDateString('he-IL')} בשעה ${now.toLocaleTimeString('he-IL')}</h2>`;
                 
                 // הטבלה
                 wordContent += `
@@ -2343,6 +2690,7 @@
                             <th class="category">קטגוריה</th>
                             <th class="title">הסרטון</th>
                             <th class="question">שאלה</th>
+                            <th class="approval">האם אושר?</th>
                         </tr>
                     </thead>
                     <tbody>`;
@@ -2355,6 +2703,7 @@
                         <td class="category">${video.category || ''}</td>
                         <td class="title">${video.title || ''}</td>
                         <td class="question">${video.question || ''}</td>
+                        <td class="approval">${getApprovalText(video.approvalStatus)}</td>
                     </tr>`;
                 });
                 
@@ -2366,11 +2715,17 @@
                 wordContent += `
                 <div class="summary">
                     <strong>סיכום:</strong><br>
-                    סה"כ סרטונים: ${dataToExport.length}<br>
-                    תוכניות שנכללו: ${selectedWordExportPrograms.length > 0 && !selectedWordExportPrograms.includes('') ? 
+                    סה"כ סרטונים: ${dataToExport.length}<br>`;
+                
+                if (exportType === 'selected') {
+                    wordContent += 'סוג ייצוא: רשימה מותאמת אישית<br>';
+                } else {
+                    wordContent += `תוכניות שנכללו: ${selectedWordExportPrograms.length > 0 && !selectedWordExportPrograms.includes('') ? 
                         selectedWordExportPrograms.map(p => p === 'unassigned' ? 'לא שובץ' : `פרק ${p}`).join(', ') : 
-                        'כל התוכניות'}<br>
-                    תאריך ייצוא: ${new Date().toLocaleString('he-IL')}<br>
+                        'כל התוכניות'}<br>`;
+                }
+                
+                wordContent += `תאריך ושעת ייצוא: ${new Date().toLocaleString('he-IL')}<br>
                     מערכת: מנהל סרטונים
                 </div>`;
                 
@@ -2400,6 +2755,104 @@
             } catch (error) {
                 console.error('שגיאה בייצוא לוורד:', error);
                 showSaveIndicator('❌ שגיאה בייצוא לוורד');
+            }
+        }
+
+        // ===== פונקציות חדשות לטיפול בפילטר סטטוס אישור =====
+        
+        // פתיחה/סגירה של פילטר סטטוס אישור
+        function toggleApprovalFilter() {
+            const dropdown = document.getElementById('approvalFilterDropdown');
+            const display = document.getElementById('approvalFilterDisplay');
+            const arrow = document.getElementById('approvalFilterArrow');
+            
+            if (dropdown.classList.contains('show')) {
+                dropdown.classList.remove('show');
+                display.classList.remove('active');
+                arrow.classList.remove('rotated');
+            } else {
+                dropdown.classList.add('show');
+                display.classList.add('active');
+                arrow.classList.add('rotated');
+            }
+        }
+        
+        // טיפול בבחירת אפשרות בפילטר סטטוס אישור
+        function toggleApprovalOption(value, checkbox) {
+            if (value === '') {
+                // אם נבחר "כל הסטטוסים" - נקה את כל הבחירות האחרות
+                if (checkbox.checked) {
+                    selectedApprovals = [''];
+                    // נקה את כל השאר
+                    document.querySelectorAll('#approvalFilterDropdown input[type="checkbox"]').forEach(cb => {
+                        if (cb.id !== 'approval-all') {
+                            cb.checked = false;
+                            cb.parentElement.classList.remove('selected');
+                        } else {
+                            cb.parentElement.classList.add('selected');
+                        }
+                    });
+                } else {
+                    selectedApprovals = [];
+                    checkbox.parentElement.classList.remove('selected');
+                }
+            } else {
+                // בחירת סטטוס ספציפי
+                if (checkbox.checked) {
+                    // אם זה לא "כל הסטטוסים", הסר אותו מהבחירה
+                    selectedApprovals = selectedApprovals.filter(p => p !== '');
+                    // הסר את הסימון מ"כל הסטטוסים"
+                    const allCheckbox = document.getElementById('approval-all');
+                    allCheckbox.checked = false;
+                    allCheckbox.parentElement.classList.remove('selected');
+                    
+                    // הוסף את הבחירה החדשה
+                    if (!selectedApprovals.includes(value)) {
+                        selectedApprovals.push(value);
+                    }
+                    checkbox.parentElement.classList.add('selected');
+                } else {
+                    // הסר את הבחירה
+                    selectedApprovals = selectedApprovals.filter(p => p !== value);
+                    checkbox.parentElement.classList.remove('selected');
+                    
+                    // אם לא נשאר כלום נבחר, סמן "כל הסטטוסים"
+                    if (selectedApprovals.length === 0) {
+                        selectedApprovals = [''];
+                        const allCheckbox = document.getElementById('approval-all');
+                        allCheckbox.checked = true;
+                        allCheckbox.parentElement.classList.add('selected');
+                    }
+                }
+            }
+            
+            // עדכון הטקסט המוצג
+            updateApprovalFilterDisplay();
+            
+            // הפעלת הסינון
+            filterData();
+        }
+        
+        // עדכון הטקסט המוצג בפילטר סטטוס אישור
+        function updateApprovalFilterDisplay() {
+            const textElement = document.getElementById('approvalFilterText');
+            
+            if (selectedApprovals.length === 0 || selectedApprovals.includes('')) {
+                textElement.textContent = 'כל הסטטוסים';
+            } else if (selectedApprovals.length === 1) {
+                switch(selectedApprovals[0]) {
+                    case 'approved':
+                        textElement.textContent = 'מאושר';
+                        break;
+                    case 'not-approved':
+                        textElement.textContent = 'לא מאושר';
+                        break;
+                    case 'pending':
+                        textElement.textContent = 'בטיפול';
+                        break;
+                }
+            } else {
+                textElement.textContent = `${selectedApprovals.length} סטטוסים נבחרו`;
             }
         }
 
@@ -2458,6 +2911,12 @@
                             
                             if (b.program === 'unassigned' || b.program === '') valueB = -1;
                             else valueB = parseInt(b.program) || 0;
+                            break;
+                        case 'approvalStatus':
+                            // סידור לפי סטטוס אישור
+                            const order = { 'approved': 1, 'pending': 2, 'not-approved': 3 };
+                            valueA = order[a.approvalStatus] || 2;
+                            valueB = order[b.approvalStatus] || 2;
                             break;
                         default:
                             return 0;
@@ -2536,6 +2995,7 @@
                         if (!video.hasOwnProperty('modifiedBy')) video.modifiedBy = 'מערכת';
                         if (!video.hasOwnProperty('source')) video.source = "";
                         if (!video.hasOwnProperty('date')) video.date = "";
+                        if (!video.hasOwnProperty('approvalStatus')) video.approvalStatus = "pending";
                     });
                     
                     filteredData = [...videoData];
@@ -2572,6 +3032,7 @@
                         if (!video.hasOwnProperty('modifiedBy')) video.modifiedBy = 'מערכת';
                         if (!video.hasOwnProperty('source')) video.source = "";
                         if (!video.hasOwnProperty('date')) video.date = "";
+                        if (!video.hasOwnProperty('approvalStatus')) video.approvalStatus = "pending";
                     });
                     
                     filteredData = [...videoData];
@@ -2606,6 +3067,7 @@
                             if (!video.hasOwnProperty('modifiedBy')) video.modifiedBy = 'מערכת';
                             if (!video.hasOwnProperty('source')) video.source = "";
                             if (!video.hasOwnProperty('date')) video.date = "";
+                            if (!video.hasOwnProperty('approvalStatus')) video.approvalStatus = "pending";
                         });
                         
                         // עדכון הממשק
@@ -2654,7 +3116,7 @@
 
             if (data.length === 0) {
                 const statusText = showArchived ? 'בארכיון' : 'מתאימות';
-                tableBody.innerHTML = `<tr><td colspan="12" class="no-results">🔍 לא נמצאו תוצאות ${statusText}</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="13" class="no-results">🔍 לא נמצאו תוצאות ${statusText}</td></tr>`;
                 mobileCards.innerHTML = `<div style="text-align: center; padding: 50px; color: #666; font-size: 18px;">🔍 לא נמצאו תוצאות ${statusText}</div>`;
                 return;
             }
@@ -2669,6 +3131,25 @@
                     programDisplayText = 'לא שובץ';
                 } else {
                     programDisplayText = `פרק ${video.program}`;
+                }
+                
+                // הכנת תצוגת סטטוס אישור
+                let approvalClass = '';
+                let approvalText = '';
+                switch(video.approvalStatus) {
+                    case 'approved':
+                        approvalClass = 'approved';
+                        approvalText = 'מאושר';
+                        break;
+                    case 'not-approved':
+                        approvalClass = 'not-approved';
+                        approvalText = 'לא מאושר';
+                        break;
+                    case 'pending':
+                    default:
+                        approvalClass = 'pending';
+                        approvalText = 'בטיפול';
+                        break;
                 }
 
                 // יצירת שורת הטבלה (תצוגת מחשב)
@@ -2719,6 +3200,13 @@
                         <div class="editable" contenteditable="true" data-field="question" data-index="${index}" style="font-weight: bold;">${video.question || ''}</div>
                     </td>
                     <td>
+                        <select class="approval-select" data-field="approvalStatus" data-index="${index}">
+                            <option value="pending" ${video.approvalStatus === 'pending' || !video.approvalStatus ? 'selected' : ''}>בטיפול</option>
+                            <option value="approved" ${video.approvalStatus === 'approved' ? 'selected' : ''}>מאושר</option>
+                            <option value="not-approved" ${video.approvalStatus === 'not-approved' ? 'selected' : ''}>לא מאושר</option>
+                        </select>
+                    </td>
+                    <td>
                         <select class="corner-select" data-field="corner" data-index="${index}">
                             <option value="">בחר פינה</option>
                             ${predefinedCorners.map(corner => `<option value="${corner}" ${video.corner === corner ? 'selected' : ''}>${corner}</option>`).join('')}
@@ -2726,7 +3214,6 @@
                     </td>
                     <td>
                         <select class="program-select" data-field="program" data-index="${index}">
-                            <option value="">בחר תוכנית</option>
                             <option value="unassigned" ${(video.program === 'unassigned' || video.program === '') ? 'selected' : ''}>לא שובץ</option>
                             ${Array.from({length: 25}, (_, i) => `<option value="${i + 1}" ${video.program == (i + 1) ? 'selected' : ''}>פרק ${i + 1}</option>`).join('')}
                         </select>
@@ -2790,7 +3277,7 @@
                         
                         ${video.link ? `
                         <div class="mobile-field">
-                            <span class="mobile-field-label">🔗 קישור לסרטון</span>
+                            <span class="mobile-field-label">🔗 קישור לדרייב</span>
                             <div class="mobile-link-container">
                                 <input type="url" class="mobile-input" placeholder="הכנס קישור..." value="${video.link}" data-field="link" data-index="${index}">
                                 <button class="mobile-btn" onclick="openLink('${video.link}')" style="background: linear-gradient(135deg, #28a745, #20c997);">פתח</button>
@@ -2800,7 +3287,7 @@
                         
                         ${video.source ? `
                         <div class="mobile-field">
-                            <span class="mobile-field-label">📺 מקור</span>
+                            <span class="mobile-field-label">📺 קישור מקור</span>
                             <div class="mobile-link-container">
                                 <input type="url" class="mobile-input" placeholder="הכנס קישור מקור..." value="${video.source}" data-field="source" data-index="${index}">
                                 <button class="mobile-btn" onclick="openLink('${video.source}')" style="background: linear-gradient(135deg, #ff9500, #ff6b00);">פתח</button>
@@ -2823,6 +3310,15 @@
                         ` : ''}
                         
                         <div class="mobile-field">
+                            <span class="mobile-field-label">✅ האם אושר?</span>
+                            <select class="mobile-select" data-field="approvalStatus" data-index="${index}">
+                                <option value="pending" ${video.approvalStatus === 'pending' || !video.approvalStatus ? 'selected' : ''}>בטיפול</option>
+                                <option value="approved" ${video.approvalStatus === 'approved' ? 'selected' : ''}>מאושר</option>
+                                <option value="not-approved" ${video.approvalStatus === 'not-approved' ? 'selected' : ''}>לא מאושר</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mobile-field">
                             <span class="mobile-field-label">📍 פינה</span>
                             <select class="mobile-select" data-field="corner" data-index="${index}">
                                 <option value="">בחר פינה</option>
@@ -2833,7 +3329,6 @@
                         <div class="mobile-field">
                             <span class="mobile-field-label">📺 תוכנית</span>
                             <select class="mobile-select" data-field="program" data-index="${index}">
-                                <option value="">בחר תוכנית</option>
                                 <option value="unassigned" ${(video.program === 'unassigned' || video.program === '') ? 'selected' : ''}>לא שובץ</option>
                                 ${Array.from({length: 25}, (_, i) => `<option value="${i + 1}" ${video.program == (i + 1) ? 'selected' : ''}>פרק ${i + 1}</option>`).join('')}
                             </select>
@@ -2990,8 +3485,8 @@
                 });
             });
 
-            // אירועים לתפריטי פינות ותוכניות במובייל (הקטגוריות מטופלות בנפרד)
-            document.querySelectorAll('#mobileCards .mobile-select[data-field="corner"], #mobileCards .mobile-select[data-field="program"]').forEach(element => {
+            // אירועים לתפריטי פינות, תוכניות וסטטוס אישור במובייל (הקטגוריות מטופלות בנפרד)
+            document.querySelectorAll('#mobileCards .mobile-select[data-field="corner"], #mobileCards .mobile-select[data-field="program"], #mobileCards .mobile-select[data-field="approvalStatus"]').forEach(element => {
                 element.addEventListener('change', async function() {
                     const index = parseInt(this.dataset.index);
                     const field = this.dataset.field;
@@ -3139,8 +3634,8 @@
                 });
             });
 
-            // אירועים לתפריטי תוכנית ופינות (הקטגוריות מטופלות בנפרד)
-            document.querySelectorAll('.program-select, .corner-select').forEach(element => {
+            // אירועים לתפריטי תוכנית, פינות וסטטוס אישור (הקטגוריות מטופלות בנפרד)
+            document.querySelectorAll('.program-select, .corner-select, .approval-select').forEach(element => {
                 element.addEventListener('change', async function() {
                     const index = parseInt(this.dataset.index);
                     const field = this.dataset.field;
@@ -3213,6 +3708,9 @@
             const videosWithDescriptions = filteredData.filter(video => video.description && video.description.trim()).length;
             const videosWithPrograms = filteredData.filter(video => video.program && video.program.trim() && video.program !== 'unassigned').length;
             const unassignedPrograms = filteredData.filter(video => video.program === 'unassigned' || !video.program || !video.program.trim()).length;
+            const approvedVideos = filteredData.filter(video => video.approvalStatus === 'approved').length;
+            const pendingVideos = filteredData.filter(video => video.approvalStatus === 'pending' || !video.approvalStatus).length;
+            const notApprovedVideos = filteredData.filter(video => video.approvalStatus === 'not-approved').length;
             const archivedCount = videoData.filter(video => video.archived).length;
             const activeCount = videoData.filter(video => !video.archived).length;
             
@@ -3221,7 +3719,7 @@
             // סטטוס Firebase
             const cloudStatus = '🔥 Firebase - זמן אמת';
             
-            stats.textContent = `${cloudStatus} | ${statusText} | 📊 ${totalVideos} סרטונים | ${totalCategories} קטגוריות | ${totalCorners} פינות | ${videosWithPrograms} שובצו לפרקים | ${unassignedPrograms} לא שובצו | ${markedVideos} מסומנים | ${videosWithNumbers} עם מספרים | ${videosWithLinks} עם קישורים | ${videosWithDescriptions} עם תיאורים | 🗑️ סל מחזור: ${deletedItems.length}`;
+            stats.textContent = `${cloudStatus} | ${statusText} | 📊 ${totalVideos} סרטונים | ${totalCategories} קטגוריות | ${totalCorners} פינות | ${videosWithPrograms} שובצו לפרקים | ${unassignedPrograms} לא שובצו | ✅ ${approvedVideos} מאושרים | ⏳ ${pendingVideos} בטיפול | ❌ ${notApprovedVideos} לא מאושרים | ${markedVideos} מסומנים | ${videosWithNumbers} עם מספרים | ${videosWithLinks} עם קישורים | ${videosWithDescriptions} עם תיאורים | 🗑️ סל מחזור: ${deletedItems.length}`;
         }
 
         // פונקציית סינון משופרת עם תמיכה ב-Multi-Select
@@ -3263,9 +3761,19 @@
                     }
                 }
                 
+                // טיפול בפילטר סטטוס אישור עם תמיכה ב-Multi-Select
+                let matchesApproval = true;
+                if (selectedApprovals.length > 0 && !selectedApprovals.includes('')) {
+                    matchesApproval = false;
+                    
+                    // בדיקה אם הסרטון שייך לאחד מהסטטוסים הנבחרים
+                    const videoApprovalStatus = video.approvalStatus || 'pending';
+                    matchesApproval = selectedApprovals.includes(videoApprovalStatus);
+                }
+                
                 const matchesArchiveStatus = video.archived === showArchived;
                 
-                return matchesSearch && matchesCategory && matchesCorner && matchesProgram && matchesArchiveStatus;
+                return matchesSearch && matchesCategory && matchesCorner && matchesProgram && matchesApproval && matchesArchiveStatus;
             });
 
             // אם יש סידור פעיל, החל אותו על הנתונים המסוננים
@@ -3294,6 +3802,12 @@
                             
                             if (b.program === 'unassigned' || b.program === '') valueB = -1;
                             else valueB = parseInt(b.program) || 0;
+                            break;
+                        case 'approvalStatus':
+                            // סידור לפי סטטוס אישור
+                            const order = { 'approved': 1, 'pending': 2, 'not-approved': 3 };
+                            valueA = order[a.approvalStatus] || 2;
+                            valueB = order[b.approvalStatus] || 2;
                             break;
                         default:
                             return 0;
@@ -3424,6 +3938,20 @@
                     arrow.classList.remove('rotated');
                 }
             }
+            
+            // סגירת פילטר סטטוס אישור
+            const approvalContainer = document.querySelector('.approval-filter-container');
+            if (approvalContainer && !approvalContainer.contains(event.target)) {
+                const dropdown = document.getElementById('approvalFilterDropdown');
+                const display = document.getElementById('approvalFilterDisplay');
+                const arrow = document.getElementById('approvalFilterArrow');
+                
+                if (dropdown.classList.contains('show')) {
+                    dropdown.classList.remove('show');
+                    display.classList.remove('active');
+                    arrow.classList.remove('rotated');
+                }
+            }
         });
 
         function toggleArchive() {
@@ -3454,6 +3982,7 @@
                 question: "",
                 corner: "",
                 program: "unassigned", // ברירת מחדל ל"לא שובץ"
+                approvalStatus: "pending", // ברירת מחדל ל"בטיפול"
                 archived: false,
                 createdAt: now,
                 lastModified: now,
@@ -3592,6 +4121,7 @@
                                 if (!video.hasOwnProperty('modifiedBy')) video.modifiedBy = 'מערכת';
                                 if (!video.hasOwnProperty('source')) video.source = "";
                                 if (!video.hasOwnProperty('date')) video.date = "";
+                                if (!video.hasOwnProperty('approvalStatus')) video.approvalStatus = "pending";
                             });
                             
                             filteredData = [...videoData];
@@ -4047,10 +4577,11 @@
                     'קטגוריה': video.category || '',
                     'כותרת הסרטון': video.title || '',
                     'תיאור': video.description || '',
-                    'קישור לסרטון': video.link || '',
-                    'מקור (קישור)': video.source || '',
+                    'קישור לדרייב': video.link || '',
+                    'קישור מקור': video.source || '',
                     'תאריך': video.date || '',
                     'שאלה': video.question || '',
+                    'האם אושר?': getApprovalText(video.approvalStatus),
                     'פינה': video.corner || '',
                     'תוכנית': video.program === 'unassigned' || !video.program ? 'לא שובץ' : `פרק ${video.program}`,
                     'סטטוס': video.archived ? 'ארכיון' : 'פעיל',
@@ -4068,10 +4599,11 @@
                             <th>קטגוריה</th>
                             <th>כותרת הסרטון</th>
                             <th>תיאור</th>
-                            <th>קישור לסרטון</th>
-                            <th>מקור (קישור)</th>
+                            <th>קישור לדרייב</th>
+                            <th>קישור מקור</th>
                             <th>תאריך</th>
                             <th>שאלה</th>
+                            <th>האם אושר?</th>
                             <th>פינה</th>
                             <th>תוכנית</th>
                             <th>סטטוס</th>
@@ -4173,14 +4705,18 @@
         async function initApp() {
             // אתחול ברירות מחדל לפילטרים
             selectedPrograms = [''];
+            selectedApprovals = [''];
             selectedWordExportPrograms = [''];
             
             // עדכון התצוגה הראשונית
             updateProgramFilterDisplay();
+            updateApprovalFilterDisplay();
             
             // סימון ברירת המחדל בcheckboxes
             document.getElementById('program-all').checked = true;
             document.getElementById('program-all').parentElement.classList.add('selected');
+            document.getElementById('approval-all').checked = true;
+            document.getElementById('approval-all').parentElement.classList.add('selected');
             
             // טעינת היסטוריה מהמחשב
             loadHistory();
@@ -4204,6 +4740,7 @@
                     if (!video.hasOwnProperty('modifiedBy')) video.modifiedBy = 'מערכת';
                     if (!video.hasOwnProperty('source')) video.source = "";
                     if (!video.hasOwnProperty('date')) video.date = "";
+                    if (!video.hasOwnProperty('approvalStatus')) video.approvalStatus = "pending";
                 });
                 filteredData = [...videoData];
             }
