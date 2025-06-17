@@ -720,6 +720,26 @@
             font-style: italic;
         }
         
+        /* עמודת תאריך יצירה */
+        .creation-date-cell {
+            font-size: 10px;
+            color: #666;
+            text-align: center;
+            white-space: nowrap;
+        }
+        
+        .creation-date {
+            display: block;
+            font-size: 10px;
+            line-height: 1.2;
+        }
+        
+        .creation-time {
+            display: block;
+            font-size: 9px;
+            color: #999;
+        }
+        
         /* כפתור ייצוא מתקדם */
         .btn-excel {
             background: linear-gradient(135deg, #207245, #0f5132);
@@ -980,27 +1000,6 @@
         .item-delete:hover {
             transform: scale(1.1);
             box-shadow: 0 2px 8px rgba(220, 53, 69, 0.4);
-        }
-        
-        .corner-select {
-            width: 100%;
-            padding: 6px;
-            border: 2px solid #ddd;
-            border-radius: 6px;
-            font-size: 11px;
-            background: white;
-            transition: all 0.2s ease;
-            font-weight: bold;
-        }
-        
-        .corner-select:focus {
-            outline: 2px solid #667eea;
-            border-color: #667eea;
-            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
-        }
-        
-        .corner-select:hover {
-            border-color: #999;
         }
         
         /* סטיילים למודאל ייצוא וורד משופר */
@@ -1502,9 +1501,6 @@
             <select class="category-filter" id="categoryFilter">
                 <option value="">כל הקטגוריות</option>
             </select>
-            <select class="category-filter" id="cornerFilter">
-                <option value="">כל הפינות</option>
-            </select>
             <div class="program-filter-container">
                 <div class="program-filter-display" onclick="toggleProgramFilter()" id="programFilterDisplay">
                     <span id="programFilterText">כל התוכניות</span>
@@ -1649,7 +1645,6 @@
             <div class="action-buttons">
                 <button class="btn btn-add" onclick="addNewRow()">➕ הוסף</button>
                 <button class="btn btn-add" onclick="showCategoryManager()" style="background: linear-gradient(135deg, #6f42c1, #563d7c);">🏷️ קטגוריות</button>
-                <button class="btn btn-add" onclick="showCornerManager()" style="background: linear-gradient(135deg, #fd7e14, #e55d00);">📍 פינות</button>
                 <button class="btn btn-import" onclick="document.getElementById('fileInput').click()">📂 טען</button>
                 <button class="btn btn-export" onclick="exportData()">📁 JSON</button>
                 <button class="btn btn-excel" onclick="exportToExcel()">📊 Excel</button>
@@ -1694,26 +1689,6 @@
                     <div class="items-list">
                         <h4>קטגוריות קיימות: <span style="font-size: 11px; font-weight: normal; color: #666;">(לחץ על השם לעריכה)</span></h4>
                         <ul id="categoriesList"></ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- מודאל ניהול פינות -->
-        <div class="modal" id="cornerModal" style="display: none;">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3>📍 ניהול פינות</h3>
-                    <button class="modal-close" onclick="closeCornerManager()">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <div class="add-item-section">
-                        <input type="text" id="newCornerInput" placeholder="הכנס פינה חדשה...">
-                        <button class="btn btn-add" onclick="addNewCorner()">➕ הוסף</button>
-                    </div>
-                    <div class="items-list">
-                        <h4>פינות קיימות: <span style="font-size: 11px; font-weight: normal; color: #666;">(לחץ על השם לעריכה)</span></h4>
-                        <ul id="cornersList"></ul>
                     </div>
                 </div>
             </div>
@@ -1894,6 +1869,9 @@
                         <th style="width: 30px;">
                             <input type="checkbox" class="select-all-checkbox" id="selectAll" onchange="toggleSelectAll()">
                         </th>
+                        <th style="width: 85px;" class="sortable-header" onclick="sortData('createdAt')">
+                            תאריך הוספה <span class="sort-indicator" id="sort-createdAt"></span>
+                        </th>
                         <th style="width: 80px;" class="sortable-header" onclick="sortData('number')">
                             מספר בטבלה <span class="sort-indicator" id="sort-number"></span>
                         </th>
@@ -1908,9 +1886,6 @@
                         <th style="width: 160px;">שאלה</th>
                         <th style="width: 100px;" class="sortable-header" onclick="sortData('approvalStatus')">
                             האם אושר? <span class="sort-indicator" id="sort-approvalStatus"></span>
-                        </th>
-                        <th style="width: 110px;" class="sortable-header" onclick="sortData('corner')">
-                            פינה <span class="sort-indicator" id="sort-corner"></span>
                         </th>
                         <th style="width: 70px;" class="sortable-header" onclick="sortData('program')">
                             תוכנית <span class="sort-indicator" id="sort-program"></span>
@@ -1961,7 +1936,6 @@
                 "source": "",
                 "date": "",
                 "question": "",
-                "corner": "",
                 "program": "",
                 "approvalStatus": "pending",
                 "archived": false,
@@ -1979,7 +1953,6 @@
                 "source": "דוגמה מקור",
                 "date": "2024-01-15",
                 "question": "",
-                "corner": "פינת בדיקה",
                 "program": "1",
                 "approvalStatus": "approved",
                 "archived": false,
@@ -1989,18 +1962,13 @@
             }
         ];
 
-        // רשימות קטגוריות ופינות מוגדרות מראש
+        // רשימות קטגוריות מוגדרות מראש
         let predefinedCategories = [
             "שונות", "אוכל", "טיסות", "זוגיות", "מקצועות", "אמהות וסבתות", 
             "דת ורוחניות", "השפה העברית", "חיות", "בריאות", "אקטואליה מאולפני הטלוויזיה",
             "פוליטיקה", "ידועניי ארצנו", "ספורט", "פרסומות", "טיפים", "ידיעות מהעולם",
             "ישראלים בעולם", "מה אני שומע?", "מקומי", "יהודים בעולם", "גויים",
             "היסטוריה ועובדות היסטוריות", "בכבישים", "האח הגדול", "מה הם עושים?", "שליחויות", "סיבוב מהיר"
-        ];
-
-        let predefinedCorners = [
-            "פינת בדיקה", "פינת רק סאונד", "פינת איירובוט", "פינת דברים שמניפים באוויר",
-            "טיפים לנהגים"
         ];
 
         let filteredData = [...videoData];
@@ -2035,9 +2003,6 @@
             
             // איפוס קטגוריות
             document.getElementById('categoryFilter').value = '';
-            
-            // איפוס פינות
-            document.getElementById('cornerFilter').value = '';
             
             // איפוס תוכניות
             selectedPrograms = [''];
@@ -2125,35 +2090,35 @@
             });
             
             // הגבלה לשדות input רגילים
-document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
-    const isLinkField = element.classList.contains("link-input");
+            document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
+                const isLinkField = element.classList.contains("link-input");
 
-    element.addEventListener('input', function(e) {
-        if (!isLinkField) {
-            const cursorPosition = this.selectionStart;
-            const originalValue = this.value;
-            const cleanValue = sanitizeInput(originalValue);
+                element.addEventListener('input', function(e) {
+                    if (!isLinkField) {
+                        const cursorPosition = this.selectionStart;
+                        const originalValue = this.value;
+                        const cleanValue = sanitizeInput(originalValue);
 
-            if (cleanValue !== originalValue) {
-                this.value = cleanValue;
-                this.setSelectionRange(cursorPosition, cursorPosition);
-            }
-        }
-    });
+                        if (cleanValue !== originalValue) {
+                            this.value = cleanValue;
+                            this.setSelectionRange(cursorPosition, cursorPosition);
+                        }
+                    }
+                });
 
-    element.addEventListener('paste', function(e) {
-        if (!isLinkField) {
-            e.preventDefault();
-            const pastedText = (e.clipboardData || window.clipboardData).getData('text');
-            const cleanText = sanitizeInput(pastedText);
-            const cursorPosition = this.selectionStart;
-            const beforeCursor = this.value.substring(0, cursorPosition);
-            const afterCursor = this.value.substring(this.selectionEnd);
-            this.value = beforeCursor + cleanText + afterCursor;
-            this.setSelectionRange(cursorPosition + cleanText.length, cursorPosition + cleanText.length);
-        }
-    });
-});
+                element.addEventListener('paste', function(e) {
+                    if (!isLinkField) {
+                        e.preventDefault();
+                        const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+                        const cleanText = sanitizeInput(pastedText);
+                        const cursorPosition = this.selectionStart;
+                        const beforeCursor = this.value.substring(0, cursorPosition);
+                        const afterCursor = this.value.substring(this.selectionEnd);
+                        this.value = beforeCursor + cleanText + afterCursor;
+                        this.setSelectionRange(cursorPosition + cleanText.length, cursorPosition + cleanText.length);
+                    }
+                });
+            });
         }
 
         // ===== פונקציות סל מחזור =====
@@ -2902,13 +2867,9 @@ document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
                             valueA = a.category.toLowerCase();
                             valueB = b.category.toLowerCase();
                             break;
-                        case 'date':
-                            valueA = a.date || '0000-00-00';
-                            valueB = b.date || '0000-00-00';
-                            break;
-                        case 'corner':
-                            valueA = (a.corner || '').toLowerCase();
-                            valueB = (b.corner || '').toLowerCase();
+                        case 'createdAt':
+                            valueA = a.createdAt || '0000-00-00';
+                            valueB = b.createdAt || '0000-00-00';
                             break;
                         case 'program':
                             // תמיכה ב"לא שובץ" וערכים מספריים
@@ -3079,7 +3040,6 @@ document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
                         // עדכון הממשק
                         filterData();
                         populateCategoryFilter();
-                        populateCornerFilter();
                         updateStats();
                         updateSortIndicators(); // עדכון אינדיקטורי הסידור
                         
@@ -3130,6 +3090,9 @@ document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
             data.forEach((video, index) => {
                 const isSelected = selectedItems.has(index);
                 const lastModified = video.lastModified ? new Date(video.lastModified).toLocaleString('he-IL') : '';
+                const createdDate = video.createdAt ? new Date(video.createdAt) : new Date();
+                const createdDateStr = createdDate.toLocaleDateString('he-IL');
+                const createdTimeStr = createdDate.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
                 
                 // הכנת תצוגת תוכנית עם "פרק" ו"לא שובץ"
                 let programDisplayText = '';
@@ -3167,6 +3130,10 @@ document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
                 row.innerHTML = `
                     <td>
                         <input type="checkbox" class="row-checkbox" ${isSelected ? 'checked' : ''} onchange="toggleRowSelection(${index})">
+                    </td>
+                    <td class="creation-date-cell">
+                        <span class="creation-date">${createdDateStr}</span>
+                        <span class="creation-time">${createdTimeStr}</span>
                     </td>
                     <td>
                         <div class="editable number-edit" contenteditable="true" data-field="number" data-index="${index}" placeholder="הכנס מספר">${video.number || ''}</div>
@@ -3210,12 +3177,6 @@ document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
                             <option value="pending" ${video.approvalStatus === 'pending' || !video.approvalStatus ? 'selected' : ''}>בטיפול</option>
                             <option value="approved" ${video.approvalStatus === 'approved' ? 'selected' : ''}>מאושר</option>
                             <option value="not-approved" ${video.approvalStatus === 'not-approved' ? 'selected' : ''}>לא מאושר</option>
-                        </select>
-                    </td>
-                    <td>
-                        <select class="corner-select" data-field="corner" data-index="${index}">
-                            <option value="">בחר פינה</option>
-                            ${predefinedCorners.map(corner => `<option value="${corner}" ${video.corner === corner ? 'selected' : ''}>${corner}</option>`).join('')}
                         </select>
                     </td>
                     <td>
@@ -3325,19 +3286,16 @@ document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
                         </div>
                         
                         <div class="mobile-field">
-                            <span class="mobile-field-label">📍 פינה</span>
-                            <select class="mobile-select" data-field="corner" data-index="${index}">
-                                <option value="">בחר פינה</option>
-                                ${predefinedCorners.map(corner => `<option value="${corner}" ${video.corner === corner ? 'selected' : ''}>${corner}</option>`).join('')}
-                            </select>
-                        </div>
-                        
-                        <div class="mobile-field">
                             <span class="mobile-field-label">📺 תוכנית</span>
                             <select class="mobile-select" data-field="program" data-index="${index}">
                                 <option value="unassigned" ${(video.program === 'unassigned' || video.program === '') ? 'selected' : ''}>לא שובץ</option>
                                 ${Array.from({length: 25}, (_, i) => `<option value="${i + 1}" ${video.program == (i + 1) ? 'selected' : ''}>פרק ${i + 1}</option>`).join('')}
                             </select>
+                        </div>
+                        
+                        <div class="mobile-field">
+                            <span class="mobile-field-label">📅 נוסף בתאריך</span>
+                            <div style="font-size: 10px; color: #999;">${createdDateStr} ${createdTimeStr}</div>
                         </div>
                         
                         ${lastModified ? `
@@ -3491,8 +3449,8 @@ document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
                 });
             });
 
-            // אירועים לתפריטי פינות, תוכניות וסטטוס אישור במובייל (הקטגוריות מטופלות בנפרד)
-            document.querySelectorAll('#mobileCards .mobile-select[data-field="corner"], #mobileCards .mobile-select[data-field="program"], #mobileCards .mobile-select[data-field="approvalStatus"]').forEach(element => {
+            // אירועים לתפריטי תוכניות וסטטוס אישור במובייל (הקטגוריות מטופלות בנפרד)
+            document.querySelectorAll('#mobileCards .mobile-select[data-field="program"], #mobileCards .mobile-select[data-field="approvalStatus"]').forEach(element => {
                 element.addEventListener('change', async function() {
                     const index = parseInt(this.dataset.index);
                     const field = this.dataset.field;
@@ -3513,11 +3471,6 @@ document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
                         }
                         updateStats();
                         await saveData(); // שמירה אוטומטית
-                        
-                        // עדכון הפילטרים אם נדרש
-                        if (field === 'corner') {
-                            populateCornerFilter();
-                        }
                     }
                 });
             });
@@ -3540,7 +3493,6 @@ document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
                 const success = await loadData();
                 if (success) {
                     populateCategoryFilter();
-                    populateCornerFilter();
                     filterData();
                     updateStats();
                     showSaveIndicator('✅ רועננו!');
@@ -3640,8 +3592,8 @@ document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
                 });
             });
 
-            // אירועים לתפריטי תוכנית, פינות וסטטוס אישור (הקטגוריות מטופלות בנפרד)
-            document.querySelectorAll('.program-select, .corner-select, .approval-select').forEach(element => {
+            // אירועים לתפריטי תוכנית וסטטוס אישור (הקטגוריות מטופלות בנפרד)
+            document.querySelectorAll('.program-select, .approval-select').forEach(element => {
                 element.addEventListener('change', async function() {
                     const index = parseInt(this.dataset.index);
                     const field = this.dataset.field;
@@ -3662,11 +3614,6 @@ document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
                         }
                         updateStats();
                         await saveData(); // שמירה אוטומטית
-                        
-                        // עדכון הפילטרים אם נדרש
-                        if (field === 'corner') {
-                            populateCornerFilter();
-                        }
                     }
                 });
             });
@@ -3687,27 +3634,10 @@ document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
             });
         }
 
-        function populateCornerFilter() {
-            const cornerFilter = document.getElementById('cornerFilter');
-            // ניקוי האפשרויות הקיימות (מלבד "כל הפינות")
-            cornerFilter.innerHTML = '<option value="">כל הפינות</option>';
-            
-            const corners = [...new Set(videoData.map(video => video.corner).filter(corner => corner && corner.trim()))]
-                .sort();
-            
-            corners.forEach(corner => {
-                const option = document.createElement('option');
-                option.value = corner;
-                option.textContent = corner;
-                cornerFilter.appendChild(option);
-            });
-        }
-
         function updateStats() {
             const stats = document.getElementById('stats');
             const totalVideos = filteredData.length;
             const totalCategories = new Set(filteredData.map(video => video.category)).size;
-            const totalCorners = new Set(filteredData.map(video => video.corner).filter(corner => corner && corner.trim())).size;
             const markedVideos = filteredData.filter(video => video.marked).length;
             const videosWithNumbers = filteredData.filter(video => video.number).length;
             const videosWithLinks = filteredData.filter(video => video.link && video.link.trim()).length;
@@ -3725,14 +3655,13 @@ document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
             // סטטוס Firebase
             const cloudStatus = '🔥 Firebase - זמן אמת';
             
-            stats.textContent = `${cloudStatus} | ${statusText} | 📊 ${totalVideos} סרטונים | ${totalCategories} קטגוריות | ${totalCorners} פינות | ${videosWithPrograms} שובצו לפרקים | ${unassignedPrograms} לא שובצו | ✅ ${approvedVideos} מאושרים | ⏳ ${pendingVideos} בטיפול | ❌ ${notApprovedVideos} לא מאושרים | ${markedVideos} מסומנים | ${videosWithNumbers} עם מספרים | ${videosWithLinks} עם קישורים | ${videosWithDescriptions} עם תיאורים | 🗑️ סל מחזור: ${deletedItems.length}`;
+            stats.textContent = `${cloudStatus} | ${statusText} | 📊 ${totalVideos} סרטונים | ${totalCategories} קטגוריות | ${videosWithPrograms} שובצו לפרקים | ${unassignedPrograms} לא שובצו | ✅ ${approvedVideos} מאושרים | ⏳ ${pendingVideos} בטיפול | ❌ ${notApprovedVideos} לא מאושרים | ${markedVideos} מסומנים | ${videosWithNumbers} עם מספרים | ${videosWithLinks} עם קישורים | ${videosWithDescriptions} עם תיאורים | 🗑️ סל מחזור: ${deletedItems.length}`;
         }
 
         // פונקציית סינון משופרת עם תמיכה ב-Multi-Select
         function filterData() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const selectedCategory = document.getElementById('categoryFilter').value;
-            const selectedCorner = document.getElementById('cornerFilter').value;
 
             filteredData = videoData.filter(video => {
                 const matchesSearch = video.title.toLowerCase().includes(searchTerm) || 
@@ -3740,11 +3669,9 @@ document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
                                     video.category.toLowerCase().includes(searchTerm) ||
                                     (video.description && video.description.toLowerCase().includes(searchTerm)) ||
                                     (video.question && video.question.toLowerCase().includes(searchTerm)) ||
-                                    (video.corner && video.corner.toLowerCase().includes(searchTerm)) ||
                                     (video.source && video.source.toLowerCase().includes(searchTerm)) ||
                                     (video.date && video.date.includes(searchTerm));
                 const matchesCategory = !selectedCategory || video.category === selectedCategory;
-                const matchesCorner = !selectedCorner || video.corner === selectedCorner;
                 
                 // טיפול משופר בפילטר תוכנית עם תמיכה ב-Multi-Select
                 let matchesProgram = true;
@@ -3779,7 +3706,7 @@ document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
                 
                 const matchesArchiveStatus = video.archived === showArchived;
                 
-                return matchesSearch && matchesCategory && matchesCorner && matchesProgram && matchesApproval && matchesArchiveStatus;
+                return matchesSearch && matchesCategory && matchesProgram && matchesApproval && matchesArchiveStatus;
             });
 
             // אם יש סידור פעיל, החל אותו על הנתונים המסוננים
@@ -3797,9 +3724,9 @@ document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
                             valueA = a.category.toLowerCase();
                             valueB = b.category.toLowerCase();
                             break;
-                        case 'corner':
-                            valueA = (a.corner || '').toLowerCase();
-                            valueB = (b.corner || '').toLowerCase();
+                        case 'createdAt':
+                            valueA = a.createdAt || '0000-00-00';
+                            valueB = b.createdAt || '0000-00-00';
                             break;
                         case 'program':
                             // תמיכה ב"לא שובץ" וערכים מספריים
@@ -3978,7 +3905,7 @@ document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
             const now = new Date().toISOString();
             const newVideo = {
                 number: "",
-                category: predefinedCategories[0] || "שונות", // קטגוריה בסיסית
+                category: "שונות", // ברירת מחדל לשונות במקום אוכל
                 title: "סרטון חדש",
                 description: "",
                 marked: false,
@@ -3986,7 +3913,6 @@ document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
                 source: "",
                 date: "",
                 question: "",
-                corner: "",
                 program: "unassigned", // ברירת מחדל ל"לא שובץ"
                 approvalStatus: "pending", // ברירת מחדל ל"בטיפול"
                 archived: false,
@@ -4097,9 +4023,8 @@ document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
                         if (confirm(`האם אתה בטוח שברצונך לטעון ${importedData.length} סרטונים? זה יחליף את כל הנתונים הנוכחיים!`)) {
                             videoData = importedData;
                             
-                            // עדכון רשימות הקטגוריות והפינות מהנתונים המיובאים
+                            // עדכון רשימות הקטגוריות מהנתונים המיובאים
                             const importedCategories = [...new Set(videoData.map(v => v.category).filter(c => c))];
-                            const importedCorners = [...new Set(videoData.map(v => v.corner).filter(c => c))];
                             
                             // הוספת קטגוריות חדשות שלא קיימות
                             importedCategories.forEach(cat => {
@@ -4108,16 +4033,8 @@ document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
                                 }
                             });
                             
-                            // הוספת פינות חדשות שלא קיימות
-                            importedCorners.forEach(corner => {
-                                if (!predefinedCorners.includes(corner)) {
-                                    predefinedCorners.push(corner);
-                                }
-                            });
-                            
                             // סידור ושמירה
                             predefinedCategories.sort();
-                            predefinedCorners.sort();
                             saveCategoriesAndCorners();
                             videoData.forEach(video => {
                                 if (!video.hasOwnProperty('program')) video.program = "unassigned";
@@ -4135,7 +4052,6 @@ document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
                             // שמירה ועדכון הממשק
                             await saveData();
                             populateCategoryFilter();
-                            populateCornerFilter();
                             populateTable(filteredData);
                             updateStats();
                             
@@ -4320,32 +4236,26 @@ document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
             }
         }
 
-        // ===== פונקציות ניהול קטגוריות ופינות =====
+        // ===== פונקציות ניהול קטגוריות =====
         
-        // טעינת קטגוריות ופינות מ-localStorage
+        // טעינת קטגוריות מ-localStorage
         function loadCategoriesAndCorners() {
             try {
                 const savedCategories = localStorage.getItem('predefinedCategories');
                 if (savedCategories) {
                     predefinedCategories = JSON.parse(savedCategories);
                 }
-                
-                const savedCorners = localStorage.getItem('predefinedCorners');
-                if (savedCorners) {
-                    predefinedCorners = JSON.parse(savedCorners);
-                }
             } catch (e) {
-                console.error('שגיאה בטעינת קטגוריות ופינות:', e);
+                console.error('שגיאה בטעינת קטגוריות:', e);
             }
         }
         
-        // שמירת קטגוריות ופינות ל-localStorage
+        // שמירת קטגוריות ל-localStorage
         function saveCategoriesAndCorners() {
             try {
                 localStorage.setItem('predefinedCategories', JSON.stringify(predefinedCategories));
-                localStorage.setItem('predefinedCorners', JSON.stringify(predefinedCorners));
             } catch (e) {
-                console.error('שגיאה בשמירת קטגוריות ופינות:', e);
+                console.error('שגיאה בשמירת קטגוריות:', e);
             }
         }
         
@@ -4363,20 +4273,6 @@ document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
             document.getElementById('newCategoryInput').value = '';
         }
         
-        // פתיחת מודאל ניהול פינות
-        function showCornerManager() {
-            const modal = document.getElementById('cornerModal');
-            populateCornersList();
-            modal.style.display = 'flex';
-        }
-        
-        // סגירת מודאל ניהול פינות
-        function closeCornerManager() {
-            const modal = document.getElementById('cornerModal');
-            modal.style.display = 'none';
-            document.getElementById('newCornerInput').value = '';
-        }
-        
         // מילוי רשימת הקטגוריות במודאל
         function populateCategoriesList() {
             const list = document.getElementById('categoriesList');
@@ -4392,22 +4288,7 @@ document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
             });
         }
         
-        // מילוי רשימת הפינות במודאל
-        function populateCornersList() {
-            const list = document.getElementById('cornersList');
-            list.innerHTML = '';
-            
-            predefinedCorners.forEach((corner, index) => {
-                const li = document.createElement('li');
-                li.innerHTML = `
-                    <span class="item-text" contenteditable="true" data-type="corner" data-index="${index}" onblur="updateItemName(this)" title="לחץ לעריכה">${corner}</span>
-                    <button class="item-delete" onclick="deleteCorner(${index})" title="מחק פינה">✖</button>
-                `;
-                list.appendChild(li);
-            });
-        }
-        
-        // פונקציה לעדכון שם קטגוריה או פינה
+        // פונקציה לעדכון שם קטגוריה
         async function updateItemName(element) {
             const type = element.dataset.type;
             const index = parseInt(element.dataset.index);
@@ -4417,22 +4298,16 @@ document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
                 // אם השם ריק, החזר לשם המקורי
                 if (type === 'category') {
                     element.textContent = predefinedCategories[index];
-                } else if (type === 'corner') {
-                    element.textContent = predefinedCorners[index];
                 }
                 return;
             }
             
-            let oldName, targetArray, updateFunction, filterFunction;
+            let oldName, targetArray, updateFunction;
             
             if (type === 'category') {
                 oldName = predefinedCategories[index];
                 targetArray = predefinedCategories;
                 updateFunction = populateCategoryFilter;
-            } else if (type === 'corner') {
-                oldName = predefinedCorners[index];
-                targetArray = predefinedCorners;
-                updateFunction = populateCornerFilter;
             } else {
                 return;
             }
@@ -4456,10 +4331,6 @@ document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
                         video.category = newName;
                         video.lastModified = new Date().toISOString();
                         video.modifiedBy = 'משתמש';
-                    } else if (type === 'corner' && video.corner === oldName) {
-                        video.corner = newName;
-                        video.lastModified = new Date().toISOString();
-                        video.modifiedBy = 'משתמש';
                     }
                 });
                 
@@ -4475,8 +4346,6 @@ document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
                 // עדכון הרשימה במודאל
                 if (type === 'category') {
                     populateCategoriesList();
-                } else {
-                    populateCornersList();
                 }
                 
                 showSaveIndicator(`✅ עודכן "${oldName}" ל"${newName}"!`);
@@ -4505,28 +4374,6 @@ document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
             }
         }
         
-        // הוספת פינה חדשה
-        function addNewCorner() {
-            const input = document.getElementById('newCornerInput');
-            const newCorner = sanitizeInput(input.value.trim()); // הוספת הגבלת קלט
-            
-            if (newCorner && !predefinedCorners.includes(newCorner)) {
-                predefinedCorners.push(newCorner);
-                predefinedCorners.sort(); // סידור אלפביתי
-                saveCategoriesAndCorners();
-                populateCornersList();
-                populateCornerFilter();
-                // עדכון הטבלה כדי לכלול את הפינה החדשה
-                populateTable(filteredData);
-                input.value = '';
-                showSaveIndicator('✅ פינה נוספה!');
-            } else if (predefinedCorners.includes(newCorner)) {
-                alert('פינה זו כבר קיימת!');
-            } else {
-                alert('אנא הכנס שם פינה!');
-            }
-        }
-        
         // מחיקת קטגוריה
         function deleteCategory(index) {
             const category = predefinedCategories[index];
@@ -4541,31 +4388,14 @@ document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
             }
         }
         
-        // מחיקת פינה
-        function deleteCorner(index) {
-            const corner = predefinedCorners[index];
-            if (confirm(`האם אתה בטוח שברצונך למחוק את הפינה "${corner}"?`)) {
-                predefinedCorners.splice(index, 1);
-                saveCategoriesAndCorners();
-                populateCornersList();
-                populateCornerFilter();
-                // עדכון הטבלה
-                populateTable(filteredData);
-                showSaveIndicator('✅ פינה נמחקה!');
-            }
-        }
-        
         // סגירת מודאל בלחיצה על הרקע
         window.onclick = function(event) {
             const categoryModal = document.getElementById('categoryModal');
-            const cornerModal = document.getElementById('cornerModal');
             const wordModal = document.getElementById('wordExportModal');
             const recycleModal = document.getElementById('recycleBinModal');
             
             if (event.target === categoryModal) {
                 closeCategoryManager();
-            } else if (event.target === cornerModal) {
-                closeCornerManager();
             } else if (event.target === wordModal) {
                 closeWordExportDialog();
             } else if (event.target === recycleModal) {
@@ -4588,7 +4418,6 @@ document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
                     'תאריך': video.date || '',
                     'שאלה': video.question || '',
                     'האם אושר?': getApprovalText(video.approvalStatus),
-                    'פינה': video.corner || '',
                     'תוכנית': video.program === 'unassigned' || !video.program ? 'לא שובץ' : `פרק ${video.program}`,
                     'סטטוס': video.archived ? 'ארכיון' : 'פעיל',
                     'נוצר': video.createdAt ? new Date(video.createdAt).toLocaleString('he-IL') : '',
@@ -4610,7 +4439,6 @@ document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
                             <th>תאריך</th>
                             <th>שאלה</th>
                             <th>האם אושר?</th>
-                            <th>פינה</th>
                             <th>תוכנית</th>
                             <th>סטטוס</th>
                             <th>נוצר</th>
@@ -4684,18 +4512,11 @@ document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
         // Event listeners
         document.getElementById('searchInput').addEventListener('input', filterData);
         document.getElementById('categoryFilter').addEventListener('change', filterData);
-        document.getElementById('cornerFilter').addEventListener('change', filterData);
 
         // Enter key support for modals
         document.getElementById('newCategoryInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 addNewCategory();
-            }
-        });
-
-        document.getElementById('newCornerInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                addNewCorner();
             }
         });
 
@@ -4727,7 +4548,7 @@ document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
             // טעינת היסטוריה מהמחשב
             loadHistory();
             
-            // טעינת קטגוריות ופינות מהמחשב
+            // טעינת קטגוריות מהמחשב
             loadCategoriesAndCorners();
             
             // טעינת נתונים מהענן
@@ -4755,7 +4576,6 @@ document.querySelectorAll('.link-input, .mobile-input').forEach(element => {
             setupRealtimeListener();
             
             populateCategoryFilter();
-            populateCornerFilter(); 
             populateTable(filteredData);
             updateStats();
             updateSortIndicators(); // אתחול אינדיקטורי הסידור
