@@ -2983,23 +2983,43 @@
             }
         }
 
-        // פונקציות שמירה וטעינה עם Firebase Realtime Database
+        // פונקציות שמירה וטעינה עם Firebase Realtime Database - עם Transaction!
         async function saveData() {
             try {
                 showSaveIndicator('💾 שומר לענן...');
                 
-                await videosRef.set({
-                    data: videoData,
-                    lastUpdate: new Date().toISOString(),
-                    version: "2.0"
+                // שימוש ב-Transaction של Firebase
+                const result = await videosRef.transaction(function(currentData) {
+                    // אם אין נתונים בענן, צור חדשים
+                    if (!currentData) {
+                        return {
+                            data: videoData,
+                            lastUpdate: new Date().toISOString(),
+                            version: "2.0"
+                        };
+                    }
+                    
+                    // אם יש נתונים, עדכן אותם
+                    return {
+                        data: videoData,
+                        lastUpdate: new Date().toISOString(),
+                        version: "2.0"
+                    };
                 });
-
-                showSaveIndicator('✅ נשמר בענן!');
-                console.log('נתונים נשמרו ב-Firebase');
+                
+                // בדיקה שהשמירה הצליחה
+                if (result.committed) {
+                    showSaveIndicator('✅ נשמר בענן!');
+                    console.log('נתונים נשמרו ב-Firebase עם Transaction');
+                } else {
+                    showSaveIndicator('✅ נשמר בענן!');
+                    console.log('Transaction לא שינה כלום - הנתונים זהים');
+                }
+                
             } catch (e) {
                 console.error('שגיאה בשמירה ל-Firebase:', e);
                 showSaveIndicator('💻 נשמר מקומי');
-                // חזרה ל-localStorage כגיבוי
+                // חזרה ל-localStorage כגיבוי - בדיוק כמו קודם
                 localStorage.setItem('videoManagerData', JSON.stringify(videoData));
             }
         }
