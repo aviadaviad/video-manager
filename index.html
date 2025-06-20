@@ -483,7 +483,89 @@
             display: block;
         }
         
-        /* תצוגת סטטוס אישור */
+        /* תצוגת סטטוס אישור - סטיילים משופרים לצבעי רקע */
+        .approval-cell {
+            padding: 0 !important;
+        }
+        
+        .approval-cell.approved {
+            background-color: rgba(40, 167, 69, 0.15) !important;
+        }
+        
+        .approval-cell.not-approved {
+            background-color: rgba(220, 53, 69, 0.15) !important;
+        }
+        
+        .approval-cell.pending {
+            background-color: rgba(255, 193, 7, 0.15) !important;
+        }
+        
+        .approval-select {
+            width: 100%;
+            padding: 4px;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            font-size: 11px;
+            background: transparent;
+            transition: all 0.2s ease;
+            font-weight: bold;
+        }
+        
+        .approval-cell.approved .approval-select {
+            color: #155724;
+        }
+        
+        .approval-cell.not-approved .approval-select {
+            color: #721c24;
+        }
+        
+        .approval-cell.pending .approval-select {
+            color: #856404;
+        }
+        
+        .approval-select:focus {
+            border-color: #667eea;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+            background: white;
+        }
+        
+        /* סטיילים לתצוגת סטטוס אישור במובייל */
+        .mobile-approval-field {
+            padding: 6px !important;
+            border-radius: 6px;
+            margin: 4px 0;
+        }
+        
+        .mobile-approval-field.approved {
+            background-color: rgba(40, 167, 69, 0.15) !important;
+        }
+        
+        .mobile-approval-field.not-approved {
+            background-color: rgba(220, 53, 69, 0.15) !important;
+        }
+        
+        .mobile-approval-field.pending {
+            background-color: rgba(255, 193, 7, 0.15) !important;
+        }
+        
+        .mobile-approval-field .mobile-select {
+            background: transparent;
+            border: 1px solid transparent;
+        }
+        
+        .mobile-approval-field.approved .mobile-select {
+            color: #155724;
+        }
+        
+        .mobile-approval-field.not-approved .mobile-select {
+            color: #721c24;
+        }
+        
+        .mobile-approval-field.pending .mobile-select {
+            color: #856404;
+        }
+        
         .approval-badge {
             padding: 3px 8px;
             border-radius: 12px;
@@ -518,23 +600,6 @@
         .approval-badge:hover {
             transform: scale(1.05);
             box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-        }
-        
-        .approval-select {
-            width: 100%;
-            padding: 4px;
-            border: 2px solid #ddd;
-            border-radius: 6px;
-            font-size: 11px;
-            background: white;
-            transition: all 0.2s ease;
-            font-weight: bold;
-        }
-        
-        .approval-select:focus {
-            border-color: #667eea;
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
         }
         
         .video-number {
@@ -3253,7 +3318,7 @@
                     <td>
                         <div class="editable" contenteditable="true" data-field="question" data-index="${index}" style="font-weight: bold;">${video.question || ''}</div>
                     </td>
-                    <td>
+                    <td class="approval-cell ${approvalClass}">
                         <select class="approval-select" data-field="approvalStatus" data-index="${index}">
                             <option value="pending" ${video.approvalStatus === 'pending' || !video.approvalStatus ? 'selected' : ''}>בטיפול</option>
                             <option value="approved" ${video.approvalStatus === 'approved' ? 'selected' : ''}>מאושר</option>
@@ -3357,7 +3422,7 @@
                         </div>
                         ` : ''}
                         
-                        <div class="mobile-field">
+                        <div class="mobile-field mobile-approval-field ${approvalClass}">
                             <span class="mobile-field-label">✅ האם אושר?</span>
                             <select class="mobile-select" data-field="approvalStatus" data-index="${index}">
                                 <option value="pending" ${video.approvalStatus === 'pending' || !video.approvalStatus ? 'selected' : ''}>בטיפול</option>
@@ -3552,6 +3617,15 @@
                         }
                         updateStats();
                         await saveData(); // שמירה אוטומטית
+                        
+                        // עדכון צבע הרקע אם זה שדה סטטוס אישור
+                        if (field === 'approvalStatus') {
+                            const mobileField = this.closest('.mobile-approval-field');
+                            if (mobileField) {
+                                mobileField.classList.remove('approved', 'not-approved', 'pending');
+                                mobileField.classList.add(value);
+                            }
+                        }
                     }
                 });
             });
@@ -3695,6 +3769,15 @@
                         }
                         updateStats();
                         await saveData(); // שמירה אוטומטית
+                        
+                        // עדכון צבע הרקע אם זה שדה סטטוס אישור
+                        if (field === 'approvalStatus') {
+                            const td = this.closest('td');
+                            if (td) {
+                                td.classList.remove('approved', 'not-approved', 'pending');
+                                td.classList.add(value);
+                            }
+                        }
                     }
                 });
             });
