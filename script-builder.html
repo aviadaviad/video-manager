@@ -859,6 +859,7 @@
                     <button class="btn btn-warning" onclick="previewScript()">👁️ תצוגה מקדימה</button>
                     <button class="btn btn-primary" onclick="exportScript()">📝 ייצא טקסט</button>
                     <button class="btn btn-primary" style="background: linear-gradient(135deg, #2b579a, #1d4084);" onclick="exportToWord()">📄 ייצא לוורד</button>
+                    <button class="btn btn-success" style="background: linear-gradient(135deg, #207245, #0f5132);" onclick="exportVideosTable()">📊 ייצא טבלת סרטונים</button>
                 </div>
             </div>
         </div>
@@ -1011,6 +1012,258 @@
 לילה טוב.`
             }
         ];
+        
+        // פונקציה להמרת סטטוס אישור לטקסט
+        function getApprovalText(status) {
+            switch(status) {
+                case 'approved':
+                    return 'מאושר';
+                case 'not-approved':
+                    return 'לא מאושר';
+                case 'pending':
+                    return 'בטיפול';
+                default:
+                    return 'בטיפול';
+            }
+        }
+        
+        // פונקציה חדשה לייצוא טבלת סרטונים
+        function exportVideosTable() {
+            try {
+                showNotification('📊 יוצר טבלת סרטונים...');
+                
+                const programNum = document.getElementById('programNumber').value || '[מספר]';
+                const programDate = document.getElementById('programDate').value || '[תאריך]';
+                const draftNum = document.getElementById('draftNumber').value || '[מספר]';
+                
+                // איסוף כל הסרטונים לפי סיבובים
+                const roundsData = [];
+                
+                document.querySelectorAll('.round').forEach((round, index) => {
+                    const roundNameInput = round.querySelector('.round-header input');
+                    const roundName = roundNameInput ? roundNameInput.value : `סיבוב ${index + 1}`;
+                    
+                    const videos = [];
+                    round.querySelectorAll('.question-item:not(.question-dropzone)').forEach(question => {
+                        if (question.dataset.videoData) {
+                            const videoData = JSON.parse(question.dataset.videoData);
+                            const questionInput = question.querySelector('input[placeholder="הכנס שאלה..."]');
+                            
+                            videos.push({
+                                number: videoData.number || '',
+                                title: videoData.title || '',
+                                question: questionInput ? questionInput.value : (videoData.question || ''),
+                                approvalStatus: videoData.approvalStatus || 'pending'
+                            });
+                        }
+                    });
+                    
+                    if (videos.length > 0) {
+                        roundsData.push({
+                            name: roundName,
+                            videos: videos
+                        });
+                    }
+                });
+                
+                if (roundsData.length === 0) {
+                    alert('אין סרטונים בתסריט');
+                    return;
+                }
+                
+                // יצירת תוכן HTML לוורד
+                let wordContent = `
+                <!DOCTYPE html>
+                <html xmlns:o="urn:schemas-microsoft-com:office:office" 
+                      xmlns:w="urn:schemas-microsoft-com:office:word" 
+                      xmlns="http://www.w3.org/TR/REC-html40">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="ProgId" content="Word.Document">
+                    <meta name="Generator" content="Microsoft Word">
+                    <meta name="Originator" content="Microsoft Word">
+                    <!--[if gte mso 9]>
+                    <xml>
+                    <w:WordDocument>
+                    <w:View>Print</w:View>
+                    <w:Zoom>100</w:Zoom>
+                    <w:DoNotOptimizeForBrowser/>
+                    </w:WordDocument>
+                    </xml>
+                    <![endif]-->
+                    <style>
+                        @page {
+                            size: A4 portrait;
+                            margin: 0.5in;
+                        }
+                        body { 
+                            font-family: 'Calibri', 'Arial', sans-serif; 
+                            font-size: 9pt; 
+                            direction: rtl; 
+                            text-align: right;
+                            margin: 0.5in;
+                            line-height: 1.2;
+                        }
+                        h1 { 
+                            font-size: 14pt; 
+                            font-weight: bold; 
+                            text-align: center; 
+                            margin-bottom: 10pt;
+                            color: #2c3e50;
+                        }
+                        h2 { 
+                            font-size: 10pt; 
+                            font-weight: bold; 
+                            margin-bottom: 8pt;
+                            color: #34495e;
+                        }
+                        table { 
+                            width: 100%; 
+                            border-collapse: collapse; 
+                            margin-bottom: 10pt;
+                            font-size: 8pt;
+                            table-layout: fixed;
+                        }
+                        th { 
+                            background-color: #3498db; 
+                            color: white; 
+                            padding: 3pt 2pt; 
+                            border: 0.5pt solid #2980b9; 
+                            font-weight: bold;
+                            text-align: center;
+                            font-size: 8pt;
+                            line-height: 1.1;
+                        }
+                        td { 
+                            padding: 2pt 3pt; 
+                            border: 0.5pt solid #bdc3c7; 
+                            vertical-align: top;
+                            line-height: 1.1;
+                            word-wrap: break-word;
+                        }
+                        tr:nth-child(even) { 
+                            background-color: #f8f9fa; 
+                        }
+                        .number { 
+                            text-align: center; 
+                            font-weight: bold;
+                            width: 8%;
+                        }
+                        .title { 
+                            font-weight: bold;
+                            width: 37%;
+                        }
+                        .question { 
+                            width: 40%;
+                        }
+                        .approval { 
+                            text-align: center; 
+                            font-weight: bold;
+                            width: 15%;
+                        }
+                        .round-header {
+                            background-color: #28a745;
+                            color: white;
+                            font-weight: bold;
+                            padding: 4pt;
+                            text-align: center;
+                            font-size: 10pt;
+                        }
+                        .summary {
+                            margin-top: 10pt;
+                            padding: 6pt;
+                            background-color: #ecf0f1;
+                            border: 0.5pt solid #bdc3c7;
+                            font-size: 8pt;
+                            line-height: 1.3;
+                        }
+                    </style>
+                </head>
+                <body>`;
+                
+                // כותרת המסמך
+                wordContent += `<h1>🎬 רשימת סרטונים - תכנית ${programNum}</h1>`;
+                wordContent += `<h2>תאריך: ${programDate} | דראפט: ${draftNum}</h2>`;
+                
+                // תאריך ושעת יצירה
+                const now = new Date();
+                wordContent += `<h2>נוצר בתאריך: ${now.toLocaleDateString('he-IL')} בשעה ${now.toLocaleTimeString('he-IL')}</h2>`;
+                
+                let totalVideos = 0;
+                
+                // יצירת טבלה לכל סיבוב
+                roundsData.forEach((round, roundIndex) => {
+                    wordContent += `<div class="round-header">סיבוב ${roundIndex + 1} - ${round.name}</div>`;
+                    
+                    wordContent += `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="number">מס'</th>
+                                <th class="title">הסרטון</th>
+                                <th class="question">שאלה</th>
+                                <th class="approval">סטטוס</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+                    
+                    round.videos.forEach((video, index) => {
+                        wordContent += `
+                        <tr>
+                            <td class="number">${video.number || (index + 1)}</td>
+                            <td class="title">${video.title}</td>
+                            <td class="question">${video.question}</td>
+                            <td class="approval">${getApprovalText(video.approvalStatus)}</td>
+                        </tr>`;
+                    });
+                    
+                    wordContent += `</tbody></table>`;
+                    
+                    totalVideos += round.videos.length;
+                });
+                
+                // סיכום
+                wordContent += `
+                <div class="summary">
+                    <strong>סיכום:</strong><br>
+                    סה"כ סיבובים: ${roundsData.length}<br>
+                    סה"כ סרטונים: ${totalVideos}<br>`;
+                
+                // פירוט לפי סיבובים
+                roundsData.forEach((round, index) => {
+                    wordContent += `סיבוב ${index + 1} - ${round.name}: ${round.videos.length} סרטונים<br>`;
+                });
+                
+                wordContent += `<br>תאריך ושעת ייצוא: ${new Date().toLocaleString('he-IL')}<br>
+                    מערכת: בונה תסריטים
+                </div>`;
+                
+                wordContent += `
+                </body>
+                </html>`;
+                
+                // יצירת הקובץ והורדה
+                const blob = new Blob([wordContent], {
+                    type: 'application/msword;charset=utf-8'
+                });
+                
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `טבלת_סרטונים_תכנית_${programNum}_דראפט_${draftNum}.doc`;
+                
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                
+                showNotification(`✅ טבלת הסרטונים יוצאה בהצלחה!`);
+                
+            } catch (error) {
+                console.error('שגיאה בייצוא טבלת סרטונים:', error);
+                showNotification('❌ שגיאה בייצוא הטבלה', 'error');
+            }
+        }
         
         // פונקציות Firebase לתסריטים
         async function saveToFirebase() {
