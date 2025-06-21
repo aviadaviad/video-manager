@@ -1,0 +1,2325 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>בונה תסריטים - מה קורה פה?!</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(45deg, #2c3e50, #34495e);
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 1.8em;
+            margin-bottom: 5px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 12px;
+            opacity: 0.9;
+            margin: 2px 0;
+        }
+        
+        .main-content {
+            display: flex;
+            min-height: calc(100vh - 200px);
+        }
+        
+        /* סידבר שמאלי - מאגר סרטונים */
+        .sidebar {
+            width: 350px;
+            background: #f8f9fa;
+            border-left: 2px solid #e9ecef;
+            overflow-y: auto;
+            max-height: calc(100vh - 200px);
+        }
+        
+        .sidebar-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .sidebar-header h3 {
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+        
+        /* אזור עבודה מרכזי */
+        .workspace {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            max-height: calc(100vh - 200px);
+        }
+        
+        .script-header {
+            margin-bottom: 20px;
+            padding: 12px;
+            background: #e3f2fd;
+            border-radius: 8px;
+            border: 2px solid #bbdefb;
+        }
+        
+        .script-header h3 {
+            margin: 0 0 8px 0;
+            font-size: 1em;
+        }
+        
+        .script-header-inputs {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .script-header input {
+            flex: 1;
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        
+        /* קטע מתקפל - פתיחה */
+        .collapsible-section {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+        
+        .collapsible-header {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            color: white;
+            padding: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .collapsible-header h3 {
+            margin: 0;
+            font-size: 1.2em;
+        }
+        
+        .collapse-arrow {
+            transition: transform 0.3s ease;
+            font-size: 20px;
+        }
+        
+        .collapsible-section.collapsed .collapse-arrow {
+            transform: rotate(-90deg);
+        }
+        
+        .collapsible-content {
+            padding: 20px;
+            max-height: 2000px;
+            transition: max-height 0.5s ease, padding 0.5s ease;
+            overflow: hidden;
+        }
+        
+        .collapsible-section.collapsed .collapsible-content {
+            max-height: 0;
+            padding: 0 20px;
+        }
+        
+        /* בחירת מתמודדים */
+        .contestants-selection {
+            background: #f5f5f5;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .contestants-selection h4 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        
+        .contestant-item {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .contestant-item:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .contestant-checkbox {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .contestant-checkbox input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        
+        .contestant-checkbox label {
+            font-weight: bold;
+            cursor: pointer;
+            flex: 1;
+        }
+        
+        .contestant-text {
+            display: none;
+            margin-top: 10px;
+        }
+        
+        .contestant-item.selected .contestant-text {
+            display: block;
+        }
+        
+        .contestant-text textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 14px;
+            line-height: 1.6;
+            resize: vertical;
+            min-height: 60px;
+        }
+        
+        /* קטע בתסריט (קבוע) */
+        .script-section {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .script-section.fixed-section {
+            border-color: #bbdefb;
+            background: #f0f8ff;
+        }
+        
+        .section-header {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            color: white;
+            padding: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .section-header.round-header {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            cursor: move;
+        }
+        
+        .section-header h4 {
+            margin: 0;
+            font-size: 1.1em;
+        }
+        
+        .section-content {
+            padding: 15px;
+            display: none;
+        }
+        
+        .script-section.active .section-content {
+            display: block;
+        }
+        
+        /* תיבת טקסט עריכה */
+        .editable-text {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 14px;
+            line-height: 1.6;
+            resize: vertical;
+            min-height: 60px;
+        }
+        
+        .editable-text:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        /* אזור הוספת סיבוב */
+        .add-round-area {
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f0f8ff;
+            border: 2px dashed #2196F3;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .add-round-area:hover {
+            background: #e3f2fd;
+            border-color: #1976D2;
+        }
+        
+        /* סיבובים */
+        .round {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        /* אנימציית גרירת סיבוב */
+        .round.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+        
+        .round.drag-over {
+            border-top: 4px solid #667eea;
+            margin-top: 10px;
+        }
+        
+        .round-header {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: move;
+        }
+        
+        .round-header h4 {
+            margin: 0;
+            font-size: 1.1em;
+        }
+        
+        .round-content {
+            padding: 15px;
+            display: none;
+        }
+        
+        .round.active .round-content {
+            display: block;
+        }
+        
+        /* שאלות בתוך סיבוב */
+        .questions-list {
+            position: relative;
+        }
+        
+        /* אלמנט שאלה עם אנימציית כניסה */
+        @keyframes slideInFade {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .question-item {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 10px;
+            position: relative;
+            cursor: move;
+            transition: all 0.3s ease;
+            animation: slideInFade 0.4s ease-out;
+        }
+        
+        .question-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+        
+        .question-item.dragging {
+            opacity: 0.3;
+            transform: scale(0.9);
+        }
+        
+        /* אינדיקטור למיקום חדש בזמן גרירה */
+        .question-item.drag-preview {
+            border: 2px dashed #28a745;
+            background: rgba(40, 167, 69, 0.1);
+            opacity: 0.6;
+        }
+        
+        /* אזור גרירה - מוסתר כברירת מחדל */
+        .question-dropzone {
+            height: 60px;
+            border: 2px dashed #28a745;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #28a745;
+            font-weight: bold;
+            margin: 10px 0;
+            transition: all 0.3s ease;
+            opacity: 0;
+            pointer-events: none;
+            max-height: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+        
+        /* הצגת dropzones רק בזמן גרירה */
+        body.dragging .question-dropzone {
+            opacity: 1;
+            pointer-events: all;
+            max-height: 60px;
+            margin: 10px 0;
+        }
+        
+        .question-dropzone.drag-over {
+            background: linear-gradient(45deg, #e8f5e9 25%, #f1f8e9 25%, #f1f8e9 50%, #e8f5e9 50%, #e8f5e9 75%, #f1f8e9 75%, #f1f8e9);
+            background-size: 20px 20px;
+            animation: move 0.5s linear infinite;
+            border-color: #4caf50;
+            transform: scale(1.02);
+        }
+        
+        @keyframes move {
+            0% {
+                background-position: 0 0;
+            }
+            100% {
+                background-position: 20px 20px;
+            }
+        }
+        
+        .question-number {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 11px;
+            margin-left: 10px;
+        }
+        
+        /* כפתורים */
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107, #ff9800);
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* כרטיסי סרטונים במאגר */
+        .video-card {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 8px;
+            cursor: grab;
+            transition: all 0.3s ease;
+        }
+        
+        .video-card:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transform: translateY(-1px);
+        }
+        
+        .video-card.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+            transform: scale(0.95);
+        }
+        
+        .video-card.not-approved {
+            opacity: 0.5;
+            border: 2px dashed #dc3545;
+        }
+        
+        .video-card.pending {
+            border: 2px dashed #ffc107;
+        }
+        
+        .video-card.used {
+            background: #f0f0f0;
+            opacity: 0.6;
+            position: relative;
+        }
+        
+        .video-card.used::after {
+            content: '✓ בשימוש';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: #28a745;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        
+        .video-card h5 {
+            font-size: 13px;
+            margin-bottom: 4px;
+            color: #2c3e50;
+        }
+        
+        .video-card .category {
+            display: inline-block;
+            background: #e3f2fd;
+            color: #1565c0;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            margin-left: 5px;
+        }
+        
+        .video-card .program {
+            display: inline-block;
+            background: #f3e5f5;
+            color: #7b1fa2;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+        }
+        
+        .video-card .approval-status {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+        
+        .video-card .approval-status.approved {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .video-card .approval-status.not-approved {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .video-card .approval-status.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        /* פילטרים במאגר */
+        .filter-section {
+            padding: 10px;
+            background: white;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .filter-section input, .filter-section select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+        
+        /* אזור ייבוא וייצוא */
+        .import-export {
+            padding: 15px;
+            background: #f8f9fa;
+            border-top: 2px solid #e9ecef;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        /* מודאל */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow: hidden;
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-body {
+            padding: 20px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        
+        /* תצוגת תסריט */
+        .script-preview {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        /* רשימת תסריטים שמורים */
+        .saved-scripts-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .saved-script-item {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .saved-script-item:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .saved-script-info h4 {
+            margin: 0 0 5px 0;
+            font-size: 14px;
+        }
+        
+        .saved-script-info small {
+            color: #666;
+        }
+        
+        .saved-script-actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        /* טעינה */
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        
+        /* הודעות */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 2000;
+            display: none;
+        }
+        
+        .notification.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+            }
+            to {
+                transform: translateX(0);
+            }
+        }
+        
+        /* מספר אוטומטי */
+        .auto-number {
+            background: #6c757d;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+        
+        /* מספר סיבוב */
+        .round-number {
+            background: #28a745;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+        
+        /* רספונסיב */
+        @media (max-width: 1200px) {
+            .sidebar {
+                width: 300px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                max-height: 300px;
+                border-left: none;
+                border-bottom: 2px solid #e9ecef;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="notification" id="notification"></div>
+        
+        <div class="header">
+            <h1>🎬 בונה תסריטים - מה קורה פה?!</h1>
+            <p>צור תסריט מושלם עם גרירת סרטונים ישירות מהמאגר</p>
+        </div>
+        
+        <div class="main-content">
+            <!-- סידבר - מאגר סרטונים -->
+            <div class="sidebar">
+                <div class="sidebar-header">
+                    <h3>📦 מאגר סרטונים</h3>
+                    <button class="btn btn-success btn-sm" onclick="refreshVideos()">🔄 רענן</button>
+                </div>
+                
+                <div class="filter-section">
+                    <input type="text" id="searchVideos" placeholder="🔍 חפש סרטון..." onkeyup="filterVideos()">
+                    <select id="categoryFilter" onchange="filterVideos()">
+                        <option value="">כל הקטגוריות</option>
+                    </select>
+                    <select id="programFilter" onchange="filterVideos()">
+                        <option value="">כל התוכניות</option>
+                        <option value="unassigned">לא שובץ</option>
+                        <option value="1">פרק 1</option>
+                        <option value="2">פרק 2</option>
+                        <option value="3">פרק 3</option>
+                        <option value="4">פרק 4</option>
+                        <option value="5">פרק 5</option>
+                    </select>
+                    <select id="approvalFilter" onchange="filterVideos()">
+                        <option value="">כל הסטטוסים</option>
+                        <option value="approved">מאושר</option>
+                        <option value="not-approved">לא מאושר</option>
+                        <option value="pending">בטיפול</option>
+                    </select>
+                </div>
+                
+                <div id="videoList" class="video-list">
+                    <div class="loading">טוען סרטונים מהמאגר...</div>
+                </div>
+            </div>
+            
+            <!-- אזור עבודה -->
+            <div class="workspace">
+                <div class="script-header">
+                    <h3>📋 פרטי התוכנית</h3>
+                    <div class="script-header-inputs">
+                        <input type="text" id="programNumber" placeholder="תוכנית מס׳">
+                        <input type="text" id="programDate" placeholder="תאריך">
+                        <input type="text" id="draftNumber" placeholder="דראפט מס׳">
+                    </div>
+                </div>
+                
+                <!-- חלק הפתיחה המתקפל -->
+                <div class="collapsible-section collapsed" id="openingSection">
+                    <div class="collapsible-header" onclick="toggleCollapsible('openingSection')">
+                        <h3>🎬 חלק הפתיחה</h3>
+                        <span class="collapse-arrow">▼</span>
+                    </div>
+                    <div class="collapsible-content" id="openingContent">
+                        <!-- כאן יווצרו חלקי הפתיחה -->
+                    </div>
+                </div>
+                
+                <div class="script-container" id="scriptContainer">
+                    <!-- כאן יווצרו הסיבובים -->
+                </div>
+                
+                <!-- אזור הוספת סיבוב -->
+                <div class="add-round-area">
+                    <button class="btn btn-success" onclick="addNewRound()">➕ הוסף סיבוב חדש</button>
+                    <p style="margin-top: 10px; color: #666; font-size: 12px;">גרור סרטונים מהמאגר לתוך הסיבובים</p>
+                </div>
+                
+                <!-- דברי סיום יווצרו כאן -->
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn btn-warning" onclick="previewScript()">👁️ תצוגה מקדימה</button>
+                    <button class="btn btn-primary" onclick="exportScript()">📝 ייצא טקסט</button>
+                    <button class="btn btn-primary" style="background: linear-gradient(135deg, #2b579a, #1d4084);" onclick="exportToWord()">📄 ייצא לוורד</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="import-export">
+            <button class="btn btn-primary" onclick="saveToFirebase()">☁️ שמור בענן</button>
+            <button class="btn btn-success" onclick="showSavedScripts()">📂 טען מהענן</button>
+            <button class="btn btn-primary" onclick="saveProject()">💾 הורד גיבוי</button>
+            <button class="btn btn-success" onclick="loadProject()">📁 טען מקובץ</button>
+        </div>
+    </div>
+    
+    <!-- מודאל תצוגה מקדימה -->
+    <div class="modal" id="previewModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>תצוגה מקדימה</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="script-preview" id="scriptPreview"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- מודאל תסריטים שמורים -->
+    <div class="modal" id="savedScriptsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>תסריטים שמורים</h3>
+                <button class="modal-close" onclick="closeSavedScriptsModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="saved-scripts-list" id="savedScriptsList">
+                    <div class="loading">טוען תסריטים...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <script>
+        // הגדרות Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyA_xIrjXqNBHtvCdruFeinIN4G134GqPiI",
+            authDomain: "makorepo-81e68.firebaseapp.com",
+            databaseURL: "https://makorepo-81e68-default-rtdb.firebaseio.com",
+            projectId: "makorepo-81e68",
+            storageBucket: "makorepo-81e68.firebasestorage.app",
+            messagingSenderId: "25343223097",
+            appId: "1:25343223097:web:3f4c38f1802ad0a9a5b4e8",
+            measurementId: "G-EWC51ELEXS"
+        };
+
+        // אתחול Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const videosRef = database.ref('videos');
+        const scriptsRef = database.ref('scripts'); // נתיב חדש לתסריטים
+        
+        // משתנים גלובליים
+        let videoDatabase = [];
+        let usedVideos = new Set(); // רשימת הסרטונים בשימוש
+        let currentProject = {
+            programNumber: '',
+            programDate: '',
+            draftNumber: '',
+            sections: []
+        };
+        let sectionCounter = 1;
+        let roundCounter = 0;
+        
+        // רשימת המתמודדים
+        const contestants = [
+            { id: 'giora', name: 'גיורא זינגר' },
+            { id: 'matan', name: 'מתן פרץ' },
+            { id: 'mirit', name: 'מירית מוגזמת ליבצקי' },
+            { id: 'uri', name: 'אורי ברויר' },
+            { id: 'linor', name: 'לינור אברג\'יל' },
+            { id: 'shachar', name: 'שחר קפלן' },
+            { id: 'tal', name: 'טל ראשון' },
+            { id: 'nofar', name: 'נופר סוויסה' }
+        ];
+        
+        // מבנה התסריט הקבוע המעודכן
+        const templateSections = [
+            {
+                id: 'pre-opening',
+                type: 'fixed',
+                number: 1,
+                title: 'פרה פתיח - לא צריך משוט רחף, אלא סגור שלום',
+                content: `ערב טוב, אנחנו כאן בתכנית חדשה, שתעזור לכם לקחת הפוגה קלה מרצף שידורי החדשות. אנחנו מאמינים שהומור יכול להקל ולחזק, ואת זה אנחנו יודעים לעשות יותר טוב מכל עם בעולם. במקרה ויידרש, כמובן שנעדכן אתכם בכל התרחשות. אז הצטרפו אלינו לשעה קלילה, כי אם כבר נכנסנו לממד, בואו נצחק ביחד - כי את זה אף פרסי לא יכול לקחת מאתנו! בואו נתחיל:`
+            },
+            {
+                id: 'opening',
+                type: 'fixed',
+                number: 2,
+                title: 'פתיח ושוט פתיחה',
+                content: ''
+            },
+            {
+                id: 'opening-words',
+                type: 'fixed',
+                number: 3,
+                title: 'דברי פתיחה - שלום אסייג:',
+                content: `ערב טוב וברוכים הבאים לתוכנית [מספר] של "מה קורה פה?!" - התוכנית ששמה בצד את הדברים החשובים באמת וצוחקת על כל הדברים הקטנים והמשוגעים שקורים סביבנו!`
+            },
+            {
+                id: 'intro-contestants',
+                type: 'fixed',
+                number: 4,
+                title: 'הכרות עם המתמודדים',
+                content: `רגע לפני שאסביר לכם את חוקי המשחק שלנו, בואו נכיר את הקומיקאים שיהיו אתנו הערב ויעשו לנו קצת טוב על הלב!`
+            },
+            {
+                id: 'contestants-selection',
+                type: 'contestants',
+                number: 5,
+                title: 'בחירת מתמודדים',
+                content: ''
+            },
+            {
+                id: 'game-explanation',
+                type: 'fixed',
+                number: 6,
+                title: 'הסבר על המשחק',
+                content: `אז מה ייקרה פה הערב ואיך המשחק שלנו הולך?
+
+אני אראה לחמשת האנשים המצחיקים שיושבים פה, רגעים קצרים מתוך דברים שראינו לאחרונה בטלוויזיה וברשת, ואשאל אותם שאלה על המשך הקטע - הם יצטרכו לנחש מה קורה פה!
+
+מי שיקבל הכי הרבה נקודות עד סוף המשחק יוכרז כמנצח התוכנית ויזכה בשלל יצירות של הבן שלי מהגן.
+
+הראשון או הראשונה שיילחצו על הבאזר ויענו תשובה נכונה - ייזכו ב- 10 נקודות. חשוב להגיד - לי יש את הזכות לתת נקודות בונוס על תשובות שאהבתי במיוחד.
+
+אז תזכרו, בתוכנית שלנו, כמו בכביש, חשוב להיות צודק, אבל יותר חשוב לא לתת לאף אחד לעקוף אתכם!
+
+אני מרגיש שאתם לא רגועים, אז לפני שנצטרך לחלק לכם רטלין - אני מציע שנתחיל.`
+            },
+            {
+                id: 'closing-words',
+                type: 'fixed',
+                number: 999, // מספר גבוה כדי שתמיד יהיה אחרון
+                title: 'דברי סיום',
+                content: `זהו להיום. מקווה שעזרנו לכם ליהנות קצת מהשיגעון.
+מאחל לכולנו לילה בטוח ואמן שיהיה גם שקט ולכל מי שלא אתנו הערב, שיחזרו כבר הביתה לפה ומהר.
+נפגש פה שוב בשבוע הבא וננסה יחד לפצח את שאלת השאלות -- מה קורה פה!!!!
+לילה טוב.`
+            }
+        ];
+        
+        // פונקציות Firebase לתסריטים
+        async function saveToFirebase() {
+            const scriptName = prompt('תן שם לתסריט (למשל: תכנית 5 דראפט 2)');
+            if (!scriptName) return;
+            
+            try {
+                const scriptData = buildProjectData();
+                scriptData.name = scriptName;
+                scriptData.createdAt = new Date().toISOString();
+                scriptData.updatedAt = new Date().toISOString();
+                
+                // שמירה בפיירבייס
+                const newScriptRef = scriptsRef.push();
+                await newScriptRef.set(scriptData);
+                
+                showNotification('✅ התסריט נשמר בהצלחה בענן!');
+            } catch (error) {
+                console.error('שגיאה בשמירה:', error);
+                showNotification('❌ שגיאה בשמירת התסריט', 'error');
+            }
+        }
+        
+        async function showSavedScripts() {
+            document.getElementById('savedScriptsModal').style.display = 'flex';
+            
+            try {
+                const snapshot = await scriptsRef.once('value');
+                const scripts = snapshot.val();
+                
+                const scriptsList = document.getElementById('savedScriptsList');
+                scriptsList.innerHTML = '';
+                
+                if (!scripts) {
+                    scriptsList.innerHTML = '<div class="loading">אין תסריטים שמורים</div>';
+                    return;
+                }
+                
+                // המרה למערך וסידור לפי תאריך
+                const scriptsArray = Object.entries(scripts).map(([id, script]) => ({
+                    id,
+                    ...script
+                }));
+                
+                scriptsArray.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+                
+                scriptsArray.forEach(script => {
+                    const scriptItem = document.createElement('div');
+                    scriptItem.className = 'saved-script-item';
+                    
+                    const createdDate = new Date(script.createdAt).toLocaleString('he-IL');
+                    const updatedDate = new Date(script.updatedAt).toLocaleString('he-IL');
+                    
+                    scriptItem.innerHTML = `
+                        <div class="saved-script-info">
+                            <h4>${script.name}</h4>
+                            <small>נוצר: ${createdDate}</small>
+                            <br>
+                            <small>עודכן: ${updatedDate}</small>
+                        </div>
+                        <div class="saved-script-actions">
+                            <button class="btn btn-primary btn-sm" onclick="loadFromFirebase('${script.id}')">טען</button>
+                            <button class="btn btn-warning btn-sm" onclick="updateInFirebase('${script.id}')">עדכן</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteFromFirebase('${script.id}')">מחק</button>
+                        </div>
+                    `;
+                    
+                    scriptsList.appendChild(scriptItem);
+                });
+            } catch (error) {
+                console.error('שגיאה בטעינת תסריטים:', error);
+                showNotification('❌ שגיאה בטעינת התסריטים', 'error');
+            }
+        }
+        
+        async function loadFromFirebase(scriptId) {
+            try {
+                const snapshot = await scriptsRef.child(scriptId).once('value');
+                const scriptData = snapshot.val();
+                
+                if (!scriptData) {
+                    showNotification('❌ התסריט לא נמצא', 'error');
+                    return;
+                }
+                
+                // טעינת הנתונים
+                loadProjectData(scriptData);
+                
+                closeSavedScriptsModal();
+                showNotification('✅ התסריט נטען בהצלחה!');
+            } catch (error) {
+                console.error('שגיאה בטעינת תסריט:', error);
+                showNotification('❌ שגיאה בטעינת התסריט', 'error');
+            }
+        }
+        
+        async function updateInFirebase(scriptId) {
+            const confirmUpdate = confirm('האם לעדכן את התסריט השמור עם הנתונים הנוכחיים?');
+            if (!confirmUpdate) return;
+            
+            try {
+                const scriptData = buildProjectData();
+                scriptData.updatedAt = new Date().toISOString();
+                
+                // שמירת השם הקיים
+                const existingSnapshot = await scriptsRef.child(scriptId).once('value');
+                const existingData = existingSnapshot.val();
+                scriptData.name = existingData.name;
+                scriptData.createdAt = existingData.createdAt;
+                
+                await scriptsRef.child(scriptId).set(scriptData);
+                
+                showNotification('✅ התסריט עודכן בהצלחה!');
+                closeSavedScriptsModal();
+            } catch (error) {
+                console.error('שגיאה בעדכון:', error);
+                showNotification('❌ שגיאה בעדכון התסריט', 'error');
+            }
+        }
+        
+        async function deleteFromFirebase(scriptId) {
+            const confirmDelete = confirm('האם אתה בטוח שברצונך למחוק את התסריט?');
+            if (!confirmDelete) return;
+            
+            try {
+                await scriptsRef.child(scriptId).remove();
+                showNotification('✅ התסריט נמחק בהצלחה!');
+                showSavedScripts(); // רענון הרשימה
+            } catch (error) {
+                console.error('שגיאה במחיקה:', error);
+                showNotification('❌ שגיאה במחיקת התסריט', 'error');
+            }
+        }
+        
+        function closeSavedScriptsModal() {
+            document.getElementById('savedScriptsModal').style.display = 'none';
+        }
+        
+        // פונקציה לבניית נתוני הפרויקט
+        function buildProjectData() {
+            const project = {
+                programNumber: document.getElementById('programNumber').value,
+                programDate: document.getElementById('programDate').value,
+                draftNumber: document.getElementById('draftNumber').value,
+                sections: []
+            };
+            
+            // שמירת סעיפי הפתיחה
+            document.querySelectorAll('#openingContent .script-section').forEach(section => {
+                const sectionId = section.dataset.sectionId;
+                
+                if (sectionId === 'contestants-selection') {
+                    // שמירת בחירת מתמודדים
+                    const contestantsData = {};
+                    contestants.forEach(contestant => {
+                        const checkbox = document.getElementById(`check-${contestant.id}`);
+                        const textarea = document.querySelector(`[data-contestant="${contestant.id}"]`);
+                        contestantsData[contestant.id] = {
+                            selected: checkbox ? checkbox.checked : false,
+                            text: textarea ? textarea.value : ''
+                        };
+                    });
+                    project.sections.push({
+                        type: 'contestants',
+                        data: contestantsData
+                    });
+                } else {
+                    project.sections.push({
+                        type: 'fixed',
+                        id: sectionId,
+                        content: section.querySelector('.editable-text')?.value || ''
+                    });
+                }
+            });
+            
+            // שמירת סיבובים
+            document.querySelectorAll('.round').forEach(round => {
+                const roundData = {
+                    type: 'round',
+                    name: round.querySelector('.round-header input').value,
+                    intro: round.querySelector('.editable-text').value,
+                    questions: []
+                };
+                
+                round.querySelectorAll('.question-item:not(.question-dropzone)').forEach(question => {
+                    if (question.dataset.videoData) {
+                        const inputs = question.querySelectorAll('input');
+                        roundData.questions.push({
+                            videoData: JSON.parse(question.dataset.videoData),
+                            question: inputs[0]?.value || '',
+                            answer: inputs[1]?.value || '',
+                            after: inputs[2]?.value || ''
+                        });
+                    }
+                });
+                
+                project.sections.push(roundData);
+            });
+            
+            // שמירת דברי סיום
+            const closingSection = document.querySelector('[data-section-id="closing-words"]');
+            if (closingSection) {
+                project.sections.push({
+                    type: 'fixed',
+                    id: 'closing-words',
+                    content: closingSection.querySelector('.editable-text').value
+                });
+            }
+            
+            return project;
+        }
+        
+        // פונקציה לטעינת נתוני פרויקט
+        function loadProjectData(project) {
+            // טעינת פרטי התוכנית
+            document.getElementById('programNumber').value = project.programNumber || '';
+            document.getElementById('programDate').value = project.programDate || '';
+            document.getElementById('draftNumber').value = project.draftNumber || '';
+            
+            // ניקוי וטעינה מחדש
+            initializeScript();
+            document.getElementById('scriptContainer').innerHTML = '';
+            
+            const closingData = project.sections.find(s => s.id === 'closing-words');
+            
+            project.sections.forEach(section => {
+                if (section.type === 'fixed' && section.id !== 'closing-words') {
+                    // עדכון סעיף קבוע
+                    const fixedSection = document.querySelector(`[data-section-id="${section.id}"]`);
+                    if (fixedSection) {
+                        const textarea = fixedSection.querySelector('.editable-text');
+                        if (textarea) {
+                            textarea.value = section.content || '';
+                        }
+                    }
+                } else if (section.type === 'contestants') {
+                    // טעינת בחירת מתמודדים
+                    Object.keys(section.data).forEach(contestantId => {
+                        const checkbox = document.getElementById(`check-${contestantId}`);
+                        const textarea = document.querySelector(`[data-contestant="${contestantId}"]`);
+                        if (checkbox) {
+                            checkbox.checked = section.data[contestantId].selected;
+                            toggleContestant(contestantId);
+                        }
+                        if (textarea) {
+                            textarea.value = section.data[contestantId].text || '';
+                        }
+                    });
+                } else if (section.type === 'round') {
+                    // יצירת סיבוב
+                    addNewRound();
+                    const rounds = document.querySelectorAll('.round');
+                    const lastRound = rounds[rounds.length - 1];
+                    
+                    // עדכון שם וטקסט פתיחה
+                    lastRound.querySelector('.round-header input').value = section.name || '';
+                    lastRound.querySelector('.editable-text').value = section.intro || '';
+                    
+                    // הוספת שאלות
+                    const questionsList = lastRound.querySelector('.questions-list');
+                    questionsList.innerHTML = ''; // ניקוי
+                    
+                    section.questions.forEach(q => {
+                        const newQuestion = createQuestionElement(q.videoData);
+                        questionsList.appendChild(newQuestion);
+                        
+                        // עדכון השדות
+                        const inputs = newQuestion.querySelectorAll('input');
+                        if (inputs[0]) inputs[0].value = q.question || '';
+                        if (inputs[1]) inputs[1].value = q.answer || '';
+                        if (inputs[2]) inputs[2].value = q.after || '';
+                    });
+                    
+                    // עדכון dropzones
+                    updateDropzones(questionsList);
+                }
+            });
+            
+            // עדכון דברי סיום
+            if (closingData) {
+                const closingDiv = document.querySelector('[data-section-id="closing-words"]');
+                if (closingDiv) {
+                    closingDiv.querySelector('.editable-text').value = closingData.content;
+                }
+            }
+            
+            // הפעלת סעיפים קבועים (חוץ מדברי סיום)
+            document.querySelectorAll('.script-section.fixed-section').forEach(section => {
+                if (section.dataset.sectionId !== 'closing-words') {
+                    section.classList.add('active');
+                }
+            });
+            // עדכון רשימת הסרטונים בשימוש
+            updateUsedVideos();
+        }
+        
+        // פונקציות Drag & Drop משופרות
+        function allowDrop(ev) {
+            ev.preventDefault();
+            if (ev.currentTarget.classList.contains('question-dropzone')) {
+                ev.currentTarget.classList.add('drag-over');
+            }
+        }
+        
+        function dragLeave(ev) {
+            if (ev.currentTarget.classList.contains('question-dropzone')) {
+                ev.currentTarget.classList.remove('drag-over');
+            }
+        }
+        
+        function drag(ev) {
+            const videoData = {
+                firebaseId: ev.target.dataset.firebaseId.toString(),
+                number: ev.target.dataset.number,
+                category: ev.target.dataset.category,
+                title: ev.target.dataset.title,
+                description: ev.target.dataset.description,
+                question: ev.target.dataset.question,
+                approvalStatus: ev.target.dataset.approvalStatus
+            };
+            ev.dataTransfer.setData("videoData", JSON.stringify(videoData));
+            ev.dataTransfer.effectAllowed = 'copy';
+            ev.target.classList.add('dragging');
+            
+            // הוספת מחלקה לגוף המסמך
+            document.body.classList.add('dragging');
+        }
+        
+        function dragEnd(ev) {
+            ev.target.classList.remove('dragging');
+            
+            // הסרת מחלקה מגוף המסמך
+            document.body.classList.remove('dragging');
+            
+            // הסתרת dropzones
+            document.querySelectorAll('.question-dropzone').forEach(zone => {
+                zone.classList.remove('drag-over');
+            });
+        }
+        
+        // גרירת שאלות קיימות
+        function dragQuestion(ev) {
+            ev.dataTransfer.effectAllowed = 'move';
+            ev.dataTransfer.setData('questionMove', 'true');
+            ev.target.classList.add('dragging');
+            
+            // הוספת מחלקה לגוף המסמך
+            document.body.classList.add('dragging');
+            
+            // עדכון dropzones
+            const questionsList = ev.target.parentElement;
+            updateDropzones(questionsList);
+        }
+        
+        function dropQuestion(ev) {
+            ev.preventDefault();
+            const dropzone = ev.currentTarget;
+            dropzone.classList.remove('drag-over');
+            
+            const isQuestionMove = ev.dataTransfer.getData('questionMove');
+            const videoData = ev.dataTransfer.getData('videoData');
+            
+            if (isQuestionMove) {
+                // העברת שאלה קיימת
+                const draggingItem = document.querySelector('.question-item.dragging');
+                if (draggingItem && dropzone.classList.contains('question-dropzone')) {
+                    dropzone.parentNode.insertBefore(draggingItem, dropzone);
+                    draggingItem.classList.remove('dragging');
+                }
+            } else if (videoData) {
+                // הוספת סרטון חדש
+                const data = JSON.parse(videoData);
+                
+                // בדיקה אם הסרטון כבר קיים
+                if (isVideoAlreadyUsed(data.firebaseId.toString())) {
+                    showNotification('⚠️ סרטון זה כבר נמצא בתסריט!', 'warning');
+                    document.body.classList.remove('dragging');
+                    return;
+                }
+                
+                const newQuestion = createQuestionElement(data);
+                dropzone.parentNode.insertBefore(newQuestion, dropzone);
+                
+                // הוספה לרשימת הסרטונים בשימוש
+                updateUsedVideos();
+            }
+            
+            // עדכון dropzones
+            const questionsList = dropzone.parentNode;
+            updateDropzones(questionsList);
+            
+            // עדכון מספור
+            updateAllNumbering();
+            
+            // הסרת מחלקה מגוף המסמך
+            document.body.classList.remove('dragging');
+        }
+        
+        // יצירת אלמנט שאלה עם אנימציה
+        function createQuestionElement(data) {
+            const questionItem = document.createElement('div');
+            questionItem.className = 'question-item';
+            questionItem.draggable = true;
+            questionItem.ondragstart = dragQuestion;
+            questionItem.ondragend = () => {
+                questionItem.classList.remove('dragging');
+                document.body.classList.remove('dragging');
+            };
+            
+            // הוספת אירועים לתצוגה מקדימה בזמן ריחוף
+            questionItem.ondragover = (e) => {
+                e.preventDefault();
+                const draggingItem = document.querySelector('.question-item.dragging');
+                if (draggingItem && draggingItem !== questionItem) {
+                    questionItem.classList.add('drag-preview');
+                }
+            };
+            
+            questionItem.ondragleave = () => {
+                questionItem.classList.remove('drag-preview');
+            };
+            
+            questionItem.ondrop = (e) => {
+                e.preventDefault();
+                questionItem.classList.remove('drag-preview');
+            };
+            
+            const approvalStatus = data.approvalStatus || 'pending';
+            const approvalText = {
+                'approved': 'מאושר',
+                'not-approved': 'לא מאושר', 
+                'pending': 'בטיפול'
+            }[approvalStatus];
+            
+            const approvalClass = {
+                'approved': 'style="background: #d4edda; color: #155724;"',
+                'not-approved': 'style="background: #f8d7da; color: #721c24;"',
+                'pending': 'style="background: #fff3cd; color: #856404;"'
+            }[approvalStatus];
+            
+            questionItem.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                    <div style="flex: 1;">
+                        <strong>${data.title}</strong>
+                        <span class="question-number">${data.number || 'ללא מספר'}</span>
+                        <span ${approvalClass} style="padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: bold; margin-left: 5px;">${approvalText}</span>
+                        <br>
+                        <small>קטגוריה: ${data.category}</small>
+                        ${data.description ? `<br><small>תיאור: ${data.description}</small>` : ''}
+                        <div style="margin-top: 8px;">
+                            <label style="font-weight: bold;">שאלה:</label>
+                            <input type="text" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px;" 
+                                   value="${data.question || ''}" placeholder="הכנס שאלה...">
+                        </div>
+                        <div style="margin-top: 8px;">
+                            <label style="font-weight: bold;">תשובה:</label>
+                            <input type="text" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px;" 
+                                   placeholder="הכנס תיאור תשובה...">
+                        </div>
+                        <div style="margin-top: 8px;">
+                            <label style="font-weight: bold;">אפטר פאנץ':</label>
+                            <input type="text" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px;" 
+                                   placeholder="הכנס אפטר פאנץ'...">
+                        </div>
+                    </div>
+                    <button class="btn btn-danger btn-sm" onclick="removeQuestion(this)">🗑️</button>
+                </div>
+            `;
+            
+            questionItem.dataset.videoData = JSON.stringify(data);
+            
+            return questionItem;
+        }
+        
+        // עדכון dropzones
+        function updateDropzones(questionsList) {
+            // הסר את כל ה-dropzones הקיימים
+            questionsList.querySelectorAll('.question-dropzone').forEach(zone => zone.remove());
+            
+            // הוסף dropzone לפני כל שאלה
+            const questions = questionsList.querySelectorAll('.question-item');
+            questions.forEach(question => {
+                const dropzone = createDropzone();
+                questionsList.insertBefore(dropzone, question);
+            });
+            
+            // הוסף dropzone בסוף
+            const finalDropzone = createDropzone();
+            questionsList.appendChild(finalDropzone);
+        }
+        
+        function createDropzone() {
+            const dropzone = document.createElement('div');
+            dropzone.className = 'question-dropzone';
+            dropzone.innerHTML = 'גרור סרטון לכאן';
+            dropzone.ondrop = dropQuestion;
+            dropzone.ondragover = allowDrop;
+            dropzone.ondragleave = dragLeave;
+            return dropzone;
+        }
+        
+        // גרירת סיבובים משופרת
+        function dragRound(ev) {
+            ev.dataTransfer.effectAllowed = 'move';
+            ev.dataTransfer.setData('roundMove', 'true');
+            ev.target.closest('.round').classList.add('dragging');
+        }
+        
+        function dragOverRound(ev) {
+            ev.preventDefault();
+            const draggingRound = document.querySelector('.round.dragging');
+            const currentRound = ev.target.closest('.round');
+            if (draggingRound && currentRound && currentRound !== draggingRound) {
+                currentRound.classList.add('drag-over');
+            }
+        }
+        
+        function dragLeaveRound(ev) {
+            const currentRound = ev.target.closest('.round');
+            if (currentRound) {
+                currentRound.classList.remove('drag-over');
+            }
+        }
+        
+        function dropRound(ev) {
+            ev.preventDefault();
+            const currentRound = ev.target.closest('.round');
+            if (currentRound) {
+                currentRound.classList.remove('drag-over');
+            }
+            
+            const isRoundMove = ev.dataTransfer.getData('roundMove');
+            if (isRoundMove) {
+                const draggingRound = document.querySelector('.round.dragging');
+                if (draggingRound && currentRound && currentRound !== draggingRound) {
+                    const container = document.getElementById('scriptContainer');
+                    const allRounds = [...container.querySelectorAll('.round')];
+                    const dragIndex = allRounds.indexOf(draggingRound);
+                    const dropIndex = allRounds.indexOf(currentRound);
+                    
+                    if (dragIndex < dropIndex) {
+                        container.insertBefore(draggingRound, currentRound.nextSibling);
+                    } else {
+                        container.insertBefore(draggingRound, currentRound);
+                    }
+                }
+                if (draggingRound) {
+                    draggingRound.classList.remove('dragging');
+                }
+                
+                // עדכון מספור
+                updateAllNumbering();
+            }
+        }
+        
+        // פונקציה לפתיחה/סגירה של סעיף מתקפל
+        function toggleCollapsible(sectionId) {
+            const section = document.getElementById(sectionId);
+            section.classList.toggle('collapsed');
+        }
+        
+        // יצירת סעיף בחירת מתמודדים
+        function createContestantsSelection() {
+            let html = '<div class="contestants-selection">';
+            html += '<h4>בחר את המתמודדים שישתתפו בתוכנית:</h4>';
+            
+            contestants.forEach(contestant => {
+                html += `
+                    <div class="contestant-item" id="contestant-${contestant.id}">
+                        <div class="contestant-checkbox">
+                            <input type="checkbox" id="check-${contestant.id}" onchange="toggleContestant('${contestant.id}')">
+                            <label for="check-${contestant.id}">${contestant.name}</label>
+                        </div>
+                        <div class="contestant-text">
+                            <textarea placeholder="מה ${contestant.name} מספר/ת בפתיחה..." data-contestant="${contestant.id}"></textarea>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            return html;
+        }
+        
+        // החלפת מצב מתמודד
+        function toggleContestant(contestantId) {
+            const item = document.getElementById(`contestant-${contestantId}`);
+            const checkbox = document.getElementById(`check-${contestantId}`);
+            
+            if (checkbox.checked) {
+                item.classList.add('selected');
+            } else {
+                item.classList.remove('selected');
+            }
+        }
+        
+        // יצירת מבנה התסריט
+        function initializeScript() {
+            const openingContent = document.getElementById('openingContent');
+            openingContent.innerHTML = '';
+            
+            // יצירת כל הסעיפים הקבועים בחלק הפתיחה
+            templateSections.forEach((section, index) => {
+                if (section.id === 'closing-words') return; // דברי הסיום יטופלו בנפרד
+                
+                const sectionDiv = document.createElement('div');
+                sectionDiv.className = 'script-section fixed-section';
+                sectionDiv.dataset.sectionId = section.id;
+                sectionDiv.dataset.sectionNumber = section.number;
+                
+                if (section.type === 'contestants') {
+                    // סעיף מיוחד לבחירת מתמודדים
+                    sectionDiv.innerHTML = `
+                        <div class="section-header" onclick="toggleSection(this)">
+                            <h4><span class="auto-number">${section.number}</span>. ${section.title}</h4>
+                            <span>▼</span>
+                        </div>
+                        <div class="section-content">
+                            ${createContestantsSelection()}
+                        </div>
+                    `;
+                } else {
+                    sectionDiv.innerHTML = `
+                        <div class="section-header" onclick="toggleSection(this)">
+                            <h4><span class="auto-number">${section.number}</span>. ${section.title}</h4>
+                            <span>▼</span>
+                        </div>
+                        <div class="section-content">
+                            <textarea class="editable-text" placeholder="הכנס טקסט...">${section.content}</textarea>
+                        </div>
+                    `;
+                }
+                
+                openingContent.appendChild(sectionDiv);
+            });
+            
+            // הוספת דברי סיום אחרי אזור הוספת הסיבוב
+            const addRoundArea = document.querySelector('.add-round-area');
+            const closingDiv = document.createElement('div');
+            closingDiv.className = 'script-section fixed-section';
+            closingDiv.dataset.sectionId = 'closing-words';
+            closingDiv.innerHTML = `
+                <div class="section-header" onclick="toggleSection(this)">
+                    <h4>דברי סיום</h4>
+                    <span>▼</span>
+                </div>
+                <div class="section-content">
+                    <textarea class="editable-text" placeholder="הכנס דברי סיום...">${templateSections.find(s => s.id === 'closing-words').content}</textarea>
+                </div>
+            `;
+            addRoundArea.parentNode.insertBefore(closingDiv, addRoundArea.nextSibling);
+            
+            // עדכון מונה הסעיפים
+            sectionCounter = templateSections.length;
+        }
+        
+        // החלפת מצב סעיף (פתוח/סגור)
+        function toggleSection(header) {
+            const section = header.parentElement;
+            section.classList.toggle('active');
+            const arrow = header.querySelector('span:last-child');
+            arrow.textContent = section.classList.contains('active') ? '▲' : '▼';
+        }
+        
+        // החלפת מצב סיבוב
+        function toggleRound(header) {
+            if (event.target === header || event.target.tagName === 'H4') {
+                const round = header.parentElement;
+                round.classList.toggle('active');
+            }
+        }
+        
+        // הוספת סיבוב חדש
+        function addNewRound() {
+            roundCounter++;
+            const container = document.getElementById('scriptContainer');
+            
+            const newRound = document.createElement('div');
+            newRound.className = 'round';
+            newRound.dataset.roundId = roundCounter;
+            newRound.dataset.sectionNumber = sectionCounter;
+            
+            newRound.innerHTML = `
+                <div class="round-header" onclick="toggleRound(this)" draggable="true" ondragstart="dragRound(event)" ondragover="dragOverRound(event)" ondragleave="dragLeaveRound(event)" ondrop="dropRound(event)">
+                    <h4><span class="round-number">סיבוב ${roundCounter}</span> - <input type="text" placeholder="הכנס שם סיבוב" onclick="event.stopPropagation()" style="background: none; border: none; color: white; font-weight: bold;"></h4>
+                    <button class="btn btn-danger btn-sm" onclick="removeRound(this, event)">🗑️</button>
+                </div>
+                <div class="round-content">
+                    <textarea class="editable-text" style="margin-bottom: 10px;">בסיבוב הבא [הכנס תיאור הסיבוב]
+יד על הבאזר. מתחילים.</textarea>
+                    <div class="questions-list">
+                        <div class="question-dropzone" ondrop="dropQuestion(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                            גרור סרטון לכאן
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(newRound);
+            
+            // עדכון מספור
+            updateAllNumbering();
+            showNotification('✅ סיבוב חדש נוסף!');
+        }
+        
+        function removeRound(btn, event) {
+            event.stopPropagation();
+            if (confirm('האם למחוק את הסיבוב?')) {
+                btn.closest('.round').remove();
+                updateRoundNumbers();
+                updateAllNumbering();
+                
+                // עדכון רשימת הסרטונים בשימוש
+                updateUsedVideos();
+                
+                showNotification('✅ סיבוב נמחק!');
+            }
+        }
+        
+        function removeQuestion(btn) {
+            if (confirm('האם למחוק את השאלה?')) {
+                const questionItem = btn.closest('.question-item');
+                const questionsList = questionItem.parentElement;
+                questionItem.remove();
+                
+                updateDropzones(questionsList);
+                updateAllNumbering();
+                
+                // עדכון רשימת הסרטונים בשימוש
+                updateUsedVideos();
+            }
+        }
+        
+        // בדיקה אם סרטון כבר בשימוש
+        function isVideoAlreadyUsed(firebaseId) {
+            const allQuestions = document.querySelectorAll('.question-item');
+            for (let question of allQuestions) {
+                if (question.dataset.videoData) {
+                    const data = JSON.parse(question.dataset.videoData);
+                    if (data.firebaseId === firebaseId.toString()) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        
+        // עדכון רשימת הסרטונים בשימוש
+        function updateUsedVideos() {
+            usedVideos.clear();
+            const allQuestions = document.querySelectorAll('.question-item');
+            allQuestions.forEach(question => {
+                if (question.dataset.videoData) {
+                    const data = JSON.parse(question.dataset.videoData);
+                    usedVideos.add(data.firebaseId.toString());
+                }
+            });
+            
+            // עדכון התצוגה של הסרטונים במאגר
+            updateVideoCardsStatus();
+        }
+        
+        // עדכון סטטוס כרטיסי הסרטונים
+        function updateVideoCardsStatus() {
+            document.querySelectorAll('.video-card').forEach(card => {
+                const firebaseId = card.dataset.firebaseId;
+                if (usedVideos.has(firebaseId)) {
+                    card.classList.add('used');
+                } else {
+                    card.classList.remove('used');
+                }
+            });
+        }
+        
+        // עדכון מספור סיבובים
+        function updateRoundNumbers() {
+            const rounds = document.querySelectorAll('.round');
+            rounds.forEach((round, index) => {
+                const roundNumber = round.querySelector('.round-number');
+                if (roundNumber) {
+                    roundNumber.textContent = `סיבוב ${index + 1}`;
+                }
+            });
+            roundCounter = rounds.length;
+        }
+        
+        // עדכון מספור אוטומטי
+        function updateAllNumbering() {
+            let currentNumber = 1;
+            
+            // עבור על כל הסעיפים הקבועים
+            document.querySelectorAll('#openingContent .script-section.fixed-section').forEach(section => {
+                const numberSpan = section.querySelector('.auto-number');
+                if (numberSpan) {
+                    numberSpan.textContent = currentNumber;
+                    section.dataset.sectionNumber = currentNumber;
+                    currentNumber++;
+                }
+            });
+            
+            // עבור על כל הסיבובים
+            document.querySelectorAll('.round').forEach(round => {
+                round.dataset.sectionNumber = currentNumber;
+                currentNumber++;
+            });
+            
+            sectionCounter = currentNumber;
+            
+            // עדכון מספרי הסיבובים
+            updateRoundNumbers();
+        }
+        
+        // טעינת סרטונים מ-Firebase
+        async function loadVideosFromFirebase() {
+            try {
+                showNotification('📥 טוען סרטונים מהמאגר...');
+                
+                const snapshot = await videosRef.once('value');
+                const data = snapshot.val();
+                
+                if (data && data.data && Array.isArray(data.data)) {
+                    videoDatabase = data.data.filter(video => video && !video.archived);
+                    
+                    console.log(`נטענו ${videoDatabase.length} סרטונים מ-Firebase`);
+                    
+                    // עדכון פילטרים
+                    updateFilters();
+                    
+                    // הצגת הסרטונים
+                    displayVideos();
+                    
+                    showNotification(`✅ נטענו ${videoDatabase.length} סרטונים!`);
+                } else {
+                    showNotification('⚠️ לא נמצאו סרטונים במאגר');
+                }
+            } catch (error) {
+                console.error('שגיאה בטעינת סרטונים:', error);
+                showNotification('❌ שגיאה בטעינת סרטונים', 'error');
+            }
+        }
+        
+        // רענון סרטונים
+        async function refreshVideos() {
+            await loadVideosFromFirebase();
+        }
+        
+        // עדכון פילטרים
+        function updateFilters() {
+            // עדכון פילטר קטגוריות
+            const categoryFilter = document.getElementById('categoryFilter');
+            const categories = [...new Set(videoDatabase.map(v => v.category))].sort();
+            
+            categoryFilter.innerHTML = '<option value="">כל הקטגוריות</option>';
+            categories.forEach(cat => {
+                categoryFilter.innerHTML += `<option value="${cat}">${cat}</option>`;
+            });
+        }
+        
+        // הצגת סרטונים
+        function displayVideos() {
+            const videoList = document.getElementById('videoList');
+            const searchTerm = document.getElementById('searchVideos').value.toLowerCase();
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const programFilter = document.getElementById('programFilter').value;
+            const approvalFilter = document.getElementById('approvalFilter').value;
+            
+            const filteredVideos = videoDatabase.filter((video, index) => {
+                const matchesSearch = !searchTerm || 
+                    video.title.toLowerCase().includes(searchTerm) ||
+                    (video.description && video.description.toLowerCase().includes(searchTerm)) ||
+                    (video.question && video.question.toLowerCase().includes(searchTerm));
+                
+                const matchesCategory = !categoryFilter || video.category === categoryFilter;
+                
+                const matchesProgram = !programFilter || 
+                    (programFilter === 'unassigned' && (!video.program || video.program === 'unassigned')) ||
+                    video.program === programFilter;
+                
+                const matchesApproval = !approvalFilter || video.approvalStatus === approvalFilter;
+                
+                return matchesSearch && matchesCategory && matchesProgram && matchesApproval;
+            });
+            
+            videoList.innerHTML = '';
+            
+            if (filteredVideos.length === 0) {
+                videoList.innerHTML = '<div class="loading">לא נמצאו סרטונים</div>';
+                return;
+            }
+            
+            filteredVideos.forEach((video, index) => {
+                const realIndex = videoDatabase.indexOf(video);
+                const card = document.createElement('div');
+                const approvalStatus = video.approvalStatus || 'pending';
+                const isUsed = usedVideos.has(realIndex.toString());
+                card.className = `video-card ${approvalStatus === 'not-approved' ? 'not-approved' : approvalStatus === 'pending' ? 'pending' : ''} ${isUsed ? 'used' : ''}`;
+                card.draggable = true;
+                card.ondragstart = drag;
+                card.ondragend = dragEnd;
+                
+                // שמירת נתונים על הכרטיס
+                card.dataset.firebaseId = realIndex.toString();
+                card.dataset.number = video.number || '';
+                card.dataset.category = video.category || '';
+                card.dataset.title = video.title || '';
+                card.dataset.description = video.description || '';
+                card.dataset.question = video.question || '';
+                card.dataset.approvalStatus = approvalStatus;
+                
+                const approvalText = {
+                    'approved': 'מאושר',
+                    'not-approved': 'לא מאושר',
+                    'pending': 'בטיפול'
+                }[approvalStatus];
+                
+                card.innerHTML = `
+                    <h5>${video.title}</h5>
+                    <div>
+                        <span class="category">${video.category}</span>
+                        <span class="program">${video.program && video.program !== 'unassigned' ? `פרק ${video.program}` : 'לא שובץ'}</span>
+                        <span class="approval-status ${approvalStatus}">${approvalText}</span>
+                    </div>
+                    ${video.description ? `<small style="color: #666; display: block; margin-top: 4px;">${video.description}</small>` : ''}
+                `;
+                
+                videoList.appendChild(card);
+            });
+        }
+        
+        // סינון סרטונים
+        function filterVideos() {
+            displayVideos();
+        }
+        
+        // יצירת תסריט
+        function buildScript() {
+            let script = `תכנית ${document.getElementById('programNumber').value || '[מספר]'} -- ${document.getElementById('programDate').value || '[תאריך]'}\n`;
+            script += `דראפט ${document.getElementById('draftNumber').value || '[מספר]'} -- בעבודה -- למעקב דנה/הפקה\n\n`;
+            
+            // איסוף המתמודדים הנבחרים
+            const selectedContestants = [];
+            contestants.forEach(contestant => {
+                const checkbox = document.getElementById(`check-${contestant.id}`);
+                if (checkbox && checkbox.checked) {
+                    selectedContestants.push(contestant.name);
+                }
+            });
+            
+            script += `**קאסט: ${selectedContestants.join(', ')}**\n\n`;
+            script += `---\n\n`;
+            
+            let questionNumber = 1;
+            
+            // עבור על סעיפי הפתיחה
+            document.querySelectorAll('#openingContent .script-section').forEach(section => {
+                const title = section.querySelector('.section-header h4').textContent;
+                const sectionId = section.dataset.sectionId;
+                
+                if (sectionId === 'contestants-selection') {
+                    // טיפול מיוחד במתמודדים
+                    script += `## ${title}\n\n`;
+                    
+                    contestants.forEach(contestant => {
+                        const checkbox = document.getElementById(`check-${contestant.id}`);
+                        if (checkbox && checkbox.checked) {
+                            const textarea = document.querySelector(`[data-contestant="${contestant.id}"]`);
+                            const text = textarea ? textarea.value : '';
+                            
+                            script += `שלום ל${contestant.name}!\n`;
+                            script += `מה נשמע? [${text || 'הכנס כאן מה ' + contestant.name + ' מספר/ת'}] (כפיים)\n\n`;
+                        }
+                    });
+                    
+                    // הוספת CG לוגו אחרי המתמודדים
+                    script += `## CG לוגו\n\n`;
+                } else {
+                    const content = section.querySelector('.editable-text')?.value || '';
+                    
+                    script += `## ${title}\n`;
+                    if (content.trim()) {
+                        script += `${content}\n\n`;
+                    } else {
+                        script += `\n`;
+                    }
+                }
+            });
+            
+            // עבור על הסיבובים
+            const rounds = document.querySelectorAll('.round');
+            rounds.forEach((round, roundIndex) => {
+                const roundNameInput = round.querySelector('.round-header input');
+                const roundName = roundNameInput ? roundNameInput.value : '';
+                const roundIntro = round.querySelector('.editable-text').value;
+                const roundNum = parseInt(round.dataset.sectionNumber);
+                
+                // בתסריט יופיע "פתיחת סיבוב" ללא מספר
+                script += `## ${roundNum}. פתיחת סיבוב - ${roundName || '[הכנס שם סיבוב]'}\n`;
+                if (roundIntro.trim()) {
+                    script += `${roundIntro}\n\n`;
+                }
+                
+                // שאלות בסיבוב
+                const questions = round.querySelectorAll('.question-item:not(.question-dropzone)');
+                questions.forEach((question, qIndex) => {
+                    const videoData = question.dataset.videoData ? JSON.parse(question.dataset.videoData) : null;
+                    if (!videoData) return;
+                    
+                    const titleElement = question.querySelector('strong');
+                    const questionInput = question.querySelector('input[placeholder="הכנס שאלה..."]');
+                    const answerInput = question.querySelector('input[placeholder="הכנס תיאור תשובה..."]');
+                    const afterInput = question.querySelector('input[placeholder="הכנס אפטר פאנץ\'..."]');
+                    
+                    const title = titleElement ? titleElement.textContent : '[הכנס תיאור]';
+                    const questionText = questionInput ? questionInput.value : '';
+                    const answerText = answerInput ? answerInput.value : '';
+                    const afterText = afterInput ? afterInput.value : '';
+                    
+                    const baseNumber = roundNum + 1 + (qIndex * 5);
+                    
+                    script += `### ${baseNumber}. VTR שאלה -- ${title}\n\n`;
+                    
+                    script += `### ${baseNumber + 1}. CG פריז\n`;
+                    script += `**${questionText || '[הכנס את נוסח השאלה]'}**\n\n`;
+                    script += `(עונים)\n\n`;
+                    script += `והתשובה היא:\n\n`;
+                    
+                    script += `### ${baseNumber + 2}. VTR תשובה -- ${answerText || '**[הכנס תיאור התשובה]**'}\n\n`;
+                    
+                    script += `### ${baseNumber + 3}. CG פריז\n`;
+                    script += `**${afterText || '[הכנס אפטר פאנץ\']'}**\n\n`;
+                    
+                    script += `### ${baseNumber + 4}. CG לוגו\n`;
+                    script += `את/ה צדקת -- 10 נקודות!\n\n`;
+                    
+                    if (qIndex < questions.length - 1) {
+                        script += `ממשיכים:\n\n`;
+                    }
+                });
+                
+                // סוף סיבוב
+                const endNumber = roundNum + 1 + (questions.length * 5);
+                script += `### ${endNumber}. שוט סוף סיבוב\n`;
+                script += `נגמר הסיבוב! מה אני אגיד לכם, אתם לא בכיוון.\n`;
+                script += `אבל זה מצב הנקודות בסוף הסיבוב הזה --\n\n`;
+                script += `פריים של כולם מחייכים כדי שאוכל להעלות פלאח בפוסט\n\n`;
+                script += `---\n\n`;
+            });
+            
+            // סיכום נקודות
+            script += `## סיכום נקודות סופי\n\n`;
+            script += `סיכום נקודות: - לצלם שוטים פתוחים שעליהם שלום יוכל לומר מי זכה\n\n`;
+            script += `לא להאמין, אבל זאת הייתה השאלה האחרונה! מה שאומר שזה הזמן לסכם את האירוע, בואו נראה את הטבלה על המסך:\n\n`;
+            script += `(בהמשך - להקליט בנפרד את שלום אומר את הזוכה/מסיד בורסיות)\n\n`;
+            
+            // דברי סיום
+            const closingSection = document.querySelector('[data-section-id="closing-words"]');
+            const closingText = closingSection ? closingSection.querySelector('.editable-text').value : '';
+            
+            script += `## דברי סיום\n\n`;
+            script += closingText || 'זהו להיום. לילה טוב.';
+            
+            return script;
+        }
+        
+        // תצוגה מקדימה
+        function previewScript() {
+            const script = buildScript();
+            document.getElementById('scriptPreview').textContent = script;
+            document.getElementById('previewModal').style.display = 'flex';
+        }
+        
+        // ייצוא תסריט
+        function exportScript() {
+            const script = buildScript();
+            const blob = new Blob([script], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `תכנית_${document.getElementById('programNumber').value || 'X'}_דראפט_${document.getElementById('draftNumber').value || 'X'}.txt`;
+            link.click();
+            URL.revokeObjectURL(url);
+            showNotification('✅ התסריט יוצא בהצלחה!');
+        }
+        
+        // ייצוא לוורד
+        function exportToWord() {
+            const programNum = document.getElementById('programNumber').value || '[מספר]';
+            const programDate = document.getElementById('programDate').value || '[תאריך]';
+            const draftNum = document.getElementById('draftNumber').value || '[מספר]';
+            
+            let wordContent = `
+            <!DOCTYPE html>
+            <html xmlns:o="urn:schemas-microsoft-com:office:office" 
+                  xmlns:w="urn:schemas-microsoft-com:office:word" 
+                  xmlns="http://www.w3.org/TR/REC-html40">
+            <head>
+                <meta charset="UTF-8">
+                <!--[if gte mso 9]>
+                <xml>
+                <w:WordDocument>
+                <w:View>Print</w:View>
+                <w:Zoom>100</w:Zoom>
+                <w:DoNotOptimizeForBrowser/>
+                </w:WordDocument>
+                </xml>
+                <![endif]-->
+                <style>
+                    @page {
+                        margin: 2cm;
+                        size: A4;
+                    }
+                    body {
+                        font-family: 'Arial', sans-serif;
+                        direction: rtl;
+                        text-align: right;
+                        line-height: 1.6;
+                        color: #333;
+                    }
+                    h1 {
+                        font-size: 20pt;
+                        color: #2c3e50;
+                        text-align: center;
+                        margin-bottom: 10pt;
+                        border-bottom: 3pt solid #667eea;
+                        padding-bottom: 10pt;
+                    }
+                    h2 {
+                        font-size: 16pt;
+                        color: #34495e;
+                        margin-top: 20pt;
+                        margin-bottom: 10pt;
+                        background: #e3f2fd;
+                        padding: 8pt;
+                        border-right: 4pt solid #667eea;
+                    }
+                    h3 {
+                        font-size: 12pt;
+                        color: #2c3e50;
+                        margin-top: 15pt;
+                        margin-bottom: 8pt;
+                    }
+                    p {
+                        margin-bottom: 8pt;
+                    }
+                    .header-info {
+                        text-align: center;
+                        font-size: 12pt;
+                        color: #666;
+                        margin-bottom: 20pt;
+                    }
+                    .cast {
+                        background: #f8f9fa;
+                        padding: 10pt;
+                        border-radius: 5pt;
+                        margin-bottom: 20pt;
+                        text-align: center;
+                        font-weight: bold;
+                    }
+                    hr {
+                        border: none;
+                        border-top: 2pt solid #ecf0f1;
+                        margin: 20pt 0;
+                    }
+                </style>
+            </head>
+            <body>`;
+            
+            // בניית התוכן
+            const scriptText = buildScript();
+            const lines = scriptText.split('\n');
+            
+            lines.forEach(line => {
+                if (line.startsWith('## ')) {
+                    wordContent += `<h2>${line.substring(3)}</h2>`;
+                } else if (line.startsWith('### ')) {
+                    wordContent += `<h3>${line.substring(4)}</h3>`;
+                } else if (line.startsWith('**') && line.endsWith('**')) {
+                    wordContent += `<p><strong>${line.substring(2, line.length - 2)}</strong></p>`;
+                } else if (line === '---') {
+                    wordContent += '<hr>';
+                } else if (line.trim()) {
+                    wordContent += `<p>${line}</p>`;
+                }
+            });
+            
+            wordContent += `
+            </body>
+            </html>`;
+            
+            // יצירת קובץ וורד
+            const blob = new Blob([wordContent], {
+                type: 'application/msword;charset=utf-8'
+            });
+            
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `תכנית_${programNum}_דראפט_${draftNum}.doc`;
+            link.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification('✅ התסריט יוצא לוורד בהצלחה!');
+        }
+        
+        // שמירת פרויקט
+        function saveProject() {
+            const project = buildProjectData();
+            
+            const blob = new Blob([JSON.stringify(project, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `פרויקט_תכנית_${project.programNumber || 'X'}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+            showNotification('✅ הפרויקט נשמר!');
+        }
+        
+        // טעינת פרויקט
+        function loadProject() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const project = JSON.parse(e.target.result);
+                        loadProjectData(project);
+                        showNotification('✅ הפרויקט נטען בהצלחה!');
+                    } catch (error) {
+                        showNotification('❌ שגיאה בטעינת הפרויקט', 'error');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+        
+        // הצגת הודעות
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.background = type === 'error' ? '#dc3545' : type === 'warning' ? '#ff9800' : '#28a745';
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // סגירת מודאל
+        function closeModal() {
+            document.getElementById('previewModal').style.display = 'none';
+        }
+        
+        // האזנה לשינויים בזמן אמת
+        function setupRealtimeListener() {
+            videosRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data && data.data && Array.isArray(data.data)) {
+                    const newVideoData = data.data.filter(video => video && !video.archived);
+                    
+                    // בדיקה אם הנתונים השתנו
+                    if (JSON.stringify(newVideoData) !== JSON.stringify(videoDatabase)) {
+                        console.log('זוהה עדכון במאגר הסרטונים!');
+                        
+                        videoDatabase = newVideoData;
+                        
+                        // עדכון הממשק
+                        updateFilters();
+                        displayVideos();
+                        
+                        // עדכון סטטוס הסרטונים
+                        updateVideoCardsStatus();
+                        
+                        showNotification('🔄 המאגר עודכן!');
+                    }
+                }
+            });
+        }
+        
+        // אתחול האפליקציה
+        async function initApp() {
+            // יצירת מבנה התסריט
+            initializeScript();
+            
+            // טעינת סרטונים מ-Firebase
+            await loadVideosFromFirebase();
+            
+            // עדכון רשימת הסרטונים בשימוש
+            updateUsedVideos();
+            
+            // הפעלת מאזין לעדכונים
+            setupRealtimeListener();
+            
+            // הפעלת כל הסעיפים הקבועים בברירת מחדל (חוץ מדברי סיום)
+            document.querySelectorAll('.script-section.fixed-section').forEach(section => {
+                if (section.dataset.sectionId !== 'closing-words') {
+                    section.classList.add('active');
+                }
+            });
+        }
+        
+        // הפעלת האפליקציה
+        initApp();
+    </script>
+</body>
+</html>
