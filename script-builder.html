@@ -322,6 +322,20 @@
             margin-top: 10px;
         }
         
+        /* מניעת blur על סיבובים פעילים */
+        .round.active {
+            opacity: 1 !important;
+            filter: none !important;
+        }
+        
+        /* התחלת מצב נקי לdropzones */
+        .question-dropzone:not(.drag-over) {
+            opacity: 0;
+            pointer-events: none;
+            max-height: 0;
+            margin: 0;
+        }
+        
         .round-header {
             background: linear-gradient(135deg, #28a745, #20c997);
             color: white;
@@ -417,6 +431,12 @@
             pointer-events: all;
             max-height: 60px;
             margin: 10px 0;
+        }
+        
+        /* וידוא שאלמנטים לא נתקעים במצב dragging */
+        body:not(.dragging) .dragging {
+            opacity: 1 !important;
+            transform: none !important;
         }
         
         .question-dropzone.drag-over {
@@ -1602,6 +1622,38 @@
             document.querySelectorAll('.question-dropzone').forEach(zone => {
                 zone.classList.remove('drag-over');
             });
+            
+            // ניקוי כללי של כל המצבים
+            cleanupDragStates();
+        }
+        
+        // פונקציה לניקוי כל מצבי הגרירה
+        function cleanupDragStates() {
+            // הסרת כל מחלקות dragging
+            document.querySelectorAll('.dragging').forEach(el => {
+                el.classList.remove('dragging');
+            });
+            
+            // הסרת drag-over מכל האלמנטים
+            document.querySelectorAll('.drag-over').forEach(el => {
+                el.classList.remove('drag-over');
+            });
+            
+            // הסרת drag-preview
+            document.querySelectorAll('.drag-preview').forEach(el => {
+                el.classList.remove('drag-preview');
+            });
+            
+            // וידוא שה-body נקי
+            document.body.classList.remove('dragging');
+            
+            // ניקוי סופי אחרי 100ms למקרה שמשהו נתקע
+            setTimeout(() => {
+                document.body.classList.remove('dragging');
+                document.querySelectorAll('.dragging, .drag-over, .drag-preview').forEach(el => {
+                    el.classList.remove('dragging', 'drag-over', 'drag-preview');
+                });
+            }, 100);
         }
         
         // גרירת שאלות קיימות
@@ -1640,7 +1692,7 @@
                 // בדיקה אם הסרטון כבר קיים
                 if (isVideoAlreadyUsed(data.firebaseId.toString())) {
                     showNotification('⚠️ סרטון זה כבר נמצא בתסריט!', 'warning');
-                    document.body.classList.remove('dragging');
+                    cleanupDragStates(); // ניקוי מצבי גרירה
                     return;
                 }
                 
@@ -1658,8 +1710,8 @@
             // עדכון מספור
             updateAllNumbering();
             
-            // הסרת מחלקה מגוף המסמך
-            document.body.classList.remove('dragging');
+            // ניקוי כללי של מצבי גרירה
+            cleanupDragStates();
         }
         
         // יצירת אלמנט שאלה עם אנימציה
@@ -1671,6 +1723,7 @@
             questionItem.ondragend = () => {
                 questionItem.classList.remove('dragging');
                 document.body.classList.remove('dragging');
+                cleanupDragStates(); // ניקוי כללי
             };
             
             // הוספת אירועים לתצוגה מקדימה בזמן ריחוף
@@ -1933,6 +1986,9 @@
             if (event.target === header || event.target.tagName === 'H4') {
                 const round = header.parentElement;
                 round.classList.toggle('active');
+                
+                // ניקוי מצבי גרירה כשפותחים/סוגרים סיבוב
+                cleanupDragStates();
             }
         }
         
@@ -1966,6 +2022,10 @@
             
             // עדכון מספור
             updateAllNumbering();
+            
+            // ניקוי מצבי גרירה
+            cleanupDragStates();
+            
             showNotification('✅ סיבוב חדש נוסף!');
         }
         
@@ -2569,6 +2629,11 @@
                     section.classList.add('active');
                 }
             });
+            
+            // הוספת מאזינים גלובליים לניקוי מצבי גרירה
+            document.addEventListener('dragend', cleanupDragStates);
+            document.addEventListener('drop', cleanupDragStates);
+            document.addEventListener('mouseup', cleanupDragStates);
         }
         
         // הפעלת האפליקציה
