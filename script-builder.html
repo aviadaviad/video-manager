@@ -315,6 +315,57 @@
             margin-bottom: 15px;
             overflow: hidden;
             transition: all 0.3s ease;
+            position: relative; /* חשוב לאזורי drop */
+        }
+        
+        /* אזור Drop גדול מעל הסיבוב בזמן גרירה */
+        body.dragging .round {
+            margin-top: 80px; /* מרווח לאזור ה-drop */
+        }
+        
+        body.dragging .round::before {
+            content: '🎯 שחרר כאן להוספה לסיבוב';
+            position: absolute;
+            top: -70px;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.1), rgba(40, 167, 69, 0.2));
+            border: 3px dashed #28a745;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #28a745;
+            z-index: 10;
+            transition: all 0.3s ease;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+            50% {
+                transform: scale(1.02);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+        }
+        
+        /* אזור drop מודגש כשמתקרבים */
+        body.dragging .round.drop-target::before {
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.3), rgba(40, 167, 69, 0.4));
+            border-color: #218838;
+            color: #218838;
+            transform: scale(1.05);
+            box-shadow: 0 4px 20px rgba(40, 167, 69, 0.3);
         }
         
         /* אנימציית גרירת סיבוב */
@@ -1593,7 +1644,7 @@
             updateUsedVideos();
         }
         
-        // פונקציות Drag & Drop משופרות
+        // פונקציות Drag & Drop משופרות עם אזורי Drop גדולים
         function allowDrop(ev) {
             ev.preventDefault();
             if (ev.currentTarget.classList.contains('question-dropzone')) {
@@ -1623,6 +1674,69 @@
             
             // הוספת מחלקה לגוף המסמך
             document.body.classList.add('dragging');
+            
+            // הוספת אירועי drop לכל הסיבובים
+            document.querySelectorAll('.round').forEach(round => {
+                round.addEventListener('dragover', handleRoundDragOver);
+                round.addEventListener('dragleave', handleRoundDragLeave);
+                round.addEventListener('drop', handleRoundDrop);
+            });
+        }
+        
+        // פונקציות טיפול באזור drop של סיבובים
+        function handleRoundDragOver(ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            this.classList.add('drop-target');
+        }
+        
+        function handleRoundDragLeave(ev) {
+            if (!this.contains(ev.relatedTarget)) {
+                this.classList.remove('drop-target');
+            }
+        }
+        
+        function handleRoundDrop(ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            this.classList.remove('drop-target');
+            
+            const videoData = ev.dataTransfer.getData('videoData');
+            if (videoData) {
+                const data = JSON.parse(videoData);
+                
+                // בדיקה אם הסרטון כבר קיים
+                if (isVideoAlreadyUsed(data.firebaseId.toString())) {
+                    showNotification('⚠️ סרטון זה כבר נמצא בתסריט!', 'warning');
+                    cleanupDragStates();
+                    return;
+                }
+                
+                // הוספת הסרטון לסוף הסיבוב
+                const questionsList = this.querySelector('.questions-list');
+                const newQuestion = createQuestionElement(data);
+                
+                // הוספה לפני ה-dropzone האחרון
+                const lastDropzone = questionsList.lastElementChild;
+                if (lastDropzone && lastDropzone.classList.contains('question-dropzone')) {
+                    questionsList.insertBefore(newQuestion, lastDropzone);
+                } else {
+                    questionsList.appendChild(newQuestion);
+                }
+                
+                // עדכון dropzones
+                updateDropzones(questionsList);
+                
+                // עדכון רשימת הסרטונים בשימוש
+                updateUsedVideos();
+                
+                // עדכון מספור
+                updateAllNumbering();
+                
+                showNotification('✅ הסרטון נוסף לסיבוב!');
+            }
+            
+            cleanupDragStates();
         }
         
         function dragEnd(ev) {
@@ -1630,6 +1744,14 @@
             
             // הסרת מחלקה מגוף המסמך
             document.body.classList.remove('dragging');
+            
+            // הסרת אירועי drop מהסיבובים
+            document.querySelectorAll('.round').forEach(round => {
+                round.removeEventListener('dragover', handleRoundDragOver);
+                round.removeEventListener('dragleave', handleRoundDragLeave);
+                round.removeEventListener('drop', handleRoundDrop);
+                round.classList.remove('drop-target');
+            });
             
             // הסתרת dropzones
             document.querySelectorAll('.question-dropzone').forEach(zone => {
@@ -1657,14 +1779,19 @@
                 el.classList.remove('drag-preview');
             });
             
+            // הסרת drop-target מסיבובים
+            document.querySelectorAll('.drop-target').forEach(el => {
+                el.classList.remove('drop-target');
+            });
+            
             // וידוא שה-body נקי
             document.body.classList.remove('dragging');
             
             // ניקוי סופי אחרי 100ms למקרה שמשהו נתקע
             setTimeout(() => {
                 document.body.classList.remove('dragging');
-                document.querySelectorAll('.dragging, .drag-over, .drag-preview').forEach(el => {
-                    el.classList.remove('dragging', 'drag-over', 'drag-preview');
+                document.querySelectorAll('.dragging, .drag-over, .drag-preview, .drop-target').forEach(el => {
+                    el.classList.remove('dragging', 'drag-over', 'drag-preview', 'drop-target');
                 });
             }, 100);
         }
