@@ -11,6 +11,12 @@
             padding: 0;
         }
         
+        // פונקציה לפתיחת מנהל הסרטונים בחלון חדש
+        function openVideoManager() {
+            // פותח את מנהל הסרטונים בחלון חדש
+            window.open('https://aviadaviad.github.io/video-manager/', '_blank');
+        }
+        
         body {
             font-family: Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -878,8 +884,8 @@
                 <div style="text-align: center; margin-top: 20px;">
                     <button class="btn btn-warning" onclick="previewScript()">👁️ תצוגה מקדימה</button>
                     <button class="btn btn-primary" onclick="exportScript()">📝 ייצא טקסט</button>
-                    <button class="btn btn-primary" style="background: linear-gradient(135deg, #2b579a, #1d4084);" onclick="exportToWord()">📄 ייצא לוורד</button>
-                    <button class="btn btn-success" style="background: linear-gradient(135deg, #207245, #0f5132);" onclick="exportVideosTable()">📊 ייצא טבלת סרטונים</button>
+                    <button class="btn btn-primary" style="background: linear-gradient(135deg, #2b579a, #1d4084);" onclick="exportToWord()">📄 ייצא תסריט לקובץ וורד</button>
+                    <button class="btn btn-success" style="background: linear-gradient(135deg, #207245, #0f5132);" onclick="exportVideosTable()">📊 ייצא טבלת סרטונים מעודכנת</button>
                 </div>
             </div>
         </div>
@@ -889,6 +895,7 @@
             <button class="btn btn-success" onclick="showSavedScripts()">📂 טען מהענן</button>
             <button class="btn btn-primary" onclick="saveProject()">💾 הורד גיבוי</button>
             <button class="btn btn-success" onclick="loadProject()">📁 טען מקובץ</button>
+            <button class="btn btn-warning" onclick="openVideoManager()" style="background: linear-gradient(135deg, #667eea, #764ba2);">🎬 למנהל הסרטונים</button>
         </div>
     </div>
     
@@ -1045,6 +1052,12 @@
                 default:
                     return 'בטיפול';
             }
+        }
+        
+        // פונקציה לפתיחת מנהל הסרטונים בחלון חדש
+        function openVideoManager() {
+            // פותח את מנהל הסרטונים בחלון חדש
+            window.open('https://aviadaviad.github.io/video-manager/', '_blank');
         }
         
         // פונקציה חדשה לייצוא טבלת סרטונים
@@ -2576,6 +2589,12 @@
             setTimeout(() => {
                 notification.classList.remove('show');
             }, 3000);
+        }
+        
+        // פונקציה לפתיחת מנהל הסרטונים בחלון חדש
+        function openVideoManager() {
+            // פותח את מנהל הסרטונים בחלון חדש
+            window.open('https://aviadaviad.github.io/video-manager/', '_blank');
         }
         
         // סגירת מודאל
