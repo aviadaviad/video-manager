@@ -1696,48 +1696,54 @@
             }
         }
         
-        function handleRoundDrop(ev) {
-            ev.preventDefault();
-            ev.stopPropagation();
-            this.classList.remove('drop-target');
-            
-            const videoData = ev.dataTransfer.getData('videoData');
-            if (videoData) {
-                const data = JSON.parse(videoData);
-                
-                // בדיקה אם הסרטון כבר קיים
-                if (isVideoAlreadyUsed(data.firebaseId.toString())) {
-                    showNotification('⚠️ סרטון זה כבר נמצא בתסריט!', 'warning');
-                    cleanupDragStates();
-                    return;
-                }
-                
-                // הוספת הסרטון לסוף הסיבוב
-                const questionsList = this.querySelector('.questions-list');
-                const newQuestion = createQuestionElement(data);
-                
-                // הוספה לפני ה-dropzone האחרון
-                const lastDropzone = questionsList.lastElementChild;
-                if (lastDropzone && lastDropzone.classList.contains('question-dropzone')) {
-                    questionsList.insertBefore(newQuestion, lastDropzone);
-                } else {
-                    questionsList.appendChild(newQuestion);
-                }
-                
-                // עדכון dropzones
-                updateDropzones(questionsList);
-                
-                // עדכון רשימת הסרטונים בשימוש
-                updateUsedVideos();
-                
-                // עדכון מספור
-                updateAllNumbering();
-                
-                showNotification('✅ הסרטון נוסף לסיבוב!');
-            }
-            
+function handleRoundDrop(ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    this.classList.remove('drop-target');
+    
+    // בדיקה אם ה-drop קרה על dropzone - אם כן, נעזוב כי זה כבר טופל
+    if (ev.target.classList.contains('question-dropzone')) {
+        cleanupDragStates();
+        return;
+    }
+    
+    const videoData = ev.dataTransfer.getData('videoData');
+    if (videoData) {
+        const data = JSON.parse(videoData);
+        
+        // בדיקה אם הסרטון כבר קיים
+        if (isVideoAlreadyUsed(data.firebaseId.toString())) {
+            showNotification('⚠️ סרטון זה כבר נמצא בתסריט!', 'warning');
             cleanupDragStates();
+            return;
         }
+        
+        // הוספת הסרטון לסוף הסיבוב
+        const questionsList = this.querySelector('.questions-list');
+        const newQuestion = createQuestionElement(data);
+        
+        // הוספה לפני ה-dropzone האחרון
+        const lastDropzone = questionsList.lastElementChild;
+        if (lastDropzone && lastDropzone.classList.contains('question-dropzone')) {
+            questionsList.insertBefore(newQuestion, lastDropzone);
+        } else {
+            questionsList.appendChild(newQuestion);
+        }
+        
+        // עדכון dropzones
+        updateDropzones(questionsList);
+        
+        // עדכון רשימת הסרטונים בשימוש
+        updateUsedVideos();
+        
+        // עדכון מספור
+        updateAllNumbering();
+        
+        showNotification('✅ הסרטון נוסף לסיבוב!');
+    }
+    
+    cleanupDragStates();
+}
         
         function dragEnd(ev) {
             ev.target.classList.remove('dragging');
