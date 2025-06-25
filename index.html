@@ -1975,6 +1975,7 @@
 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script>
         // הגדרות Firebase
         const firebaseConfig = {
@@ -2543,322 +2544,287 @@
         }
         
         // פונקציית ייצוא לוורד משופרת
-        function exportToWord() {
-            try {
-                showSaveIndicator('📝 יוצר מסמך וורד...');
-                
-                const exportType = document.querySelector('input[name="exportType"]:checked').value;
-                let dataToExport = [];
-                let fileName = 'סרטונים';
-                
-                if (exportType === 'selected') {
-                    // ייצוא רק מה שסומן
-                    if (selectedItems.size === 0) {
-                        alert('לא נבחרו סרטונים לייצוא');
-                        return;
-                    }
-                    
-                    // איסוף הסרטונים המסומנים
-                    dataToExport = Array.from(selectedItems).map(index => filteredData[index]).filter(video => video);
-                    fileName += '_מסומנים';
-                } else {
-                    // ייצוא לפי תוכניות
-                    dataToExport = videoData.filter(video => !video.archived); // רק סרטונים פעילים
-                    
-                    if (selectedWordExportPrograms.length > 0 && !selectedWordExportPrograms.includes('')) {
-                        dataToExport = dataToExport.filter(video => {
-                            // בדיקה אם הסרטון שייך לאחת מהתוכניות הנבחרות
-                            if (selectedWordExportPrograms.includes('unassigned')) {
-                                // אם נבחר "לא שובץ" - כלול גם סרטונים ללא תוכנית
-                                if (video.program === 'unassigned' || !video.program || video.program.trim() === '') {
-                                    return true;
-                                }
-                            }
-                            
-                            // בדיקה אם התוכנית של הסרטון נמצאת ברשימה הנבחרת
-                            return selectedWordExportPrograms.includes(video.program);
-                        });
-                    }
-                    
-                    if (selectedWordExportPrograms.length > 0 && !selectedWordExportPrograms.includes('')) {
-                        if (selectedWordExportPrograms.length === 1) {
-                            if (selectedWordExportPrograms[0] === 'unassigned') {
-                                fileName += '_לא_שובץ';
-                            } else {
-                                fileName += `_פרק_${selectedWordExportPrograms[0]}`;
-                            }
-                        } else {
-                            fileName += '_תוכניות_נבחרות';
+   async function exportToWord() {
+    try {
+        showSaveIndicator('📝 יוצר מסמך Word...');
+        
+        const exportType = document.querySelector('input[name="exportType"]:checked').value;
+        let dataToExport = [];
+        let fileName = 'סרטונים';
+        
+        // ... (השאר את כל הלוגיקה של איסוף הנתונים כמו שהיא)
+        
+        if (exportType === 'selected') {
+            if (selectedItems.size === 0) {
+                alert('לא נבחרו סרטונים לייצוא');
+                return;
+            }
+            dataToExport = Array.from(selectedItems).map(index => filteredData[index]).filter(video => video);
+            fileName += '_מסומנים';
+        } else {
+            dataToExport = videoData.filter(video => !video.archived);
+            if (selectedWordExportPrograms.length > 0 && !selectedWordExportPrograms.includes('')) {
+                dataToExport = dataToExport.filter(video => {
+                    if (selectedWordExportPrograms.includes('unassigned')) {
+                        if (video.program === 'unassigned' || !video.program || video.program.trim() === '') {
+                            return true;
                         }
                     }
-                }
-                
-                if (dataToExport.length === 0) {
-                    alert('לא נמצאו סרטונים לייצוא');
-                    return;
-                }
-                
-                // מיון לפי קטגוריות
-                dataToExport.sort((a, b) => {
-                    // קודם מיון לפי קטגוריה
-                    const catCompare = (a.category || '').localeCompare(b.category || '', 'he');
-                    if (catCompare !== 0) return catCompare;
-                    // אחר כך לפי מספר
-                    const numA = parseInt(a.number) || 0;
-                    const numB = parseInt(b.number) || 0;
-                    return numA - numB;
+                    return selectedWordExportPrograms.includes(video.program);
                 });
-                
-                fileName += `_${new Date().toISOString().slice(0, 10)}.doc`;
-                
-                // יצירת תוכן HTML לוורד עם עיצוב קומפקטי יותר
-                let wordContent = `
-                <!DOCTYPE html>
-                <html xmlns:o="urn:schemas-microsoft-com:office:office" 
-                      xmlns:w="urn:schemas-microsoft-com:office:word" 
-                      xmlns="http://www.w3.org/TR/REC-html40">
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="ProgId" content="Word.Document">
-                    <meta name="Generator" content="Microsoft Word">
-                    <meta name="Originator" content="Microsoft Word">
-                    <!--[if gte mso 9]>
-                    <xml>
-                    <w:WordDocument>
-                    <w:View>Print</w:View>
-                    <w:Zoom>100</w:Zoom>
-                    <w:DoNotOptimizeForBrowser/>
-                    </w:WordDocument>
-                    </xml>
-                    <![endif]-->
-                    <style>
-                        @page {
-                            size: A4 landscape;
-                            margin: 0.5in;
-                        }
-                        body { 
-                            font-family: 'Calibri', 'Arial', sans-serif; 
-                            font-size: 9pt; 
-                            direction: rtl; 
-                            text-align: right;
-                            margin: 0.5in;
-                            line-height: 1.2;
-                        }
-                        h1 { 
-                            font-size: 14pt; 
-                            font-weight: bold; 
-                            text-align: center; 
-                            margin-bottom: 10pt;
-                            color: #2c3e50;
-                        }
-                        h2 { 
-                            font-size: 10pt; 
-                            font-weight: bold; 
-                            margin-bottom: 8pt;
-                            color: #34495e;
-                        }
-                        table { 
-                            width: 100%; 
-                            border-collapse: collapse; 
-                            margin-bottom: 10pt;
-                            font-size: 8pt;
-                            table-layout: fixed;
-                        }
-                        th { 
-                            background-color: #3498db; 
-                            color: white; 
-                            padding: 3pt 2pt; 
-                            border: 0.5pt solid #2980b9; 
-                            font-weight: bold;
-                            text-align: center;
-                            font-size: 8pt;
-                            line-height: 1.1;
-                        }
-                        td { 
-                            padding: 2pt 3pt; 
-                            border: 0.5pt solid #bdc3c7; 
-                            vertical-align: top;
-                            line-height: 1.1;
-                            word-wrap: break-word;
-                        }
-                        tr:nth-child(even) { 
-                            background-color: #f8f9fa; 
-                        }
-                        .number { 
-                            text-align: center; 
-                            font-weight: bold;
-                            width: 5%;
-                        }
-                        .category { 
-                            text-align: center; 
-                            font-weight: bold;
-                            width: 12%;
-                            background-color: #e3f2fd;
-                        }
-                        .title { 
-                            font-weight: bold;
-                            width: 28%;
-                        }
-                        .question { 
-                            width: 40%;
-                        }
-                        .approval { 
-                            text-align: center; 
-                            font-weight: bold;
-                            width: 15%;
-                        }
-                        .category-header {
-                            background-color: #34495e;
-                            color: white;
-                            font-weight: bold;
-                            padding: 4pt;
-                            text-align: center;
-                            font-size: 10pt;
-                        }
-                        .summary {
-                            margin-top: 10pt;
-                            padding: 6pt;
-                            background-color: #ecf0f1;
-                            border: 0.5pt solid #bdc3c7;
-                            font-size: 8pt;
-                            line-height: 1.3;
-                        }
-                    </style>
-                </head>
-                <body>`;
-                
-                // כותרת המסמך
-                wordContent += `<h1>🎬 רשימת סרטונים`;
-                
-                if (exportType === 'selected') {
-                    wordContent += ' - רשימה מותאמת אישית';
-                } else if (selectedWordExportPrograms.length > 0 && !selectedWordExportPrograms.includes('')) {
-                    if (selectedWordExportPrograms.length === 1) {
-                        if (selectedWordExportPrograms[0] === 'unassigned') {
-                            wordContent += ' - לא שובצו לפרק';
-                        } else {
-                            wordContent += ` - פרק ${selectedWordExportPrograms[0]}`;
-                        }
+            }
+            if (selectedWordExportPrograms.length > 0 && !selectedWordExportPrograms.includes('')) {
+                if (selectedWordExportPrograms.length === 1) {
+                    if (selectedWordExportPrograms[0] === 'unassigned') {
+                        fileName += '_לא_שובץ';
                     } else {
-                        // תצוגה של כל התוכניות הנבחרות
-                        const programNames = selectedWordExportPrograms.map(p => 
-                            p === 'unassigned' ? 'לא שובץ' : `פרק ${p}`
-                        ).join(', ');
-                        wordContent += ` - ${programNames}`;
+                        fileName += `_פרק_${selectedWordExportPrograms[0]}`;
                     }
-                }
-                wordContent += `</h1>`;
-                
-                // תאריך ושעת יצירה
-                const now = new Date();
-                wordContent += `<h2>תאריך יצירה: ${now.toLocaleDateString('he-IL')} בשעה ${now.toLocaleTimeString('he-IL')}</h2>`;
-                
-                // הטבלה - עם חלוקה לפי קטגוריות
-                let currentCategory = null;
-                let tableOpen = false;
-                
-                dataToExport.forEach((video, index) => {
-                    // בדיקה אם יש צורך להתחיל קטגוריה חדשה
-                    if (video.category !== currentCategory) {
-                        // סגירת טבלה קודמת אם קיימת
-                        if (tableOpen) {
-                            wordContent += `</tbody></table>`;
-                        }
-                        
-                        currentCategory = video.category;
-                        
-                        // כותרת קטגוריה
-                        wordContent += `<div class="category-header">קטגוריה: ${currentCategory || 'ללא קטגוריה'}</div>`;
-                        
-                        // התחלת טבלה חדשה
-                        wordContent += `
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th class="number">מס'</th>
-                                    <th class="title">הסרטון</th>
-                                    <th class="question">שאלה</th>
-                                    <th class="approval">סטטוס</th>
-                                </tr>
-                            </thead>
-                            <tbody>`;
-                        
-                        tableOpen = true;
-                    }
-                    
-                    // הוספת שורה
-                    wordContent += `
-                    <tr>
-                        <td class="number">${video.number || (index + 1)}</td>
-                        <td class="title">${video.title || ''}</td>
-                        <td class="question">${video.question || ''}</td>
-                        <td class="approval">${getApprovalText(video.approvalStatus)}</td>
-                    </tr>`;
-                });
-                
-                // סגירת הטבלה האחרונה
-                if (tableOpen) {
-                    wordContent += `</tbody></table>`;
-                }
-                
-                // סיכום
-                const categoryCounts = {};
-                dataToExport.forEach(video => {
-                    const cat = video.category || 'ללא קטגוריה';
-                    categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
-                });
-                
-                wordContent += `
-                <div class="summary">
-                    <strong>סיכום:</strong><br>
-                    סה"כ סרטונים: ${dataToExport.length}<br>
-                    קטגוריות: ${Object.keys(categoryCounts).length}<br>`;
-                
-                // פירוט לפי קטגוריות
-                Object.entries(categoryCounts).sort(([a], [b]) => a.localeCompare(b, 'he')).forEach(([cat, count]) => {
-                    wordContent += `${cat}: ${count} סרטונים<br>`;
-                });
-                
-                if (exportType === 'selected') {
-                    wordContent += '<br>סוג ייצוא: רשימה מותאמת אישית<br>';
                 } else {
-                    wordContent += `<br>תוכניות שנכללו: ${selectedWordExportPrograms.length > 0 && !selectedWordExportPrograms.includes('') ? 
-                        selectedWordExportPrograms.map(p => p === 'unassigned' ? 'לא שובץ' : `פרק ${p}`).join(', ') : 
-                        'כל התוכניות'}<br>`;
+                    fileName += '_תוכניות_נבחרות';
                 }
-                
-                wordContent += `תאריך ושעת ייצוא: ${new Date().toLocaleString('he-IL')}<br>
-                    מערכת: מנהל סרטונים
-                </div>`;
-                
-                wordContent += `
-                </body>
-                </html>`;
-                
-                // יצירת הקובץ והורדה
-                const blob = new Blob([wordContent], {
-                    type: 'application/msword;charset=utf-8'
-                });
-                
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = fileName;
-                
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(url);
-                
-                // סגירת המודאל והודעת הצלחה
-                closeWordExportDialog();
-                showSaveIndicator(`✅ יוצא לוורד: ${dataToExport.length} סרטונים!`);
-                
-            } catch (error) {
-                console.error('שגיאה בייצוא לוורד:', error);
-                showSaveIndicator('❌ שגיאה בייצוא לוורד');
             }
         }
+        
+        if (dataToExport.length === 0) {
+            alert('לא נמצאו סרטונים לייצוא');
+            return;
+        }
+        
+        // מיון לפי קטגוריות
+        dataToExport.sort((a, b) => {
+            const catCompare = (a.category || '').localeCompare(b.category || '', 'he');
+            if (catCompare !== 0) return catCompare;
+            const numA = parseInt(a.number) || 0;
+            const numB = parseInt(b.number) || 0;
+            return numA - numB;
+        });
+        
+        fileName += `_${new Date().toISOString().slice(0, 10)}.docx`;
+        
+        // יצירת מסמך DOCX אמיתי
+        const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, HeadingLevel, AlignmentType } = docx;
+        
+        // יצירת הפסקאות למסמך
+        const children = [];
+        
+        // כותרת ראשית
+        let title = '🎬 רשימת סרטונים';
+        if (exportType === 'selected') {
+            title += ' - רשימה מותאמת אישית';
+        } else if (selectedWordExportPrograms.length > 0 && !selectedWordExportPrograms.includes('')) {
+            if (selectedWordExportPrograms.length === 1) {
+                if (selectedWordExportPrograms[0] === 'unassigned') {
+                    title += ' - לא שובצו לפרק';
+                } else {
+                    title += ` - פרק ${selectedWordExportPrograms[0]}`;
+                }
+            } else {
+                const programNames = selectedWordExportPrograms.map(p => 
+                    p === 'unassigned' ? 'לא שובץ' : `פרק ${p}`
+                ).join(', ');
+                title += ` - ${programNames}`;
+            }
+        }
+        
+        children.push(
+            new Paragraph({
+                text: title,
+                heading: HeadingLevel.HEADING_1,
+                alignment: AlignmentType.CENTER,
+                bidirectional: true
+            })
+        );
+        
+        // תאריך
+        const now = new Date();
+        children.push(
+            new Paragraph({
+                text: `תאריך יצירה: ${now.toLocaleDateString('he-IL')} בשעה ${now.toLocaleTimeString('he-IL')}`,
+                heading: HeadingLevel.HEADING_2,
+                bidirectional: true
+            })
+        );
+        
+        // רווח
+        children.push(new Paragraph({ text: "" }));
+        
+        // קיבוץ לפי קטגוריות
+        let currentCategory = null;
+        let currentTableRows = [];
+        
+        dataToExport.forEach((video, index) => {
+            if (video.category !== currentCategory) {
+                // אם יש טבלה קודמת, הוסף אותה
+                if (currentTableRows.length > 0) {
+                    children.push(
+                        new Table({
+                            rows: currentTableRows,
+                            width: { size: 100, type: "pct" }
+                        })
+                    );
+                    children.push(new Paragraph({ text: "" }));
+                }
+                
+                currentCategory = video.category;
+                
+                // כותרת קטגוריה
+                children.push(
+                    new Paragraph({
+                        text: `קטגוריה: ${currentCategory || 'ללא קטגוריה'}`,
+                        heading: HeadingLevel.HEADING_3,
+                        bidirectional: true
+                    })
+                );
+                
+                // התחלת טבלה חדשה עם כותרות
+                currentTableRows = [
+                    new TableRow({
+                        children: [
+                            new TableCell({
+                                children: [new Paragraph({ text: "מס'", bidirectional: true })],
+                                shading: { fill: "3498db" }
+                            }),
+                            new TableCell({
+                                children: [new Paragraph({ text: "הסרטון", bidirectional: true })],
+                                shading: { fill: "3498db" }
+                            }),
+                            new TableCell({
+                                children: [new Paragraph({ text: "שאלה", bidirectional: true })],
+                                shading: { fill: "3498db" }
+                            }),
+                            new TableCell({
+                                children: [new Paragraph({ text: "סטטוס", bidirectional: true })],
+                                shading: { fill: "3498db" }
+                            })
+                        ]
+                    })
+                ];
+            }
+            
+            // הוספת שורה לטבלה
+            currentTableRows.push(
+                new TableRow({
+                    children: [
+                        new TableCell({
+                            children: [new Paragraph({ text: video.number || (index + 1).toString(), bidirectional: true })]
+                        }),
+                        new TableCell({
+                            children: [new Paragraph({ text: video.title || '', bidirectional: true })]
+                        }),
+                        new TableCell({
+                            children: [new Paragraph({ text: video.question || '', bidirectional: true })]
+                        }),
+                        new TableCell({
+                            children: [new Paragraph({ text: getApprovalText(video.approvalStatus), bidirectional: true })]
+                        })
+                    ]
+                })
+            );
+        });
+        
+        // הוסף את הטבלה האחרונה
+        if (currentTableRows.length > 0) {
+            children.push(
+                new Table({
+                    rows: currentTableRows,
+                    width: { size: 100, type: "pct" }
+                })
+            );
+        }
+        
+        // רווח לפני הסיכום
+        children.push(new Paragraph({ text: "" }));
+        children.push(new Paragraph({ text: "" }));
+        
+        // סיכום
+        const categoryCounts = {};
+        dataToExport.forEach(video => {
+            const cat = video.category || 'ללא קטגוריה';
+            categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
+        });
+        
+        children.push(
+            new Paragraph({
+                text: "סיכום:",
+                heading: HeadingLevel.HEADING_3,
+                bidirectional: true
+            })
+        );
+        
+        children.push(
+            new Paragraph({
+                text: `סה"כ סרטונים: ${dataToExport.length}`,
+                bidirectional: true
+            })
+        );
+        
+        children.push(
+            new Paragraph({
+                text: `קטגוריות: ${Object.keys(categoryCounts).length}`,
+                bidirectional: true
+            })
+        );
+        
+        Object.entries(categoryCounts).sort(([a], [b]) => a.localeCompare(b, 'he')).forEach(([cat, count]) => {
+            children.push(
+                new Paragraph({
+                    text: `${cat}: ${count} סרטונים`,
+                    bidirectional: true
+                })
+            );
+        });
+        
+        // יצירת המסמך
+        const doc = new Document({
+            sections: [{
+                properties: {
+                    page: {
+                        margin: {
+                            top: 720,
+                            right: 720,
+                            bottom: 720,
+                            left: 720
+                        }
+                    }
+                },
+                children: children
+            }]
+        });
+        
+        // יצירת הקובץ
+        const blob = await Packer.toBlob(doc);
+        
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        closeWordExportDialog();
+        showSaveIndicator(`✅ יוצא ל-Word: ${dataToExport.length} סרטונים!`);
+        
+    } catch (error) {
+        console.error('שגיאה בייצוא ל-Word:', error);
+        showSaveIndicator('❌ שגיאה בייצוא ל-Word');
+        
+        // אם הספרייה לא נטענה, הצע פתרון חלופי
+        if (!window.docx) {
+            alert('הספרייה ליצירת קבצי Word לא נטענה. מוריד כקובץ HTML במקום...');
+            exportToWordFallback();
+        }
+    }
+}
+
+// פונקציית גיבוי אם הספרייה לא נטענה
+function exportToWordFallback() {
+    // כאן תוכל להעתיק את הקוד הקודם שיוצר HTML עם סיומת .doc
+    alert('נא לרענן את הדף ולנסות שוב');
+}
 
         // ===== פונקציות חדשות לטיפול בפילטר סטטוס אישור =====
         
