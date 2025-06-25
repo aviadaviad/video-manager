@@ -2544,35 +2544,44 @@
         }
         
         // פונקציית ייצוא לוורד משופרת
-   async function exportToWord() {
+  // פונקציית ייצוא לוורד משופרת - עובדת בכל סביבה
+function exportToWord() {
     try {
-        showSaveIndicator('📝 יוצר מסמך Word...');
+        showSaveIndicator('📝 יוצר מסמך...');
         
         const exportType = document.querySelector('input[name="exportType"]:checked').value;
         let dataToExport = [];
         let fileName = 'סרטונים';
         
-        // ... (השאר את כל הלוגיקה של איסוף הנתונים כמו שהיא)
-        
         if (exportType === 'selected') {
+            // ייצוא רק מה שסומן
             if (selectedItems.size === 0) {
                 alert('לא נבחרו סרטונים לייצוא');
                 return;
             }
+            
+            // איסוף הסרטונים המסומנים
             dataToExport = Array.from(selectedItems).map(index => filteredData[index]).filter(video => video);
             fileName += '_מסומנים';
         } else {
-            dataToExport = videoData.filter(video => !video.archived);
+            // ייצוא לפי תוכניות
+            dataToExport = videoData.filter(video => !video.archived); // רק סרטונים פעילים
+            
             if (selectedWordExportPrograms.length > 0 && !selectedWordExportPrograms.includes('')) {
                 dataToExport = dataToExport.filter(video => {
+                    // בדיקה אם הסרטון שייך לאחת מהתוכניות הנבחרות
                     if (selectedWordExportPrograms.includes('unassigned')) {
+                        // אם נבחר "לא שובץ" - כלול גם סרטונים ללא תוכנית
                         if (video.program === 'unassigned' || !video.program || video.program.trim() === '') {
                             return true;
                         }
                     }
+                    
+                    // בדיקה אם התוכנית של הסרטון נמצאת ברשימה הנבחרת
                     return selectedWordExportPrograms.includes(video.program);
                 });
             }
+            
             if (selectedWordExportPrograms.length > 0 && !selectedWordExportPrograms.includes('')) {
                 if (selectedWordExportPrograms.length === 1) {
                     if (selectedWordExportPrograms[0] === 'unassigned') {
@@ -2593,149 +2602,146 @@
         
         // מיון לפי קטגוריות
         dataToExport.sort((a, b) => {
+            // קודם מיון לפי קטגוריה
             const catCompare = (a.category || '').localeCompare(b.category || '', 'he');
             if (catCompare !== 0) return catCompare;
+            // אחר כך לפי מספר
             const numA = parseInt(a.number) || 0;
             const numB = parseInt(b.number) || 0;
             return numA - numB;
         });
         
-        fileName += `_${new Date().toISOString().slice(0, 10)}.docx`;
+        fileName += `_${new Date().toISOString().slice(0, 10)}.doc`;
         
-        // יצירת מסמך DOCX אמיתי
-        const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, HeadingLevel, AlignmentType } = docx;
+        // יצירת תוכן HTML פשוט מאוד שייפתח טוב ב-Word ובמובייל
+        let htmlContent = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office" 
+              xmlns:w="urn:schemas-microsoft-com:office:word"
+              xmlns="http://www.w3.org/TR/REC-html40">
+        <head>
+            <meta charset="utf-8">
+            <title>רשימת סרטונים</title>
+            <style>
+                @page {
+                    size: A4;
+                    margin: 2cm;
+                }
+                body {
+                    font-family: Arial, sans-serif;
+                    direction: rtl;
+                    font-size: 12pt;
+                }
+                h1 {
+                    text-align: center;
+                    font-size: 18pt;
+                    color: #2c3e50;
+                }
+                h2 {
+                    font-size: 14pt;
+                    color: #34495e;
+                }
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-bottom: 20pt;
+                }
+                th, td {
+                    border: 1pt solid #000;
+                    padding: 6pt;
+                    text-align: right;
+                }
+                th {
+                    background-color: #d9d9d9;
+                    font-weight: bold;
+                }
+                .category-header {
+                    background-color: #34495e;
+                    color: white;
+                    padding: 8pt;
+                    margin: 15pt 0 10pt 0;
+                    font-weight: bold;
+                    page-break-after: avoid;
+                }
+                .summary {
+                    background-color: #f0f0f0;
+                    padding: 10pt;
+                    margin-top: 20pt;
+                    border: 1pt solid #ccc;
+                }
+            </style>
+        </head>
+        <body>`;
         
-        // יצירת הפסקאות למסמך
-        const children = [];
+        // כותרת המסמך
+        htmlContent += `<h1>רשימת סרטונים`;
         
-        // כותרת ראשית
-        let title = '🎬 רשימת סרטונים';
         if (exportType === 'selected') {
-            title += ' - רשימה מותאמת אישית';
+            htmlContent += ' - רשימה מותאמת אישית';
         } else if (selectedWordExportPrograms.length > 0 && !selectedWordExportPrograms.includes('')) {
             if (selectedWordExportPrograms.length === 1) {
                 if (selectedWordExportPrograms[0] === 'unassigned') {
-                    title += ' - לא שובצו לפרק';
+                    htmlContent += ' - לא שובצו לפרק';
                 } else {
-                    title += ` - פרק ${selectedWordExportPrograms[0]}`;
+                    htmlContent += ` - פרק ${selectedWordExportPrograms[0]}`;
                 }
             } else {
+                // תצוגה של כל התוכניות הנבחרות
                 const programNames = selectedWordExportPrograms.map(p => 
                     p === 'unassigned' ? 'לא שובץ' : `פרק ${p}`
                 ).join(', ');
-                title += ` - ${programNames}`;
+                htmlContent += ` - ${programNames}`;
             }
         }
+        htmlContent += `</h1>`;
         
-        children.push(
-            new Paragraph({
-                text: title,
-                heading: HeadingLevel.HEADING_1,
-                alignment: AlignmentType.CENTER,
-                bidirectional: true
-            })
-        );
-        
-        // תאריך
+        // תאריך ושעת יצירה
         const now = new Date();
-        children.push(
-            new Paragraph({
-                text: `תאריך יצירה: ${now.toLocaleDateString('he-IL')} בשעה ${now.toLocaleTimeString('he-IL')}`,
-                heading: HeadingLevel.HEADING_2,
-                bidirectional: true
-            })
-        );
+        htmlContent += `<h2>תאריך יצירה: ${now.toLocaleDateString('he-IL')} בשעה ${now.toLocaleTimeString('he-IL')}</h2>`;
         
-        // רווח
-        children.push(new Paragraph({ text: "" }));
-        
-        // קיבוץ לפי קטגוריות
+        // הטבלה - עם חלוקה לפי קטגוריות
         let currentCategory = null;
-        let currentTableRows = [];
+        let tableOpen = false;
         
         dataToExport.forEach((video, index) => {
+            // בדיקה אם יש צורך להתחיל קטגוריה חדשה
             if (video.category !== currentCategory) {
-                // אם יש טבלה קודמת, הוסף אותה
-                if (currentTableRows.length > 0) {
-                    children.push(
-                        new Table({
-                            rows: currentTableRows,
-                            width: { size: 100, type: "pct" }
-                        })
-                    );
-                    children.push(new Paragraph({ text: "" }));
+                // סגירת טבלה קודמת אם קיימת
+                if (tableOpen) {
+                    htmlContent += `</table>`;
                 }
                 
                 currentCategory = video.category;
                 
                 // כותרת קטגוריה
-                children.push(
-                    new Paragraph({
-                        text: `קטגוריה: ${currentCategory || 'ללא קטגוריה'}`,
-                        heading: HeadingLevel.HEADING_3,
-                        bidirectional: true
-                    })
-                );
+                htmlContent += `<div class="category-header">קטגוריה: ${currentCategory || 'ללא קטגוריה'}</div>`;
                 
-                // התחלת טבלה חדשה עם כותרות
-                currentTableRows = [
-                    new TableRow({
-                        children: [
-                            new TableCell({
-                                children: [new Paragraph({ text: "מס'", bidirectional: true })],
-                                shading: { fill: "3498db" }
-                            }),
-                            new TableCell({
-                                children: [new Paragraph({ text: "הסרטון", bidirectional: true })],
-                                shading: { fill: "3498db" }
-                            }),
-                            new TableCell({
-                                children: [new Paragraph({ text: "שאלה", bidirectional: true })],
-                                shading: { fill: "3498db" }
-                            }),
-                            new TableCell({
-                                children: [new Paragraph({ text: "סטטוס", bidirectional: true })],
-                                shading: { fill: "3498db" }
-                            })
-                        ]
-                    })
-                ];
+                // התחלת טבלה חדשה
+                htmlContent += `
+                <table>
+                    <tr>
+                        <th width="10%">מס'</th>
+                        <th width="35%">הסרטון</th>
+                        <th width="40%">שאלה</th>
+                        <th width="15%">סטטוס</th>
+                    </tr>`;
+                
+                tableOpen = true;
             }
             
-            // הוספת שורה לטבלה
-            currentTableRows.push(
-                new TableRow({
-                    children: [
-                        new TableCell({
-                            children: [new Paragraph({ text: video.number || (index + 1).toString(), bidirectional: true })]
-                        }),
-                        new TableCell({
-                            children: [new Paragraph({ text: video.title || '', bidirectional: true })]
-                        }),
-                        new TableCell({
-                            children: [new Paragraph({ text: video.question || '', bidirectional: true })]
-                        }),
-                        new TableCell({
-                            children: [new Paragraph({ text: getApprovalText(video.approvalStatus), bidirectional: true })]
-                        })
-                    ]
-                })
-            );
+            // הוספת שורה
+            htmlContent += `
+            <tr>
+                <td>${video.number || (index + 1)}</td>
+                <td>${video.title || ''}</td>
+                <td>${video.question || ''}</td>
+                <td>${getApprovalText(video.approvalStatus)}</td>
+            </tr>`;
         });
         
-        // הוסף את הטבלה האחרונה
-        if (currentTableRows.length > 0) {
-            children.push(
-                new Table({
-                    rows: currentTableRows,
-                    width: { size: 100, type: "pct" }
-                })
-            );
+        // סגירת הטבלה האחרונה
+        if (tableOpen) {
+            htmlContent += `</table>`;
         }
-        
-        // רווח לפני הסיכום
-        children.push(new Paragraph({ text: "" }));
-        children.push(new Paragraph({ text: "" }));
         
         // סיכום
         const categoryCounts = {};
@@ -2744,56 +2750,32 @@
             categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
         });
         
-        children.push(
-            new Paragraph({
-                text: "סיכום:",
-                heading: HeadingLevel.HEADING_3,
-                bidirectional: true
-            })
-        );
+        htmlContent += `<div class="summary">`;
+        htmlContent += `<strong>סיכום:</strong><br>`;
+        htmlContent += `סה"כ סרטונים: ${dataToExport.length}<br>`;
+        htmlContent += `קטגוריות: ${Object.keys(categoryCounts).length}<br><br>`;
         
-        children.push(
-            new Paragraph({
-                text: `סה"כ סרטונים: ${dataToExport.length}`,
-                bidirectional: true
-            })
-        );
-        
-        children.push(
-            new Paragraph({
-                text: `קטגוריות: ${Object.keys(categoryCounts).length}`,
-                bidirectional: true
-            })
-        );
-        
+        // פירוט לפי קטגוריות
+        htmlContent += `<strong>פירוט לפי קטגוריות:</strong><br>`;
         Object.entries(categoryCounts).sort(([a], [b]) => a.localeCompare(b, 'he')).forEach(([cat, count]) => {
-            children.push(
-                new Paragraph({
-                    text: `${cat}: ${count} סרטונים`,
-                    bidirectional: true
-                })
-            );
+            htmlContent += `${cat}: ${count} סרטונים<br>`;
         });
         
-        // יצירת המסמך
-        const doc = new Document({
-            sections: [{
-                properties: {
-                    page: {
-                        margin: {
-                            top: 720,
-                            right: 720,
-                            bottom: 720,
-                            left: 720
-                        }
-                    }
-                },
-                children: children
-            }]
-        });
+        if (exportType === 'selected') {
+            htmlContent += '<br>סוג ייצוא: רשימה מותאמת אישית';
+        } else {
+            htmlContent += `<br>תוכניות שנכללו: ${selectedWordExportPrograms.length > 0 && !selectedWordExportPrograms.includes('') ? 
+                selectedWordExportPrograms.map(p => p === 'unassigned' ? 'לא שובץ' : `פרק ${p}`).join(', ') : 
+                'כל התוכניות'}`;
+        }
         
-        // יצירת הקובץ
-        const blob = await Packer.toBlob(doc);
+        htmlContent += `</div>`;
+        htmlContent += `</body></html>`;
+        
+        // יצירת הקובץ והורדה
+        const blob = new Blob(['\ufeff' + htmlContent], {
+            type: 'application/msword;charset=utf-8'
+        });
         
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -2805,18 +2787,13 @@
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
         
+        // סגירת המודאל והודעת הצלחה
         closeWordExportDialog();
-        showSaveIndicator(`✅ יוצא ל-Word: ${dataToExport.length} סרטונים!`);
+        showSaveIndicator(`✅ יוצא למסמך: ${dataToExport.length} סרטונים!`);
         
     } catch (error) {
-        console.error('שגיאה בייצוא ל-Word:', error);
-        showSaveIndicator('❌ שגיאה בייצוא ל-Word');
-        
-        // אם הספרייה לא נטענה, הצע פתרון חלופי
-        if (!window.docx) {
-            alert('הספרייה ליצירת קבצי Word לא נטענה. מוריד כקובץ HTML במקום...');
-            exportToWordFallback();
-        }
+        console.error('שגיאה בייצוא:', error);
+        showSaveIndicator('❌ שגיאה בייצוא');
     }
 }
 
