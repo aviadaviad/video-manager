@@ -1551,33 +1551,45 @@
             }
         }
         
-        async function loadFromFirebase(scriptId) {
-            try {
-                const snapshot = await scriptsRef.child(scriptId).once('value');
-                const scriptData = snapshot.val();
-                
-                if (!scriptData) {
-                    showNotification('❌ התסריט לא נמצא', 'error');
-                    return;
-                }
-                
-                // טעינת הנתונים
-                loadProjectData(scriptData);
-                
-                // שמירת ה-ID של התסריט הנוכחי
-                currentScriptId = scriptId;
-                document.getElementById('quickSaveBtn').style.display = 'inline-block';
-                
-                // סימון שהכל נשמר
-                markAsSaved();
-                
-                closeSavedScriptsModal();
-                showNotification(`✅ נטען: ${scriptData.name}`);
-            } catch (error) {
-                console.error('שגיאה בטעינת תסריט:', error);
-                showNotification('❌ שגיאה בטעינת התסריט', 'error');
-            }
+async function loadFromFirebase(scriptId) {
+    try {
+        console.log('🔄 מתחיל טעינת תסריט:', scriptId);
+        
+        const snapshot = await scriptsRef.child(scriptId).once('value');
+        const scriptData = snapshot.val();
+        
+        if (!scriptData) {
+            console.error('❌ לא נמצאו נתונים עבור ID:', scriptId);
+            showNotification('❌ התסריט לא נמצא', 'error');
+            return;
         }
+        
+        console.log('✅ נתונים נטענו מ-Firebase:', scriptData);
+        
+        // בדיקה בסיסית של המבנה
+        if (!scriptData.sections || !Array.isArray(scriptData.sections)) {
+            throw new Error('המבנה sections חסר או לא תקין');
+        }
+        
+        console.log(`📋 נמצאו ${scriptData.sections.length} sections לטעינה`);
+        
+        // טעינת הנתונים עם טיפול שגיאות משופר
+        await loadProjectDataSafe(scriptData);
+        
+        // שמירת ה-ID של התסריט הנוכחי
+        currentScriptId = scriptId;
+        document.getElementById('quickSaveBtn').style.display = 'inline-block';
+        
+        markAsSaved();
+        closeSavedScriptsModal();
+        showNotification(`✅ נטען: ${scriptData.name}`);
+        
+    } catch (error) {
+        console.error('❌ שגיאה מפורטת בטעינת תסריט:', error);
+        console.error('❌ Stack trace:', error.stack);
+        showNotification(`❌ שגיאה בטעינה: ${error.message}`, 'error');
+    }
+}
         
         async function updateInFirebase(scriptId) {
             const confirmUpdate = confirm('האם לעדכן את התסריט השמור עם הנתונים הנוכחיים?');
@@ -1806,6 +1818,228 @@
             updateUsedVideos();
         }
         
+// פונקציה לטעינת נתוני פרויקט עם טיפול שגיאות משופר
+        async function loadProjectDataSafe(project) {
+            try {
+                console.log('🔄 מתחיל טעינת נתוני פרויקט:', project);
+                
+                // שלב 1: טעינת פרטי התוכנית
+                console.log('📝 טוען פרטי תוכנית...');
+                try {
+                    document.getElementById('programNumber').value = project.programNumber || '';
+                    document.getElementById('programDate').value = project.programDate || '';
+                    document.getElementById('draftNumber').value = project.draftNumber || '';
+                    console.log('✅ פרטי התוכנית נטענו');
+                } catch (error) {
+                    console.error('❌ שגיאה בטעינת פרטי התוכנית:', error);
+                }
+                
+                // שלב 2: איפוס ואתחול
+                console.log('🔄 מאפס ממשק...');
+                try {
+                    initializeScript();
+                    document.getElementById('scriptContainer').innerHTML = '';
+                    console.log('✅ ממשק אופס');
+                } catch (error) {
+                    console.error('❌ שגיאה באיפוס ממשק:', error);
+                    throw error;
+                }
+                
+                // שלב 3: חיפוש דברי סיום
+                console.log('🔍 מחפש דברי סיום...');
+                const closingData = project.sections.find(s => s.id === 'closing-words');
+                console.log('📄 דברי סיום:', closingData ? 'נמצאו' : 'לא נמצאו');
+                
+                // שלב 4: עיבוד sections
+                console.log(`🔄 מעבד ${project.sections.length} sections...`);
+                
+                project.sections.forEach((section, index) => {
+                    try {
+                        console.log(`📄 מעבד section ${index + 1}/${project.sections.length}: type=${section.type}, id=${section.id || 'N/A'}`);
+                        
+                        if (section.type === 'fixed' && section.id !== 'closing-words') {
+                            // עדכון סעיף קבוע
+                            console.log(`🔧 מעדכן סעיף קבוע: ${section.id}`);
+                            const fixedSection = document.querySelector(`[data-section-id="${section.id}"]`);
+                            if (fixedSection) {
+                                const textarea = fixedSection.querySelector('.editable-text');
+                                if (textarea) {
+                                    textarea.value = section.content || '';
+                                    console.log(`✅ סעיף קבוע ${section.id} עודכן`);
+                                } else {
+                                    console.warn(`⚠️ לא נמצא textarea עבור ${section.id}`);
+                                }
+                            } else {
+                                console.warn(`⚠️ לא נמצא element עבור ${section.id}`);
+                            }
+                            
+                        } else if (section.type === 'contestants') {
+                            // טעינת בחירת מתמודדים
+                            console.log('👥 טוען נתוני מתמודדים...');
+                            if (section.data && typeof section.data === 'object') {
+                                Object.keys(section.data).forEach(contestantId => {
+                                    try {
+                                        const checkbox = document.getElementById(`check-${contestantId}`);
+                                        const textarea = document.querySelector(`[data-contestant="${contestantId}"]`);
+                                        
+                                        if (checkbox) {
+                                            checkbox.checked = section.data[contestantId].selected;
+                                            toggleContestant(contestantId);
+                                            console.log(`✅ מתמודד ${contestantId}: ${checkbox.checked ? 'נבחר' : 'לא נבחר'}`);
+                                        }
+                                        if (textarea) {
+                                            textarea.value = section.data[contestantId].text || '';
+                                        }
+                                    } catch (error) {
+                                        console.error(`❌ שגיאה בטעינת מתמודד ${contestantId}:`, error);
+                                    }
+                                });
+                                console.log('✅ נתוני מתמודדים נטענו');
+                            } else {
+                                console.warn('⚠️ נתוני מתמודדים לא תקינים:', section.data);
+                            }
+                            
+                        } else if (section.type === 'round') {
+                            // יצירת סיבוב
+                            console.log(`🎯 יוצר סיבוב: ${section.name || 'ללא שם'}`);
+                            try {
+                                addNewRound();
+                                const rounds = document.querySelectorAll('.round');
+                                const lastRound = rounds[rounds.length - 1];
+                                
+                                // עדכון שם וטקסט פתיחה
+                                const nameInput = lastRound.querySelector('.round-header input');
+                                const introTextarea = lastRound.querySelector('.editable-text');
+                                
+                                if (nameInput) nameInput.value = section.name || '';
+                                if (introTextarea) introTextarea.value = section.intro || '';
+                                
+                                // הוספת שאלות
+                                const questionsList = lastRound.querySelector('.questions-list');
+                                if (questionsList) {
+                                    questionsList.innerHTML = ''; // ניקוי
+                                    
+                                    if (section.questions && Array.isArray(section.questions)) {
+                                        console.log(`📝 מוסיף ${section.questions.length} שאלות לסיבוב`);
+                                        
+                                        section.questions.forEach((q, qIndex) => {
+                                            try {
+                                                if (q.videoData) {
+                                                    const newQuestion = createQuestionElement(q.videoData);
+                                                    questionsList.appendChild(newQuestion);
+                                                    
+                                                    // עדכון השדות
+                                                    const inputs = newQuestion.querySelectorAll('input');
+                                                    if (inputs[0]) inputs[0].value = q.question || '';
+                                                    if (inputs[1]) inputs[1].value = q.answer || '';
+                                                    if (inputs[2]) inputs[2].value = q.after || '';
+                                                    
+                                                    console.log(`✅ שאלה ${qIndex + 1} נוספה`);
+                                                } else {
+                                                    console.warn(`⚠️ שאלה ${qIndex + 1} חסרה videoData`);
+                                                }
+                                            } catch (error) {
+                                                console.error(`❌ שגיאה בהוספת שאלה ${qIndex + 1}:`, error);
+                                            }
+                                        });
+                                        
+                                        // עדכון dropzones
+                                        updateDropzones(questionsList);
+                                        console.log('✅ סיבוב נוצר בהצלחה');
+                                    } else {
+                                        console.warn('⚠️ אין שאלות בסיבוב או שהן לא במבנה תקין');
+                                    }
+                                } else {
+                                    console.error('❌ לא נמצא questionsList בסיבוב');
+                                }
+                            } catch (error) {
+                                console.error('❌ שגיאה ביצירת סיבוב:', error);
+                            }
+                            
+                        } else if (section.type === 'free-text') {
+                            // יצירת טקסט חופשי
+                            console.log(`📝 יוצר טקסט חופשי: ${section.title || 'ללא כותרת'}`);
+                            try {
+                                const container = document.getElementById('scriptContainer');
+                                const freeTextDiv = document.createElement('div');
+                                freeTextDiv.className = 'free-text';
+                                freeTextDiv.dataset.sectionType = 'free-text';
+                                
+                                freeTextDiv.innerHTML = `
+                                    <div class="free-text-header" draggable="true" ondragstart="dragFreeText(event)" ondragover="dragOverFreeText(event)" ondragleave="dragLeaveFreeText(event)" ondrop="dropFreeText(event)">
+                                        <h4>📝 טקסט חופשי - <input type="text" placeholder="הכנס כותרת" onclick="event.stopPropagation()" style="background: none; border: none; color: white; font-weight: bold;" value="${section.title || ''}"></h4>
+                                        <button class="btn btn-danger btn-sm" onclick="removeFreeText(this, event)">🗑️</button>
+                                    </div>
+                                    <div class="free-text-content">
+                                        <textarea placeholder="הכנס טקסט חופשי כאן...">${section.content || ''}</textarea>
+                                    </div>
+                                `;
+                                
+                                container.appendChild(freeTextDiv);
+                                console.log('✅ טקסט חופשי נוצר');
+                            } catch (error) {
+                                console.error('❌ שגיאה ביצירת טקסט חופשי:', error);
+                            }
+                        } else {
+                            console.warn(`⚠️ סוג section לא מוכר: ${section.type}`);
+                        }
+                        
+                    } catch (error) {
+                        console.error(`❌ שגיאה בעיבוד section ${index + 1}:`, error);
+                        // ממשיך לsection הבא במקום לעצור
+                    }
+                });
+                
+                // שלב 5: עדכון דברי סיום
+                if (closingData) {
+                    console.log('📄 מעדכן דברי סיום...');
+                    try {
+                        const closingDiv = document.querySelector('[data-section-id="closing-words"]');
+                        if (closingDiv) {
+                            const textarea = closingDiv.querySelector('.editable-text');
+                            if (textarea) {
+                                textarea.value = closingData.content || '';
+                                console.log('✅ דברי סיום עודכנו');
+                            }
+                        } else {
+                            console.warn('⚠️ לא נמצא element לדברי סיום');
+                        }
+                    } catch (error) {
+                        console.error('❌ שגיאה בעדכון דברי סיום:', error);
+                    }
+                }
+                
+                // שלב 6: הפעלת סעיפים קבועים
+                console.log('🔄 מפעיל סעיפים קבועים...');
+                try {
+                    document.querySelectorAll('.script-section.fixed-section').forEach(section => {
+                        if (section.dataset.sectionId !== 'closing-words') {
+                            section.classList.add('active');
+                        }
+                    });
+                    console.log('✅ סעיפים קבועים הופעלו');
+                } catch (error) {
+                    console.error('❌ שגיאה בהפעלת סעיפים קבועים:', error);
+                }
+                
+                // שלב 7: עדכון רשימת הסרטונים בשימוש
+                console.log('🎬 מעדכן רשימת סרטונים בשימוש...');
+                try {
+                    updateUsedVideos();
+                    console.log('✅ רשימת סרטונים עודכנה');
+                } catch (error) {
+                    console.error('❌ שגיאה בעדכון רשימת סרטונים:', error);
+                }
+                
+                console.log('🎉 טעינת הפרויקט הושלמה בהצלחה!');
+                
+            } catch (error) {
+                console.error('❌ שגיאה כללית בטעינת הפרויקט:', error);
+                console.error('❌ Stack trace:', error.stack);
+                throw error;
+            }
+        }
+
         // פונקציות Drag & Drop משופרות עם אזורי Drop גדולים
         function allowDrop(ev) {
             ev.preventDefault();
