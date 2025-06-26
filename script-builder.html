@@ -811,6 +811,47 @@
             }
         }
         
+        /* טקסט חופשי */
+        .free-text {
+            background: white;
+            border: 2px solid #9c27b0;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .free-text-header {
+            background: linear-gradient(135deg, #9c27b0, #7b1fa2);
+            color: white;
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: move;
+        }
+        
+        .free-text-header h4 {
+            margin: 0;
+            font-size: 1.1em;
+        }
+        
+        .free-text-content {
+            padding: 15px;
+        }
+        
+        .free-text textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 14px;
+            line-height: 1.6;
+            resize: vertical;
+        }
+        
         /* מספר אוטומטי */
         .auto-number {
             background: #6c757d;
@@ -861,6 +902,7 @@
         <div class="header">
             <h1>🎬 בונה תסריטים - מה קורה פה?!</h1>
             <p>צור תסריט מושלם עם גרירת סרטונים ישירות מהמאגר</p>
+            <p style="font-size: 11px; opacity: 0.8;">💡 טיפ: Ctrl+S לשמירה מהירה</p>
         </div>
         
         <div class="main-content">
@@ -927,6 +969,7 @@
                 <!-- אזור הוספת סיבוב -->
                 <div class="add-round-area">
                     <button class="btn btn-success" onclick="addNewRound()">➕ הוסף סיבוב חדש</button>
+                    <button class="btn btn-primary" onclick="addFreeText()">📝 הוסף טקסט חופשי</button>
                     <p style="margin-top: 10px; color: #666; font-size: 12px;">גרור סרטונים מהמאגר לתוך הסיבובים</p>
                 </div>
                 
@@ -943,6 +986,7 @@
         
         <div class="import-export">
             <button class="btn btn-primary" onclick="saveToFirebase()">☁️ שמור בענן</button>
+            <button class="btn btn-warning" onclick="quickSaveToFirebase()" id="quickSaveBtn" style="display:none;">💾 שמור שינויים</button>
             <button class="btn btn-success" onclick="showSavedScripts()">📂 טען מהענן</button>
             <button class="btn btn-primary" onclick="saveProject()">💾 הורד גיבוי</button>
             <button class="btn btn-success" onclick="loadProject()">📁 טען מקובץ</button>
@@ -1012,6 +1056,8 @@
         };
         let sectionCounter = 1;
         let roundCounter = 0;
+        let currentScriptId = null; // מזהה התסריט הנוכחי בענן
+        let hasUnsavedChanges = false; // דגל לשינויים שלא נשמרו
         
         // רשימת המתמודדים
         const contestants = [
@@ -1103,6 +1149,41 @@
                 default:
                     return 'בטיפול';
             }
+        }
+        
+        // סימון שינויים שלא נשמרו
+        function markAsUnsaved() {
+            hasUnsavedChanges = true;
+            const quickSaveBtn = document.getElementById('quickSaveBtn');
+            if (currentScriptId && quickSaveBtn) {
+                quickSaveBtn.style.background = 'linear-gradient(135deg, #e74c3c, #c0392b)';
+                quickSaveBtn.innerHTML = '💾 שמור שינויים*';
+            }
+        }
+        
+        // סימון ששמרנו
+        function markAsSaved() {
+            hasUnsavedChanges = false;
+            const quickSaveBtn = document.getElementById('quickSaveBtn');
+            if (quickSaveBtn) {
+                quickSaveBtn.style.background = '';
+                quickSaveBtn.innerHTML = '💾 שמור שינויים';
+            }
+        }
+        
+        // הוספת מאזינים לשינויים
+        function addChangeListeners() {
+            // מאזינים לשדות הכותרת
+            document.getElementById('programNumber').addEventListener('input', markAsUnsaved);
+            document.getElementById('programDate').addEventListener('input', markAsUnsaved);
+            document.getElementById('draftNumber').addEventListener('input', markAsUnsaved);
+            
+            // מאזין גלובלי לכל שאר השינויים
+            document.addEventListener('input', function(e) {
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                    markAsUnsaved();
+                }
+            });
         }
         
         // פונקציה לפתיחת מנהל הסרטונים בחלון חדש
@@ -1351,6 +1432,15 @@
         
         // פונקציות Firebase לתסריטים
         async function saveToFirebase() {
+            // אם יש תסריט נוכחי, שאל אם לעדכן או ליצור חדש
+            if (currentScriptId) {
+                const choice = confirm('האם לעדכן את התסריט הנוכחי או ליצור תסריט חדש?\n\nOK = עדכן את הנוכחי\nCancel = צור תסריט חדש');
+                if (choice) {
+                    await quickSaveToFirebase();
+                    return;
+                }
+            }
+            
             const scriptName = prompt('תן שם לתסריט (למשל: תכנית 5 דראפט 2)');
             if (!scriptName) return;
             
@@ -1364,6 +1454,11 @@
                 const newScriptRef = scriptsRef.push();
                 await newScriptRef.set(scriptData);
                 
+                // שמירת ה-ID של התסריט החדש
+                currentScriptId = newScriptRef.key;
+                document.getElementById('quickSaveBtn').style.display = 'inline-block';
+                
+                markAsSaved();
                 showNotification('✅ התסריט נשמר בהצלחה בענן!');
             } catch (error) {
                 console.error('שגיאה בשמירה:', error);
@@ -1371,7 +1466,40 @@
             }
         }
         
+        // פונקציה חדשה לשמירה מהירה
+        async function quickSaveToFirebase() {
+            if (!currentScriptId) {
+                await saveToFirebase();
+                return;
+            }
+            
+            try {
+                const scriptData = buildProjectData();
+                scriptData.updatedAt = new Date().toISOString();
+                
+                // שמירת השם והתאריך המקוריים
+                const existingSnapshot = await scriptsRef.child(currentScriptId).once('value');
+                const existingData = existingSnapshot.val();
+                scriptData.name = existingData.name;
+                scriptData.createdAt = existingData.createdAt;
+                
+                await scriptsRef.child(currentScriptId).set(scriptData);
+                
+                markAsSaved();
+                showNotification(`✅ נשמר: ${scriptData.name}`);
+            } catch (error) {
+                console.error('שגיאה בעדכון:', error);
+                showNotification('❌ שגיאה בשמירת השינויים', 'error');
+            }
+        }
+        
         async function showSavedScripts() {
+            // בדיקה אם יש שינויים שלא נשמרו
+            if (hasUnsavedChanges) {
+                const confirmLoad = confirm('יש לך שינויים שלא נשמרו. האם להמשיך?');
+                if (!confirmLoad) return;
+            }
+            
             document.getElementById('savedScriptsModal').style.display = 'flex';
             
             try {
@@ -1436,8 +1564,15 @@
                 // טעינת הנתונים
                 loadProjectData(scriptData);
                 
+                // שמירת ה-ID של התסריט הנוכחי
+                currentScriptId = scriptId;
+                document.getElementById('quickSaveBtn').style.display = 'inline-block';
+                
+                // סימון שהכל נשמר
+                markAsSaved();
+                
                 closeSavedScriptsModal();
-                showNotification('✅ התסריט נטען בהצלחה!');
+                showNotification(`✅ נטען: ${scriptData.name}`);
             } catch (error) {
                 console.error('שגיאה בטעינת תסריט:', error);
                 showNotification('❌ שגיאה בטעינת התסריט', 'error');
@@ -1523,28 +1658,37 @@
                 }
             });
             
-            // שמירת סיבובים
-            document.querySelectorAll('.round').forEach(round => {
-                const roundData = {
-                    type: 'round',
-                    name: round.querySelector('.round-header input').value,
-                    intro: round.querySelector('.editable-text').value,
-                    questions: []
-                };
-                
-                round.querySelectorAll('.question-item:not(.question-dropzone)').forEach(question => {
-                    if (question.dataset.videoData) {
-                        const inputs = question.querySelectorAll('input');
-                        roundData.questions.push({
-                            videoData: JSON.parse(question.dataset.videoData),
-                            question: inputs[0]?.value || '',
-                            answer: inputs[1]?.value || '',
-                            after: inputs[2]?.value || ''
-                        });
-                    }
-                });
-                
-                project.sections.push(roundData);
+            // שמירת סיבובים וטקסטים חופשיים
+            document.querySelectorAll('#scriptContainer > *').forEach(element => {
+                if (element.classList.contains('round')) {
+                    const roundData = {
+                        type: 'round',
+                        name: element.querySelector('.round-header input').value,
+                        intro: element.querySelector('.editable-text').value,
+                        questions: []
+                    };
+                    
+                    element.querySelectorAll('.question-item:not(.question-dropzone)').forEach(question => {
+                        if (question.dataset.videoData) {
+                            const inputs = question.querySelectorAll('input');
+                            roundData.questions.push({
+                                videoData: JSON.parse(question.dataset.videoData),
+                                question: inputs[0]?.value || '',
+                                answer: inputs[1]?.value || '',
+                                after: inputs[2]?.value || ''
+                            });
+                        }
+                    });
+                    
+                    project.sections.push(roundData);
+                } else if (element.classList.contains('free-text')) {
+                    const freeTextData = {
+                        type: 'free-text',
+                        title: element.querySelector('.free-text-header input').value,
+                        content: element.querySelector('textarea').value
+                    };
+                    project.sections.push(freeTextData);
+                }
             });
             
             // שמירת דברי סיום
@@ -1623,6 +1767,24 @@
                     
                     // עדכון dropzones
                     updateDropzones(questionsList);
+                } else if (section.type === 'free-text') {
+                    // יצירת טקסט חופשי
+                    const container = document.getElementById('scriptContainer');
+                    const freeTextDiv = document.createElement('div');
+                    freeTextDiv.className = 'free-text';
+                    freeTextDiv.dataset.sectionType = 'free-text';
+                    
+                    freeTextDiv.innerHTML = `
+                        <div class="free-text-header" draggable="true" ondragstart="dragFreeText(event)" ondragover="dragOverFreeText(event)" ondragleave="dragLeaveFreeText(event)" ondrop="dropFreeText(event)">
+                            <h4>📝 טקסט חופשי - <input type="text" placeholder="הכנס כותרת" onclick="event.stopPropagation()" style="background: none; border: none; color: white; font-weight: bold;" value="${section.title || ''}"></h4>
+                            <button class="btn btn-danger btn-sm" onclick="removeFreeText(this, event)">🗑️</button>
+                        </div>
+                        <div class="free-text-content">
+                            <textarea placeholder="הכנס טקסט חופשי כאן...">${section.content || ''}</textarea>
+                        </div>
+                    `;
+                    
+                    container.appendChild(freeTextDiv);
                 }
             });
             
@@ -1738,6 +1900,9 @@ function handleRoundDrop(ev) {
         
         // עדכון מספור
         updateAllNumbering();
+        
+        // סימון שינויים
+        markAsUnsaved();
         
         showNotification('✅ הסרטון נוסף לסיבוב!');
     }
@@ -1856,6 +2021,9 @@ function handleRoundDrop(ev) {
             // עדכון מספור
             updateAllNumbering();
             
+            // סימון שינויים
+            markAsUnsaved();
+            
             // ניקוי כללי של מצבי גרירה
             cleanupDragStates();
         }
@@ -1973,48 +2141,53 @@ function handleRoundDrop(ev) {
         
         function dragOverRound(ev) {
             ev.preventDefault();
-            const draggingRound = document.querySelector('.round.dragging');
-            const currentRound = ev.target.closest('.round');
-            if (draggingRound && currentRound && currentRound !== draggingRound) {
-                currentRound.classList.add('drag-over');
+            const draggingElement = document.querySelector('.dragging');
+            const currentElement = ev.target.closest('.round, .free-text');
+            if (draggingElement && currentElement && currentElement !== draggingElement) {
+                currentElement.classList.add('drag-over');
             }
         }
         
         function dragLeaveRound(ev) {
-            const currentRound = ev.target.closest('.round');
-            if (currentRound) {
-                currentRound.classList.remove('drag-over');
+            const currentElement = ev.target.closest('.round, .free-text');
+            if (currentElement) {
+                currentElement.classList.remove('drag-over');
             }
         }
         
         function dropRound(ev) {
             ev.preventDefault();
-            const currentRound = ev.target.closest('.round');
-            if (currentRound) {
-                currentRound.classList.remove('drag-over');
+            const currentElement = ev.target.closest('.round, .free-text');
+            if (currentElement) {
+                currentElement.classList.remove('drag-over');
             }
             
             const isRoundMove = ev.dataTransfer.getData('roundMove');
-            if (isRoundMove) {
-                const draggingRound = document.querySelector('.round.dragging');
-                if (draggingRound && currentRound && currentRound !== draggingRound) {
+            const isFreeTextMove = ev.dataTransfer.getData('freeTextMove');
+            
+            if (isRoundMove || isFreeTextMove) {
+                const draggingElement = document.querySelector('.dragging');
+                if (draggingElement && currentElement && currentElement !== draggingElement) {
                     const container = document.getElementById('scriptContainer');
-                    const allRounds = [...container.querySelectorAll('.round')];
-                    const dragIndex = allRounds.indexOf(draggingRound);
-                    const dropIndex = allRounds.indexOf(currentRound);
+                    const allElements = [...container.children];
+                    const dragIndex = allElements.indexOf(draggingElement);
+                    const dropIndex = allElements.indexOf(currentElement);
                     
                     if (dragIndex < dropIndex) {
-                        container.insertBefore(draggingRound, currentRound.nextSibling);
+                        container.insertBefore(draggingElement, currentElement.nextSibling);
                     } else {
-                        container.insertBefore(draggingRound, currentRound);
+                        container.insertBefore(draggingElement, currentElement);
                     }
                 }
-                if (draggingRound) {
-                    draggingRound.classList.remove('dragging');
+                if (draggingElement) {
+                    draggingElement.classList.remove('dragging');
                 }
                 
                 // עדכון מספור
                 updateAllNumbering();
+                
+                // סימון שינויים
+                markAsUnsaved();
             }
         }
         
@@ -2063,6 +2236,10 @@ function handleRoundDrop(ev) {
         function initializeScript() {
             const openingContent = document.getElementById('openingContent');
             openingContent.innerHTML = '';
+            
+            // איפוס ID התסריט הנוכחי
+            currentScriptId = null;
+            document.getElementById('quickSaveBtn').style.display = 'none';
             
             // יצירת כל הסעיפים הקבועים בחלק הפתיחה
             templateSections.forEach((section, index) => {
@@ -2138,6 +2315,105 @@ function handleRoundDrop(ev) {
             }
         }
         
+        // הוספת טקסט חופשי
+        function addFreeText() {
+            const container = document.getElementById('scriptContainer');
+            
+            const freeTextDiv = document.createElement('div');
+            freeTextDiv.className = 'free-text';
+            freeTextDiv.dataset.sectionType = 'free-text';
+            freeTextDiv.dataset.sectionNumber = sectionCounter;
+            
+            freeTextDiv.innerHTML = `
+                <div class="free-text-header" draggable="true" ondragstart="dragFreeText(event)" ondragover="dragOverFreeText(event)" ondragleave="dragLeaveFreeText(event)" ondrop="dropFreeText(event)">
+                    <h4>📝 טקסט חופשי - <input type="text" placeholder="הכנס כותרת" onclick="event.stopPropagation()" style="background: none; border: none; color: white; font-weight: bold;"></h4>
+                    <button class="btn btn-danger btn-sm" onclick="removeFreeText(this, event)">🗑️</button>
+                </div>
+                <div class="free-text-content">
+                    <textarea placeholder="הכנס טקסט חופשי כאן..."></textarea>
+                </div>
+            `;
+            
+            container.appendChild(freeTextDiv);
+            
+            // עדכון מספור
+            updateAllNumbering();
+            
+            // סימון שינויים
+            markAsUnsaved();
+            
+            showNotification('✅ טקסט חופשי נוסף!');
+        }
+        
+        // פונקציות גרירה לטקסט חופשי
+        function dragFreeText(ev) {
+            ev.dataTransfer.effectAllowed = 'move';
+            ev.dataTransfer.setData('freeTextMove', 'true');
+            ev.target.closest('.free-text').classList.add('dragging');
+        }
+        
+        function dragOverFreeText(ev) {
+            ev.preventDefault();
+            const draggingElement = document.querySelector('.dragging');
+            const currentElement = ev.target.closest('.free-text, .round');
+            if (draggingElement && currentElement && currentElement !== draggingElement) {
+                currentElement.classList.add('drag-over');
+            }
+        }
+        
+        function dragLeaveFreeText(ev) {
+            const currentElement = ev.target.closest('.free-text, .round');
+            if (currentElement) {
+                currentElement.classList.remove('drag-over');
+            }
+        }
+        
+        function dropFreeText(ev) {
+            ev.preventDefault();
+            const currentElement = ev.target.closest('.free-text, .round');
+            if (currentElement) {
+                currentElement.classList.remove('drag-over');
+            }
+            
+            const isFreeTextMove = ev.dataTransfer.getData('freeTextMove');
+            const isRoundMove = ev.dataTransfer.getData('roundMove');
+            
+            if (isFreeTextMove || isRoundMove) {
+                const draggingElement = document.querySelector('.dragging');
+                if (draggingElement && currentElement && currentElement !== draggingElement) {
+                    const container = document.getElementById('scriptContainer');
+                    const allElements = [...container.children];
+                    const dragIndex = allElements.indexOf(draggingElement);
+                    const dropIndex = allElements.indexOf(currentElement);
+                    
+                    if (dragIndex < dropIndex) {
+                        container.insertBefore(draggingElement, currentElement.nextSibling);
+                    } else {
+                        container.insertBefore(draggingElement, currentElement);
+                    }
+                }
+                if (draggingElement) {
+                    draggingElement.classList.remove('dragging');
+                }
+                
+                // עדכון מספור
+                updateAllNumbering();
+                
+                // סימון שינויים
+                markAsUnsaved();
+            }
+        }
+        
+        function removeFreeText(btn, event) {
+            event.stopPropagation();
+            if (confirm('האם למחוק את הטקסט החופשי?')) {
+                btn.closest('.free-text').remove();
+                updateAllNumbering();
+                markAsUnsaved();
+                showNotification('✅ טקסט חופשי נמחק!');
+            }
+        }
+        
         // הוספת סיבוב חדש
         function addNewRound() {
             roundCounter++;
@@ -2172,6 +2448,9 @@ function handleRoundDrop(ev) {
             // ניקוי מצבי גרירה
             cleanupDragStates();
             
+            // סימון שינויים
+            markAsUnsaved();
+            
             showNotification('✅ סיבוב חדש נוסף!');
         }
         
@@ -2184,6 +2463,9 @@ function handleRoundDrop(ev) {
                 
                 // עדכון רשימת הסרטונים בשימוש
                 updateUsedVideos();
+                
+                // סימון שינויים
+                markAsUnsaved();
                 
                 showNotification('✅ סיבוב נמחק!');
             }
@@ -2200,6 +2482,9 @@ function handleRoundDrop(ev) {
                 
                 // עדכון רשימת הסרטונים בשימוש
                 updateUsedVideos();
+                
+                // סימון שינויים
+                markAsUnsaved();
             }
         }
         
@@ -2270,9 +2555,9 @@ function handleRoundDrop(ev) {
                 }
             });
             
-            // עבור על כל הסיבובים
-            document.querySelectorAll('.round').forEach(round => {
-                round.dataset.sectionNumber = currentNumber;
+            // עבור על כל הסיבובים והטקסטים החופשיים
+            document.querySelectorAll('#scriptContainer > *').forEach(element => {
+                element.dataset.sectionNumber = currentNumber;
                 currentNumber++;
             });
             
@@ -2457,65 +2742,77 @@ function handleRoundDrop(ev) {
                 }
             });
             
-            // עבור על הסיבובים
-            const rounds = document.querySelectorAll('.round');
-            rounds.forEach((round, roundIndex) => {
-                const roundNameInput = round.querySelector('.round-header input');
-                const roundName = roundNameInput ? roundNameInput.value : '';
-                const roundIntro = round.querySelector('.editable-text').value;
-                const roundNum = parseInt(round.dataset.sectionNumber);
-                
-                // בתסריט יופיע "פתיחת סיבוב" ללא מספר
-                script += `## ${roundNum}. פתיחת סיבוב - ${roundName || '[הכנס שם סיבוב]'}\n`;
-                if (roundIntro.trim()) {
-                    script += `${roundIntro}\n\n`;
-                }
-                
-                // שאלות בסיבוב
-                const questions = round.querySelectorAll('.question-item:not(.question-dropzone)');
-                questions.forEach((question, qIndex) => {
-                    const videoData = question.dataset.videoData ? JSON.parse(question.dataset.videoData) : null;
-                    if (!videoData) return;
+            // עבור על הסיבובים והטקסטים החופשיים
+            const scriptElements = document.querySelectorAll('#scriptContainer > *');
+            scriptElements.forEach((element, elementIndex) => {
+                if (element.classList.contains('round')) {
+                    const roundNameInput = element.querySelector('.round-header input');
+                    const roundName = roundNameInput ? roundNameInput.value : '';
+                    const roundIntro = element.querySelector('.editable-text').value;
+                    const roundNum = parseInt(element.dataset.sectionNumber);
                     
-                    const titleElement = question.querySelector('strong');
-                    const questionInput = question.querySelector('input[placeholder="הכנס שאלה..."]');
-                    const answerInput = question.querySelector('input[placeholder="הכנס תיאור תשובה..."]');
-                    const afterInput = question.querySelector('input[placeholder="הכנס אפטר פאנץ\'..."]');
-                    
-                    const title = titleElement ? titleElement.textContent : '[הכנס תיאור]';
-                    const questionText = questionInput ? questionInput.value : '';
-                    const answerText = answerInput ? answerInput.value : '';
-                    const afterText = afterInput ? afterInput.value : '';
-                    
-                    const baseNumber = roundNum + 1 + (qIndex * 5);
-                    
-                    script += `### ${baseNumber}. VTR שאלה -- ${title}\n\n`;
-                    
-                    script += `### ${baseNumber + 1}. CG פריז\n`;
-                    script += `**${questionText || '[הכנס את נוסח השאלה]'}**\n\n`;
-                    script += `(עונים)\n\n`;
-                    script += `והתשובה היא:\n\n`;
-                    
-                    script += `### ${baseNumber + 2}. VTR תשובה -- ${answerText || '**[הכנס תיאור התשובה]**'}\n\n`;
-                    
-                    script += `### ${baseNumber + 3}. CG פריז\n`;
-                    script += `**${afterText || '[הכנס אפטר פאנץ\']'}**\n\n`;
-                    
-                    script += `### ${baseNumber + 4}. CG לוגו\n`;
-                    script += `את/ה צדקת -- 10 נקודות!\n\n`;
-                    
-                    if (qIndex < questions.length - 1) {
-                        script += `ממשיכים:\n\n`;
+                    // בתסריט יופיע "פתיחת סיבוב" ללא מספר
+                    script += `## ${roundNum}. פתיחת סיבוב - ${roundName || '[הכנס שם סיבוב]'}\n`;
+                    if (roundIntro.trim()) {
+                        script += `${roundIntro}\n\n`;
                     }
-                });
-                
-                // סוף סיבוב
-                const endNumber = roundNum + 1 + (questions.length * 5);
-                script += `### ${endNumber}. שוט סוף סיבוב\n`;
-                script += `נגמר הסיבוב! מה אני אגיד לכם, אתם לא בכיוון.\n`;
-                script += `אבל זה מצב הנקודות בסוף הסיבוב הזה --\n\n`;
-                script += `פריים של כולם מחייכים כדי שאוכל להעלות פלאח בפוסט\n\n`;
-                script += `---\n\n`;
+                    
+                    // שאלות בסיבוב
+                    const questions = element.querySelectorAll('.question-item:not(.question-dropzone)');
+                    questions.forEach((question, qIndex) => {
+                        const videoData = question.dataset.videoData ? JSON.parse(question.dataset.videoData) : null;
+                        if (!videoData) return;
+                        
+                        const titleElement = question.querySelector('strong');
+                        const questionInput = question.querySelector('input[placeholder="הכנס שאלה..."]');
+                        const answerInput = question.querySelector('input[placeholder="הכנס תיאור תשובה..."]');
+                        const afterInput = question.querySelector('input[placeholder="הכנס אפטר פאנץ\'..."]');
+                        
+                        const title = titleElement ? titleElement.textContent : '[הכנס תיאור]';
+                        const questionText = questionInput ? questionInput.value : '';
+                        const answerText = answerInput ? answerInput.value : '';
+                        const afterText = afterInput ? afterInput.value : '';
+                        
+                        const baseNumber = roundNum + 1 + (qIndex * 5);
+                        
+                        script += `### ${baseNumber}. VTR שאלה -- ${title}\n\n`;
+                        
+                        script += `### ${baseNumber + 1}. CG פריז\n`;
+                        script += `**${questionText || '[הכנס את נוסח השאלה]'}**\n\n`;
+                        script += `(עונים)\n\n`;
+                        script += `והתשובה היא:\n\n`;
+                        
+                        script += `### ${baseNumber + 2}. VTR תשובה -- ${answerText || '**[הכנס תיאור התשובה]**'}\n\n`;
+                        
+                        script += `### ${baseNumber + 3}. CG פריז\n`;
+                        script += `**${afterText || '[הכנס אפטר פאנץ\']'}**\n\n`;
+                        
+                        script += `### ${baseNumber + 4}. CG לוגו\n`;
+                        script += `את/ה צדקת -- 10 נקודות!\n\n`;
+                        
+                        if (qIndex < questions.length - 1) {
+                            script += `ממשיכים:\n\n`;
+                        }
+                    });
+                    
+                    // סוף סיבוב
+                    const endNumber = roundNum + 1 + (questions.length * 5);
+                    script += `### ${endNumber}. שוט סוף סיבוב\n`;
+                    script += `נגמר הסיבוב! מה אני אגיד לכם, אתם לא בכיוון.\n`;
+                    script += `אבל זה מצב הנקודות בסוף הסיבוב הזה --\n\n`;
+                    script += `פריים של כולם מחייכים כדי שאוכל להעלות פלאח בפוסט\n\n`;
+                    script += `---\n\n`;
+                } else if (element.classList.contains('free-text')) {
+                    const title = element.querySelector('.free-text-header input').value || 'טקסט חופשי';
+                    const content = element.querySelector('textarea').value;
+                    const sectionNum = parseInt(element.dataset.sectionNumber);
+                    
+                    script += `## ${sectionNum}. ${title}\n`;
+                    if (content.trim()) {
+                        script += `${content}\n\n`;
+                    }
+                    script += `---\n\n`;
+                }
             });
             
             // סיכום נקודות
@@ -2690,6 +2987,12 @@ function handleRoundDrop(ev) {
         
         // טעינת פרויקט
         function loadProject() {
+            // בדיקה אם יש שינויים שלא נשמרו
+            if (hasUnsavedChanges) {
+                const confirmLoad = confirm('יש לך שינויים שלא נשמרו. האם להמשיך?');
+                if (!confirmLoad) return;
+            }
+            
             const input = document.createElement('input');
             input.type = 'file';
             input.accept = '.json';
@@ -2702,6 +3005,14 @@ function handleRoundDrop(ev) {
                     try {
                         const project = JSON.parse(e.target.result);
                         loadProjectData(project);
+                        
+                        // איפוס ID התסריט הנוכחי כי זה קובץ מקומי
+                        currentScriptId = null;
+                        document.getElementById('quickSaveBtn').style.display = 'none';
+                        
+                        // סימון שהכל נשמר
+                        markAsSaved();
+                        
                         showNotification('✅ הפרויקט נטען בהצלחה!');
                     } catch (error) {
                         showNotification('❌ שגיאה בטעינת הפרויקט', 'error');
@@ -2786,6 +3097,26 @@ function handleRoundDrop(ev) {
             document.addEventListener('dragend', cleanupDragStates);
             document.addEventListener('drop', cleanupDragStates);
             document.addEventListener('mouseup', cleanupDragStates);
+            
+            // הוספת קיצור מקלדת לשמירה מהירה (Ctrl+S)
+            document.addEventListener('keydown', async function(e) {
+                if (e.ctrlKey && e.key === 's') {
+                    e.preventDefault();
+                    await quickSaveToFirebase();
+                }
+            });
+            
+            // הוספת מאזינים לשינויים
+            addChangeListeners();
+            
+            // אזהרה לפני יציאה אם יש שינויים שלא נשמרו
+            window.addEventListener('beforeunload', function(e) {
+                if (hasUnsavedChanges) {
+                    e.preventDefault();
+                    e.returnValue = '';
+                    return '';
+                }
+            });
         }
         
         // הפעלת האפליקציה
