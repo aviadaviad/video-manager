@@ -3084,125 +3084,118 @@ function handleRoundDrop(ev) {
             URL.revokeObjectURL(url);
             showNotification('✅ התסריט יוצא בהצלחה!');
         }
-        
-        // ייצוא לוורד
+// ייצוא ל-RTF (Rich Text Format) עם תמיכה בעברית ומספור פשוט
         function exportToWord() {
             const programNum = document.getElementById('programNumber').value || '[מספר]';
             const programDate = document.getElementById('programDate').value || '[תאריך]';
             const draftNum = document.getElementById('draftNumber').value || '[מספר]';
             
-            let wordContent = `
-            <!DOCTYPE html>
-            <html xmlns:o="urn:schemas-microsoft-com:office:office" 
-                  xmlns:w="urn:schemas-microsoft-com:office:word" 
-                  xmlns="http://www.w3.org/TR/REC-html40">
-            <head>
-                <meta charset="UTF-8">
-                <!--[if gte mso 9]>
-                <xml>
-                <w:WordDocument>
-                <w:View>Print</w:View>
-                <w:Zoom>100</w:Zoom>
-                <w:DoNotOptimizeForBrowser/>
-                </w:WordDocument>
-                </xml>
-                <![endif]-->
-                <style>
-                    @page {
-                        margin: 2cm;
-                        size: A4;
-                    }
-                    body {
-                        font-family: 'Arial', sans-serif;
-                        direction: rtl;
-                        text-align: right;
-                        line-height: 1.6;
-                        color: #333;
-                    }
-                    h1 {
-                        font-size: 20pt;
-                        color: #2c3e50;
-                        text-align: center;
-                        margin-bottom: 10pt;
-                        border-bottom: 3pt solid #667eea;
-                        padding-bottom: 10pt;
-                    }
-                    h2 {
-                        font-size: 16pt;
-                        color: #34495e;
-                        margin-top: 20pt;
-                        margin-bottom: 10pt;
-                        background: #e3f2fd;
-                        padding: 8pt;
-                        border-right: 4pt solid #667eea;
-                    }
-                    h3 {
-                        font-size: 12pt;
-                        color: #2c3e50;
-                        margin-top: 15pt;
-                        margin-bottom: 8pt;
-                    }
-                    p {
-                        margin-bottom: 8pt;
-                    }
-                    .header-info {
-                        text-align: center;
-                        font-size: 12pt;
-                        color: #666;
-                        margin-bottom: 20pt;
-                    }
-                    .cast {
-                        background: #f8f9fa;
-                        padding: 10pt;
-                        border-radius: 5pt;
-                        margin-bottom: 20pt;
-                        text-align: center;
-                        font-weight: bold;
-                    }
-                    hr {
-                        border: none;
-                        border-top: 2pt solid #ecf0f1;
-                        margin: 20pt 0;
-                    }
-                </style>
-            </head>
-            <body>`;
+            // יצירת תוכן RTF עם תמיכה מלאה בעברית
+            let rtfContent = `{\\rtf1\\ansi\\ansicpg1255\\deff0\\deflang1037`;
+            rtfContent += `{\\fonttbl{\\f0\\froman\\fcharset177\\fprq2 Times New Roman;}{\\f1\\fswiss\\fcharset177\\fprq2 Arial;}}`;
+            rtfContent += `{\\colortbl;\\red0\\green0\\blue0;\\red44\\green62\\blue80;\\red52\\green73\\blue94;}`;
             
-            // בניית התוכן
+            // סגנונות עם מספור
+            rtfContent += `{\\stylesheet{\\ql\\li0\\ri0\\widctlpar\\aspalpha\\aspnum\\faauto\\adjustright\\rin0\\lin0\\itap0 \\fs24\\lang1037\\langfe1037\\cgrid\\langnp1037\\langfenp1037 \\snext0 Normal;}`;
+            rtfContent += `{\\s1\\ql\\li0\\ri0\\sb240\\sa60\\keepn\\widctlpar\\aspalpha\\aspnum\\faauto\\outlinelevel0\\adjustright\\rin0\\lin0\\itap0 \\b\\fs28\\lang1037\\langfe1037\\cgrid\\langnp1037\\langfenp1037 \\sbasedon0 \\snext0 \\styrsid15420578 heading 1;}`;
+            rtfContent += `{\\s2\\ql\\li0\\ri0\\sb240\\sa60\\keepn\\widctlpar\\aspalpha\\aspnum\\faauto\\outlinelevel1\\adjustright\\rin0\\lin0\\itap0 \\b\\fs26\\lang1037\\langfe1037\\cgrid\\langnp1037\\langfenp1037 \\sbasedon0 \\snext0 \\styrsid15420579 heading 2;}}`;
+            
+            rtfContent += `\\viewkind4\\uc1\\pard\\rtlpar\\qr\\lang1037\\f1\\fs24 `;
+            
+            // כותרת ראשית
+            rtfContent += `\\qc\\fs32\\b ${convertToRTFHebrew('תסריט - תכנית ' + programNum)}\\par`;
+            rtfContent += `\\fs20 ${convertToRTFHebrew('תאריך: ' + programDate + ' | דראפט: ' + draftNum)}\\par\\par`;
+            rtfContent += `\\qr\\fs24\\b0 `;
+            
+            // איסוף המתמודדים הנבחרים לכותרת
+            const selectedContestants = [];
+            contestants.forEach(contestant => {
+                const checkbox = document.getElementById(`check-${contestant.id}`);
+                if (checkbox && checkbox.checked) {
+                    selectedContestants.push(contestant.name);
+                }
+            });
+            
+            if (selectedContestants.length > 0) {
+                rtfContent += `\\b ${convertToRTFHebrew('קאסט: ' + selectedContestants.join(', '))}\\b0\\par\\par`;
+            }
+            
+            rtfContent += `${convertToRTFHebrew('---')}\\par\\par`;
+            
+            // בניית התוכן מהתסריט
             const scriptText = buildScript();
             const lines = scriptText.split('\n');
             
             lines.forEach(line => {
+                line = line.trim();
+                
                 if (line.startsWith('## ')) {
-                    wordContent += `<h2>${line.substring(3)}</h2>`;
+                    // כותרת ראשית - סגנון Heading 1
+                    const title = line.substring(3);
+                    rtfContent += `\\pard\\rtlpar\\s1\\qr\\fs28\\b\\cf2 ${convertToRTFHebrew(title)}\\cf1\\fs24\\b0\\par\\par`;
                 } else if (line.startsWith('### ')) {
-                    wordContent += `<h3>${line.substring(4)}</h3>`;
-                } else if (line.startsWith('**') && line.endsWith('**')) {
-                    wordContent += `<p><strong>${line.substring(2, line.length - 2)}</strong></p>`;
+                    // תת-כותרת - סגנון Heading 2
+                    const subtitle = line.substring(4);
+                    rtfContent += `\\pard\\rtlpar\\s2\\qr\\fs26\\b\\cf3 ${convertToRTFHebrew(subtitle)}\\cf1\\fs24\\b0\\par`;
+                } else if (line.startsWith('**') && line.endsWith('**') && line.length > 4) {
+                    // טקסט מודגש
+                    const boldText = line.substring(2, line.length - 2);
+                    rtfContent += `\\pard\\rtlpar\\qr\\b ${convertToRTFHebrew(boldText)}\\b0\\par`;
                 } else if (line === '---') {
-                    wordContent += '<hr>';
-                } else if (line.trim()) {
-                    wordContent += `<p>${line}</p>`;
+                    // קו מפריד
+                    rtfContent += `\\pard\\rtlpar\\qr\\par ${convertToRTFHebrew('---')}\\par\\par`;
+                } else if (line) {
+                    // טקסט רגיל
+                    rtfContent += `\\pard\\rtlpar\\qr ${convertToRTFHebrew(line)}\\par`;
+                } else {
+                    // שורה ריקה
+                    rtfContent += `\\par`;
                 }
             });
             
-            wordContent += `
-            </body>
-            </html>`;
+            rtfContent += `}`;
             
-            // יצירת קובץ וורד
-            const blob = new Blob([wordContent], {
-                type: 'application/msword;charset=utf-8'
+            // יצירת קובץ RTF
+            const blob = new Blob([rtfContent], {
+                type: 'application/rtf;charset=utf-8'
             });
             
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = `תכנית_${programNum}_דראפט_${draftNum}.doc`;
+            link.download = `תכנית_${programNum}_דראפט_${draftNum}.rtf`;
             link.click();
             URL.revokeObjectURL(url);
             
-            showNotification('✅ התסריט יוצא לוורד בהצלחה!');
+            showNotification('✅ התסריט יוצא עם עיצוב נקי ומספור!');
+        }
+        
+        // פונקציה להמרת טקסט עברית ל-RTF
+        function convertToRTFHebrew(text) {
+            let result = '';
+            for (let i = 0; i < text.length; i++) {
+                const char = text.charAt(i);
+                const code = char.charCodeAt(0);
+                
+                // תווי עברית (1488-1514) ותווים מיוחדים
+                if (code >= 1488 && code <= 1514) {
+                    // תווי עברית - המרה ל-Unicode escape
+                    result += `\\u${code}?`;
+                } else if (code > 127) {
+                    // תווים לא-ASCII אחרים
+                    result += `\\u${code}?`;
+                } else if (char === '\\') {
+                    result += '\\\\';
+                } else if (char === '{') {
+                    result += '\\{';
+                } else if (char === '}') {
+                    result += '\\}';
+                } else {
+                    // תווי ASCII רגילים
+                    result += char;
+                }
+            }
+            return result;
         }
         
         // שמירת פרויקט
