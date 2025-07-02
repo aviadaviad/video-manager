@@ -2923,10 +2923,10 @@ function handleRoundDrop(ev) {
             displayVideos();
         }
         
-        // יצירת תסריט
+  // יצירת תסריט
         function buildScript() {
             let script = `תכנית ${document.getElementById('programNumber').value || '[מספר]'} -- ${document.getElementById('programDate').value || '[תאריך]'}\n`;
-            script += `דראפט ${document.getElementById('draftNumber').value || '[מספר]'} -- בעבודה -- למעקב דנה/הפקה\n\n`;
+            script += `דראפט ${document.getElementById('draftNumber').value || '[מספר]'} -- בעבודה\n\n`;
             
             // איסוף המתמודדים הנבחרים
             const selectedContestants = [];
@@ -2940,16 +2940,19 @@ function handleRoundDrop(ev) {
             script += `**קאסט: ${selectedContestants.join(', ')}**\n\n`;
             script += `---\n\n`;
             
-            let questionNumber = 1;
+            let sectionNumber = 1; // מונה רציף לכל התסריט
             
-            // עבור על סעיפי הפתיחה
-            document.querySelectorAll('#openingContent .script-section').forEach(section => {
-                const title = section.querySelector('.section-header h4').textContent;
-                const sectionId = section.dataset.sectionId;
+// עבור על סעיפי הפתיחה
+document.querySelectorAll('#openingContent .script-section').forEach(section => {
+    let title = section.querySelector('.section-header h4').textContent;
+    // הסרת מספור קיים מהכותרת (למשל "1. " או "12. ")
+    title = title.replace(/^\d+\.\s*/, '');
+    const sectionId = section.dataset.sectionId;
                 
                 if (sectionId === 'contestants-selection') {
                     // טיפול מיוחד במתמודדים
-                    script += `## ${title}\n\n`;
+                    script += `## ${sectionNumber}. ${title}\n\n`;
+                    sectionNumber++;
                     
                     contestants.forEach(contestant => {
                         const checkbox = document.getElementById(`check-${contestant.id}`);
@@ -2963,11 +2966,13 @@ function handleRoundDrop(ev) {
                     });
                     
                     // הוספת CG לוגו אחרי המתמודדים
-                    script += `## CG לוגו\n\n`;
+                    script += `## ${sectionNumber}. CG לוגו\n\n`;
+                    sectionNumber++;
                 } else {
                     const content = section.querySelector('.editable-text')?.value || '';
                     
-                    script += `## ${title}\n`;
+                    script += `## ${sectionNumber}. ${title}\n`;
+                    sectionNumber++;
                     if (content.trim()) {
                         script += `${content}\n\n`;
                     } else {
@@ -2983,10 +2988,10 @@ function handleRoundDrop(ev) {
                     const roundNameInput = element.querySelector('.round-header input');
                     const roundName = roundNameInput ? roundNameInput.value : '';
                     const roundIntro = element.querySelector('.editable-text').value;
-                    const roundNum = parseInt(element.dataset.sectionNumber);
                     
-                    // בתסריט יופיע "פתיחת סיבוב" ללא מספר
-                    script += `## ${roundNum}. פתיחת סיבוב - ${roundName || '[הכנס שם סיבוב]'}\n`;
+                    // פתיחת סיבוב
+                    script += `## ${sectionNumber}. פתיחת סיבוב - ${roundName || '[הכנס שם סיבוב]'}\n`;
+                    sectionNumber++;
                     if (roundIntro.trim()) {
                         script += `${roundIntro}\n\n`;
                     }
@@ -3007,21 +3012,25 @@ function handleRoundDrop(ev) {
                         const answerText = answerInput ? answerInput.value : '';
                         const afterText = afterInput ? afterInput.value : '';
                         
-                        const baseNumber = roundNum + 1 + (qIndex * 5);
+                        script += `### ${sectionNumber}. VTR שאלה -- ${title}\n\n`;
+                        sectionNumber++;
                         
-                        script += `### ${baseNumber}. VTR שאלה -- ${title}\n\n`;
-                        
-                        script += `### ${baseNumber + 1}. CG פריז\n`;
+                        script += `### ${sectionNumber}. CG פריז\n`;
+                        sectionNumber++;
                         script += `**${questionText || '[הכנס את נוסח השאלה]'}**\n\n`;
                         script += `(עונים)\n\n`;
                         script += `והתשובה היא:\n\n`;
                         
-                        script += `### ${baseNumber + 2}. VTR תשובה -- ${answerText || '**[הכנס תיאור התשובה]**'}\n\n`;
+                        script += `### ${sectionNumber}. VTR תשובה -- ${title}\n`;
+                        sectionNumber++;
+                        script += `${answerText || '[הכנס תיאור התשובה]'}\n\n`;
                         
-                        script += `### ${baseNumber + 3}. CG פריז\n`;
+                        script += `### ${sectionNumber}. CG פריז\n`;
+                        sectionNumber++;
                         script += `**${afterText || '[הכנס אפטר פאנץ\']'}**\n\n`;
                         
-                        script += `### ${baseNumber + 4}. CG לוגו\n`;
+                        script += `### ${sectionNumber}. CG לוגו\n`;
+                        sectionNumber++;
                         script += `את/ה צדקת -- 10 נקודות!\n\n`;
                         
                         if (qIndex < questions.length - 1) {
@@ -3030,8 +3039,8 @@ function handleRoundDrop(ev) {
                     });
                     
                     // סוף סיבוב
-                    const endNumber = roundNum + 1 + (questions.length * 5);
-                    script += `### ${endNumber}. שוט סוף סיבוב\n`;
+                    script += `### ${sectionNumber}. שוט סוף סיבוב\n`;
+                    sectionNumber++;
                     script += `נגמר הסיבוב! מה אני אגיד לכם, אתם לא בכיוון.\n`;
                     script += `אבל זה מצב הנקודות בסוף הסיבוב הזה --\n\n`;
                     script += `פריים של כולם מחייכים כדי שאוכל להעלות פלאח בפוסט\n\n`;
@@ -3039,9 +3048,9 @@ function handleRoundDrop(ev) {
                 } else if (element.classList.contains('free-text')) {
                     const title = element.querySelector('.free-text-header input').value || 'טקסט חופשי';
                     const content = element.querySelector('textarea').value;
-                    const sectionNum = parseInt(element.dataset.sectionNumber);
                     
-                    script += `## ${sectionNum}. ${title}\n`;
+                    script += `## ${sectionNumber}. ${title}\n`;
+                    sectionNumber++;
                     if (content.trim()) {
                         script += `${content}\n\n`;
                     }
@@ -3050,7 +3059,8 @@ function handleRoundDrop(ev) {
             });
             
             // סיכום נקודות
-            script += `## סיכום נקודות סופי\n\n`;
+            script += `## ${sectionNumber}. סיכום נקודות סופי\n\n`;
+            sectionNumber++;
             script += `סיכום נקודות: - לצלם שוטים פתוחים שעליהם שלום יוכל לומר מי זכה\n\n`;
             script += `לא להאמין, אבל זאת הייתה השאלה האחרונה! מה שאומר שזה הזמן לסכם את האירוע, בואו נראה את הטבלה על המסך:\n\n`;
             script += `(בהמשך - להקליט בנפרד את שלום אומר את הזוכה/מסיד בורסיות)\n\n`;
@@ -3059,7 +3069,7 @@ function handleRoundDrop(ev) {
             const closingSection = document.querySelector('[data-section-id="closing-words"]');
             const closingText = closingSection ? closingSection.querySelector('.editable-text').value : '';
             
-            script += `## דברי סיום\n\n`;
+            script += `## ${sectionNumber}. דברי סיום\n\n`;
             script += closingText || 'זהו להיום. לילה טוב.';
             
             return script;
