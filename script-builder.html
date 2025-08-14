@@ -1078,7 +1078,8 @@
                 type: 'fixed',
                 number: 1,
                 title: 'פרה פתיח - לא צריך משוט רחף, אלא סגור שלום',
-                content: `ערב טוב, אנחנו כאן בתכנית חדשה, שתעזור לכם לקחת הפוגה קלה מרצף שידורי החדשות. אנחנו מאמינים שהומור יכול להקל ולחזק, ואת זה אנחנו יודעים לעשות יותר טוב מכל עם בעולם. במקרה ויידרש, כמובן שנעדכן אתכם בכל התרחשות. אז הצטרפו אלינו לשעה קלילה, כי אם כבר נכנסנו לממד, בואו נצחק ביחד - כי את זה אף פרסי לא יכול לקחת מאתנו! בואו נתחיל:`
+                content: `ערב טוב, ותודה שהצטרפתם אלינו לעוד תוכנית של "מה קורה פה?" - אז מה מחכה לנו הערב:
+נראה קטעים מהארץ (VTR) וגם קצת מחו"ל (VTR), לירז חממי תגיע לכאן (VTR), וגם ______ (VTR) המודח/ת הטרי/יה מבית האח. הצטרפו אלינו. הנה מתחילים!`
             },
             {
                 id: 'opening',
@@ -1092,14 +1093,7 @@
                 type: 'fixed',
                 number: 3,
                 title: 'דברי פתיחה - שלום אסייג:',
-                content: `ערב טוב וברוכים הבאים לתוכנית [מספר] של "מה קורה פה?!" - התוכנית ששמה בצד את הדברים החשובים באמת וצוחקת על כל הדברים הקטנים והמשוגעים שקורים סביבנו!`
-            },
-            {
-                id: 'intro-contestants',
-                type: 'fixed',
-                number: 4,
-                title: 'הכרות עם המתמודדים',
-                content: `רגע לפני שאסביר לכם את חוקי המשחק שלנו, בואו נכיר את הקומיקאים שיהיו אתנו הערב ויעשו לנו קצת טוב על הלב!`
+                content: `ערב טוב וברוכים הבאים ל"מה קורה פה?!״, התוכנית שמתמקדת בדברים הפחות חשובים שקרו השבוע. אבל לפני שנתחיל, בואו נכיר את הנבחרת שתהיה אתנו הערב - ותעשה לכם קצת טוב על הלב!`
             },
             {
                 id: 'contestants-selection',
@@ -1113,17 +1107,9 @@
                 type: 'fixed',
                 number: 6,
                 title: 'הסבר על המשחק',
-                content: `אז מה ייקרה פה הערב ואיך המשחק שלנו הולך?
-
-אני אראה לחמשת האנשים המצחיקים שיושבים פה, רגעים קצרים מתוך דברים שראינו לאחרונה בטלוויזיה וברשת, ואשאל אותם שאלה על המשך הקטע - הם יצטרכו לנחש מה קורה פה!
-
-מי שיקבל הכי הרבה נקודות עד סוף המשחק יוכרז כמנצח התוכנית ויזכה בשלל יצירות של הבן שלי מהגן.
-
-הראשון או הראשונה שיילחצו על הבאזר ויענו תשובה נכונה - ייזכו ב- 10 נקודות. חשוב להגיד - לי יש את הזכות לתת נקודות בונוס על תשובות שאהבתי במיוחד.
-
-אז תזכרו, בתוכנית שלנו, כמו בכביש, חשוב להיות צודק, אבל יותר חשוב לא לתת לאף אחד לעקוף אתכם!
-
-אני מרגיש שאתם לא רגועים, אז לפני שנצטרך לחלק לכם רטלין - אני מציע שנתחיל.`
+                content: `אז איך המשחק שלנו עובד?
+אני אראה לחברים פה, קטע ששודר בטלוויזיה או ברשתות, אעצור אותו באמצע - והם יצטרכו לנחש מה קורה בהמשך! מי שיקבל הכי הרבה נקודות עד סוף המשחק יוכרז כמנצח - ויזכה בפתרון לשאלה האחרונה בתשחץ!
+אז בואו נתחיל לשחק ב- מה - קורה - פה!`
             },
             {
                 id: 'closing-words',
@@ -2234,12 +2220,6 @@ function handleRoundDrop(ev) {
                 // הוספת סרטון חדש
                 const data = JSON.parse(videoData);
                 
-                // בדיקה אם הסרטון כבר קיים
-                if (isVideoAlreadyUsed(data.firebaseId.toString())) {
-                    showNotification('⚠️ סרטון זה כבר נמצא בתסריט!', 'warning');
-                    cleanupDragStates(); // ניקוי מצבי גרירה
-                    return;
-                }
                 
                 const newQuestion = createQuestionElement(data);
                 dropzone.parentNode.insertBefore(newQuestion, dropzone);
@@ -3012,26 +2992,30 @@ document.querySelectorAll('#openingContent .script-section').forEach(section => 
                         const answerText = answerInput ? answerInput.value : '';
                         const afterText = afterInput ? afterInput.value : '';
                         
-                        script += `### ${sectionNumber}. VTR שאלה -- ${title}\n\n`;
-                        sectionNumber++;
-                        
-                        script += `### ${sectionNumber}. CG פריז\n`;
-                        sectionNumber++;
-                        script += `**${questionText || '[הכנס את נוסח השאלה]'}**\n\n`;
-                        script += `(עונים)\n\n`;
-                        script += `והתשובה היא:\n\n`;
-                        
-                        script += `### ${sectionNumber}. VTR תשובה -- ${title}\n`;
-                        sectionNumber++;
-                        script += `${answerText || '[הכנס תיאור התשובה]'}\n\n`;
-                        
-                        script += `### ${sectionNumber}. CG פריז\n`;
-                        sectionNumber++;
-                        script += `**${afterText || '[הכנס אפטר פאנץ\']'}**\n\n`;
-                        
-                        script += `### ${sectionNumber}. CG לוגו\n`;
-                        sectionNumber++;
-                        script += `את/ה צדקת -- 10 נקודות!\n\n`;
+
+script += `### ${sectionNumber}. VTR שאלה -- ${title}\n\n`;
+sectionNumber++;
+
+script += `### ${sectionNumber}. CG פריז\n`;
+sectionNumber++;
+script += `**${questionText || '[הכנס את נוסח השאלה]'}**\n\n`;
+script += `(עונים)\n\n`;
+script += `והתשובה היא:\n\n`;
+
+script += `### ${sectionNumber}. VTR תשובה -- ${title}\n`;
+sectionNumber++;
+script += `### ${sectionNumber}. CG פריז\n`;
+sectionNumber++;
+script += `${answerText || '[הכנס תיאור התשובה]'}\n\n`;
+
+script += `${afterText || '[הכנס אפטר פאנץ\']'}\n\n`;
+
+script += `### ${sectionNumber}. CG ${roundName}\n`;
+sectionNumber++;
+script += `את/ה צדקת -- 10 נקודות!\n\n`;
+
+
+
                         
                         if (qIndex < questions.length - 1) {
                             script += `ממשיכים:\n\n`;
