@@ -2104,12 +2104,6 @@ function handleRoundDrop(ev) {
     if (videoData) {
         const data = JSON.parse(videoData);
         
-        // בדיקה אם הסרטון כבר קיים
-        if (isVideoAlreadyUsed(data.firebaseId.toString())) {
-            showNotification('⚠️ סרטון זה כבר נמצא בתסריט!', 'warning');
-            cleanupDragStates();
-            return;
-        }
         
         // הוספת הסרטון לסוף הסיבוב
         const questionsList = this.querySelector('.questions-list');
@@ -2125,9 +2119,6 @@ function handleRoundDrop(ev) {
         
         // עדכון dropzones
         updateDropzones(questionsList);
-        
-        // עדכון רשימת הסרטונים בשימוש
-        updateUsedVideos();
         
         // עדכון מספור
         updateAllNumbering();
