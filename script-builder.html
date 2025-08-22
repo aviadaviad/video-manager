@@ -2492,22 +2492,6 @@ function handleRoundDrop(ev) {
                 openingContent.appendChild(sectionDiv);
             });
             
-            // הוספת דברי סיום אחרי אזור הוספת הסיבוב
-            const addRoundArea = document.querySelector('.add-round-area');
-            const closingDiv = document.createElement('div');
-            closingDiv.className = 'script-section fixed-section';
-            closingDiv.dataset.sectionId = 'closing-words';
-            closingDiv.innerHTML = `
-                <div class="section-header" onclick="toggleSection(this)">
-                    <h4>דברי סיום</h4>
-                    <span>▼</span>
-                </div>
-                <div class="section-content">
-                    <textarea class="editable-text" placeholder="הכנס דברי סיום...">${templateSections.find(s => s.id === 'closing-words').content}</textarea>
-                </div>
-            `;
-            addRoundArea.parentNode.insertBefore(closingDiv, addRoundArea.nextSibling);
-            
             // עדכון מונה הסעיפים
             sectionCounter = templateSections.length;
         }
