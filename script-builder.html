@@ -1811,8 +1811,6 @@ async function loadFromFirebase(scriptId) {
                     section.classList.add('active');
                 }
             });
-            // עדכון רשימת הסרטונים בשימוש
-            updateUsedVideos();
         }
         
 // פונקציה לטעינת נתוני פרויקט עם טיפול שגיאות משופר
@@ -2019,15 +2017,6 @@ async function loadFromFirebase(scriptId) {
                     console.error('❌ שגיאה בהפעלת סעיפים קבועים:', error);
                 }
                 
-                // שלב 7: עדכון רשימת הסרטונים בשימוש
-                console.log('🎬 מעדכן רשימת סרטונים בשימוש...');
-                try {
-                    updateUsedVideos();
-                    console.log('✅ רשימת סרטונים עודכנה');
-                } catch (error) {
-                    console.error('❌ שגיאה בעדכון רשימת סרטונים:', error);
-                }
-                
                 console.log('🎉 טעינת הפרויקט הושלמה בהצלחה!');
                 
             } catch (error) {
@@ -2225,9 +2214,7 @@ function handleRoundDrop(ev) {
                 
                 const newQuestion = createQuestionElement(data);
                 dropzone.parentNode.insertBefore(newQuestion, dropzone);
-                
-                // הוספה לרשימת הסרטונים בשימוש
-                updateUsedVideos();
+            
             }
             
             // עדכון dropzones
@@ -2661,9 +2648,6 @@ function handleRoundDrop(ev) {
                 updateRoundNumbers();
                 updateAllNumbering();
                 
-                // עדכון רשימת הסרטונים בשימוש
-                updateUsedVideos();
-                
                 // סימון שינויים
                 markAsUnsaved();
                 
@@ -2679,9 +2663,6 @@ function handleRoundDrop(ev) {
                 
                 updateDropzones(questionsList);
                 updateAllNumbering();
-                
-                // עדכון רשימת הסרטונים בשימוש
-                updateUsedVideos();
                 
                 // סימון שינויים
                 markAsUnsaved();
@@ -3286,9 +3267,6 @@ script += `את/ה צדקת -- 10 נקודות!\n\n`;
             
             // טעינת סרטונים מ-Firebase
             await loadVideosFromFirebase();
-            
-            // עדכון רשימת הסרטונים בשימוש
-            updateUsedVideos();
             
             // הפעלת מאזין לעדכונים
             setupRealtimeListener();
